@@ -1,9 +1,9 @@
-package com.boots.service;
+package com.auth.service;
 
-import com.boots.entity.Role;
-import com.boots.entity.User;
-import com.boots.repository.RoleRepository;
-import com.boots.repository.UserRepository;
+import com.auth.entity.Role;
+import com.auth.entity.User;
+import com.auth.repository.RoleRepository;
+import com.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

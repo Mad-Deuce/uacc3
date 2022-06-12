@@ -1,7 +1,7 @@
-package com.boots.controller;
+package com.auth.controller;
 
-import com.boots.entity.User;
-import com.boots.service.UserService;
+import com.auth.entity.User;
+import com.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

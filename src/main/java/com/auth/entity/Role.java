@@ -1,4 +1,4 @@
-package com.boots.entity;
+package com.auth.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "t_role")
+@Table(name = "roles")
 public class Role implements GrantedAuthority {
     @Id
     private Long id;

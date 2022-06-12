@@ -1,4 +1,4 @@
-package com.boots.entity;
+package com.auth.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,11 +9,12 @@ import java.util.Collection;
 import java.util.Set;
 
 @Entity
-@Table(name = "t_user")
+@Table(name = "users")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "name")
     @Size(min=2, message = "Не меньше 5 знаков")
     private String username;
     @Size(min=2, message = "Не меньше 5 знаков")

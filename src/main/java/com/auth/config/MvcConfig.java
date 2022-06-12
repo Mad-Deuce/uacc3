@@ -1,4 +1,4 @@
-package com.boots.config;
+package com.auth.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -12,4 +12,5 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("/login").setViewName("login");
         registry.addViewController("/news").setViewName("news");
     }
+
 }
