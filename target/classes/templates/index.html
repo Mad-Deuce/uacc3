@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Главная</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <div>
+    <div sec:authentication="name"></div>
+    <div sec:authorize="!isAuthenticated()">
+      <h4><a href="/login">Войти</a></h4>
+      <h4><a href="/registration">Зарегистрироваться</a></h4>
+    </div>
+    <div sec:authorize="isAuthenticated()">
+      <h4><a href="/logout">Выйти</a></h4>
+    </div>
+
+    <div sec:authorize="hasRole('USER')"><h4><a href="/news">Новости (только пользователь)</a></h4></div>
+    <div sec:authorize="hasRole('ADMIN')"><h4><a href="/admin">Пользователи (только админ)</a></h4></div>
+
+
+
+<!--      Authenticated user roles: NOT WORKING-->
+<!--      <div sec:authentication="principal.authorities"></div>-->
+
+  </div>
+</body>
+</html>
