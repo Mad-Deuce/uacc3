@@ -1,28 +1,33 @@
 <!DOCTYPE html>
-<html  lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:layout="http://www.w3.org/1999/xhtml" layout:decorate="~{layouts/main}">
 <head>
-  <meta charset="utf-8">
-  <title>Log in with your account</title>
-  <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" type="text/css" />
+  <title>Вход</title>
 </head>
 
 <body>
-  <div sec:authorize="isAuthenticated()">
-    <meta http-equiv="Refresh" content="0; url='/'" />
-  </div>
+  <div class="container">
+    <div class="row">
 
-  <div>
-    <form method="POST" action="/login">
-      <h4>Вход в систему</h4>
-      <div>
-        <input name="username" type="text" placeholder="Username"
-               autofocus="true"/>
-        <input name="password" type="password" placeholder="Password"/>
-        <button type="submit">Log In</button>
-        <h4><a href="/registration">Зарегистрироваться</a></h4>
+      <div class="col-2" layout:fragment="sidebar">
+        <h1>Sidebar of Login page</h1>
       </div>
-    </form>
-  </div>
 
+      <div class="col" layout:fragment="content">
+        <div>
+          <form method="POST" action="/login">
+            <h4>Вход в систему</h4>
+            <div>
+              <input name="username" type="text" placeholder="Username"
+                     autofocus="true"/>
+              <input name="password" type="password" placeholder="Password"/>
+              <button type="submit">Log In</button>
+              <h4><a href="/registration">Зарегистрироваться</a></h4>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </body>
 </html>

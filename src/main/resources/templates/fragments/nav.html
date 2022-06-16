@@ -1,0 +1,14 @@
+<div th:fragment="nav">
+    <h4>Nav from fragment</h4>
+    <a href="/">Главная</a>
+    <div sec:authorize="hasRole('USER')"><h4><a href="/news">Новости (только пользователь)</a></h4></div>
+    <div sec:authorize="hasRole('ADMIN')"><h4><a href="/admin">Пользователи (только админ)</a></h4></div>
+    <div sec:authentication="name"></div>
+    <div sec:authorize="!isAuthenticated()">
+        <h4><a href="/login">Войти</a></h4>
+        <h4><a href="/registration">Зарегистрироваться</a></h4>
+    </div>
+    <div sec:authorize="isAuthenticated()">
+        <h4><a href="/logout">Выйти</a></h4>
+    </div>
+</div>
