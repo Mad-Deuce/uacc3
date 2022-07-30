@@ -1,6 +1,6 @@
-package com.auth.config;
+package com.dms_uz.auth.config;
 
-import com.auth.service.UserService;
+import com.dms_uz.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,7 +1,7 @@
-package com.auth.controller;
+package com.dms_uz.auth.controller;
 
-import com.auth.entity.User;
-import com.auth.service.UserService;
+import com.dms_uz.auth.entity.User;
+import com.dms_uz.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

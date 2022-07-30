@@ -1,4 +1,4 @@
-package com.auth.entity;
+package com.dms_uz.auth.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 
