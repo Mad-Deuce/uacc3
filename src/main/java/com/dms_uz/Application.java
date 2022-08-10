@@ -17,13 +17,5 @@ public class Application {
         return new LayoutDialect();
     }
 
-//    @Bean
-//    public SpringTemplateEngine templateEngine() {
-//        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-//
-//        templateEngine.addDialect(new LayoutDialect());
-//        return templateEngine;
-//    }
-
 
 }

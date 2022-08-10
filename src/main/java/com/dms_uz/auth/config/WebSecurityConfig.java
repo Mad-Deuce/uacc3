@@ -33,7 +33,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/admin/**").hasRole("ADMIN")
                     .antMatchers("/news").hasRole("USER")
                     //Доступ разрешен всем пользователей
-                    .antMatchers("/", "/resources/**", "/css/**", "/fragments/**", "/layouts/**").permitAll()
+                    .antMatchers("/", "/css/**", "/js/**").permitAll()
+                    .antMatchers("/devs").permitAll()
                 //Все остальные страницы требуют аутентификации
                 .anyRequest().authenticated()
                 .and()
@@ -49,20 +50,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .logoutSuccessUrl("/");
     }
 
-//    @Autowired
-//    protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder());
-//
-//    }
-
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder());
         auth
                 .inMemoryAuthentication()
-                .withUser("user").password(bCryptPasswordEncoder().encode("password")).roles("USER")
+                .withUser("user")
+                    .password(bCryptPasswordEncoder().encode("password"))
+                    .roles("USER")
                 .and()
-                .withUser("admin").password(bCryptPasswordEncoder().encode("admin")).roles("ADMIN");
+                .withUser("admin")
+                    .password(bCryptPasswordEncoder().encode("admin"))
+                    .roles("ADMIN");
     }
 
 
