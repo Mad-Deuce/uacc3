@@ -10,6 +10,5 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface DevRepository extends JpaRepository<DevEntity, Long> {
 
-    Page<DevEntity> findAll (Pageable pageable);
 
 }

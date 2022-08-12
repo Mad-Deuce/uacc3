@@ -5,9 +5,13 @@ import com.dms_uz.rtubase.service.DevService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class DevController {
@@ -20,19 +24,40 @@ public class DevController {
         this.devService = devService;
     }
 
-
 //    @GetMapping("/devs")
-//    public String userList(Model model) {
-//        model.addAttribute("allDevs", devService.allDevs());
+//    public String devList(
+//            Model model,
+//            @PageableDefault(page = 0, size = 15)
+//            @SortDefault.SortDefaults({
+//                    @SortDefault(sort = "id", direction = Sort.Direction.ASC)
+//            })
+//            Pageable pageable) {
+//
+//        Page<DevEntity> devPage = devService.allDevs(pageable);
+//        PageWrapper<DevEntity> page = new PageWrapper<DevEntity>(devPage, "/devs");
+//
+//        model.addAttribute("devs", page.getContent());
+//        model.addAttribute("page", page);
 //        return "devs";
 //    }
 
     @GetMapping("/devs")
-    public String list(Model model, Pageable pageable){
-        Page<DevEntity> productPage = devService.allDevs(pageable);
-        PageWrapper<DevEntity> page = new PageWrapper<DevEntity>(productPage, "/devs");
+    public String devList(
+            @RequestParam(defaultValue="id") String sort,
+            Model model,
+            @PageableDefault(page = 0, size = 15)
+            @SortDefault.SortDefaults({
+                    @SortDefault(direction = Sort.Direction.ASC)
+            })
+            Pageable pageable) {
+
+        Page<DevEntity> devPage = devService.allDevs(pageable);
+        PageWrapper<DevEntity> page = new PageWrapper<DevEntity>(devPage, "/devs");
+
         model.addAttribute("devs", page.getContent());
         model.addAttribute("page", page);
+        model.addAttribute("sort", sort);
         return "devs";
     }
+
 }

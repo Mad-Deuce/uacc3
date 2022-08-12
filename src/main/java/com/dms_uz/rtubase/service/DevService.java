@@ -6,6 +6,7 @@ import com.dms_uz.rtubase.repository.DevRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -25,6 +26,9 @@ public class DevService {
         return devRepository.findAll();
     }
 
-    public Page<DevEntity> allDevs(Pageable pageable) { return devRepository.findAll(pageable);}
+    public Page<DevEntity> allDevs(Pageable pageable) {
+        return devRepository.findAll(pageable);
+    }
+
 
 }

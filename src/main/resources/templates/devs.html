@@ -14,43 +14,37 @@
             <h1>CONTENT of devs page</h1>
             <table border="1">
                 <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
+                    <th><a href='/devs?sort=idObj'>id_obj</a></th>
+                    <th><a href='/devs?sort=devid'>devid</a></th>
+                    <th><a href='/devs?sort=num'>num</a></th>
+                    <th><a href='/devs?sort=myear'>myear</a></th>
+                    <th><a href='/devs?sort=ps'>ps</a></th>
+                    <th><a href='/devs?sort=dCreate'>d_create</a></th>
+                    <th><a href='/devs?sort=id'>id</a></th>
+                    <th><a href='/devs?sort=dNkip'>d_nkip</a></th>
+                    <th><a href='/devs?sort=dTkip'>d_tkip</a></th>
+                    <th><a href='/devs?sort=tZam'>t_zam</a></th>
+                    <th><a href='/devs?sort=objCode'>obj_code</a></th>
+                    <th><a href='/devs?sort=detail'>detail</a></th>
                 </tr>
                 <tr th:each ="dev : ${devs}">
-                    <td th:utext="${dev.id}">...</td>
+                    <td th:utext="${dev.idObj}">...</td>
                     <td th:utext="${dev.devid}">...</td>
+                    <td th:utext="${dev.num}">...</td>
+                    <td th:utext="${dev.myear}">...</td>
+                    <td th:utext="${dev.ps}">...</td>
+                    <td th:utext="${dev.dCreate}">...</td>
+                    <td th:utext="${dev.id}">...</td>
+                    <td th:utext="${dev.dNkip}">...</td>
+                    <td th:utext="${dev.dTkip}">...</td>
+                    <td th:utext="${dev.tZam}">...</td>
+                    <td th:utext="${dev.objCode}">...</td>
+                    <td th:utext="${dev.detail}">...</td>
                 </tr>
             </table>
 
-
             <!-- Pagination Bar -->
-            <div th:fragment='paginationbar'>
-                <div>
-                    <ul class='pagination pagination-centered'>
-                        <li th:class="${page.firstPage}?'disabled':''">
-                            <span th:if='${page.firstPage}'>← First</span>
-                            <a th:if='${not page.firstPage}' th:href='@{${page.url}(page=0,size=${page.size})}'>← First</a>
-                        </li>
-                        <li th:class="${page.hasPreviousPage}? '' : 'disabled'">
-                            <span th:if='${not page.hasPreviousPage}'>«</span>
-                            <a th:if='${page.hasPreviousPage}' th:href='@{${page.url}(page=${page.number-2},size=${page.size})}' title='Go to previous page'>«</a>
-                        </li>
-                        <li th:each='item : ${page.items}' th:class="${item.current}? 'active' : ''">
-                            <span th:if='${item.current}' th:text='${item.number}'>1</span>
-                            <a th:if='${not item.current}' th:href='@{${page.url}(page=${item.number-1},size=${page.size})}'><span th:text='${item.number}'>1</span></a>
-                        </li>
-                        <li th:class="${page.hasNextPage}? '' : 'disabled'">
-                            <span th:if='${not page.hasNextPage}'>»</span>
-                            <a th:if='${page.hasNextPage}' th:href='@{${page.url}(page=${page.number},size=${page.size})}' title='Go to next page'>»</a>
-                        </li>
-                        <li th:class="${page.lastPage}? 'disabled' : ''">
-                            <span th:if='${page.lastPage}'>Last →</span>
-                            <a th:if='${not page.lastPage}' th:href='@{${page.url}(page=${page.totalPages - 1},size=${page.size})}'>Last →</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <div th:replace="fragments/paginationbar :: paginationbar" class="paginationbar">Paginationbar from Layout</div>
 
         </div>
     </div>
