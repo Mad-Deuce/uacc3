@@ -1,6 +1,7 @@
 package com.dms_uz.rtubase.controller;
 
 import com.dms_uz.rtubase.entity.DevEntity;
+import com.dms_uz.rtubase.model.DevModel;
 import com.dms_uz.rtubase.service.DevService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -47,12 +48,12 @@ public class DevController {
             Model model,
             @PageableDefault(page = 0, size = 15)
             @SortDefault.SortDefaults({
-                    @SortDefault(direction = Sort.Direction.ASC)
+                    @SortDefault(direction = Sort.Direction.DESC)
             })
             Pageable pageable) {
 
-        Page<DevEntity> devPage = devService.allDevs(pageable);
-        PageWrapper<DevEntity> page = new PageWrapper<DevEntity>(devPage, "/devs");
+        Page<DevModel> devPage = devService.allDevs(pageable);
+        PageWrapper<DevModel> page = new PageWrapper<DevModel>(devPage, "/devs");
 
         model.addAttribute("devs", page.getContent());
         model.addAttribute("page", page);

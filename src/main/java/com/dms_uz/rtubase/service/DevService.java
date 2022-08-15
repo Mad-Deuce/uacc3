@@ -2,6 +2,7 @@ package com.dms_uz.rtubase.service;
 
 
 import com.dms_uz.rtubase.entity.DevEntity;
+import com.dms_uz.rtubase.model.DevModel;
 import com.dms_uz.rtubase.repository.DevRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,11 +23,11 @@ public class DevService {
     @Autowired
     DevRepository devRepository;
 
-    public List<DevEntity> allDevs() {
+    public List<DevModel> allDevs() {
         return devRepository.findAll();
     }
 
-    public Page<DevEntity> allDevs(Pageable pageable) {
+    public Page<DevModel> allDevs(Pageable pageable) {
         return devRepository.findAll(pageable);
     }
 

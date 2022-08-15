@@ -15,7 +15,7 @@
             <table border="1">
                 <tr>
                     <th><a href='/devs?sort=idObj'>id_obj</a></th>
-                    <th><a href='/devs?sort=devid'>devid</a></th>
+                    <th><a href='/devs?sort=sDev.dtype'>devid</a></th>
                     <th><a href='/devs?sort=num'>num</a></th>
                     <th><a href='/devs?sort=myear'>myear</a></th>
                     <th><a href='/devs?sort=ps'>ps</a></th>
@@ -24,12 +24,12 @@
                     <th><a href='/devs?sort=dNkip'>d_nkip</a></th>
                     <th><a href='/devs?sort=dTkip'>d_tkip</a></th>
                     <th><a href='/devs?sort=tZam'>t_zam</a></th>
-                    <th><a href='/devs?sort=objCode'>obj_code</a></th>
+                    <th><a href='/devs?sort=dObjRtu.id'>obj_code</a></th>
                     <th><a href='/devs?sort=detail'>detail</a></th>
                 </tr>
                 <tr th:each ="dev : ${devs}">
                     <td th:utext="${dev.idObj}">...</td>
-                    <td th:utext="${dev.devid}">...</td>
+                    <td th:utext="${dev.sDev.dtype}">...</td>
                     <td th:utext="${dev.num}">...</td>
                     <td th:utext="${dev.myear}">...</td>
                     <td th:utext="${dev.ps}">...</td>
@@ -38,7 +38,8 @@
                     <td th:utext="${dev.dNkip}">...</td>
                     <td th:utext="${dev.dTkip}">...</td>
                     <td th:utext="${dev.tZam}">...</td>
-                    <td th:utext="${dev.objCode}">...</td>
+                    <td th:if='${dev.dObjRtu.nameObj}' th:utext="${dev.dObjRtu.nameObj}">...</td>
+                    <td th:if='${dev.dObjRtu.name}' th:utext="РТУ---+${dev.dObjRtu.name}">...</td>
                     <td th:utext="${dev.detail}">...</td>
                 </tr>
             </table>
