@@ -14,33 +14,47 @@
             <h1>CONTENT of devs page</h1>
             <table border="1">
                 <tr>
-                    <th><a href='/devs?sort=idObj'>id_obj</a></th>
-                    <th><a href='/devs?sort=sDev.dtype'>devid</a></th>
-                    <th><a href='/devs?sort=num'>num</a></th>
-                    <th><a href='/devs?sort=myear'>myear</a></th>
-                    <th><a href='/devs?sort=ps'>ps</a></th>
-                    <th><a href='/devs?sort=dCreate'>d_create</a></th>
-                    <th><a href='/devs?sort=id'>id</a></th>
-                    <th><a href='/devs?sort=dNkip'>d_nkip</a></th>
-                    <th><a href='/devs?sort=dTkip'>d_tkip</a></th>
-                    <th><a href='/devs?sort=tZam'>t_zam</a></th>
-                    <th><a href='/devs?sort=dObjRtu.id'>obj_code</a></th>
-                    <th><a href='/devs?sort=detail'>detail</a></th>
+                    <th><a href='/devs?sort=id'>Device Id</a></th>
+                    <th><a href='/devs?sort=sDev.grid'>Grid</a></th>
+                    <th><a href='/devs?sort=sDev.dtype'>Type</a></th>
+                    <th><a href='/devs?sort=num'>Number</a></th>
+                    <th><a href='/devs?sort=myear'>Year</a></th>
+                    <th><a href='/devs?sort=dTkip'>Test date</a></th>
+                    <th><a href='/devs?sort=tZam'>Period</a></th>
+                    <th><a href='/devs?sort=dNkip'>Next test date</a></th>
+                    <th><a href='/devs?sort=detail'>Device Detail</a></th>
+                    <th><a href='/devs?ps=31&sort=ps'>Status</a></th>
+                    <th><a href='/devs?sort=dObjRtu.id'>Object</a></th>
+
+                    <th><a href='/devs?sort=idObj.region'>Region</a></th>
+                    <th><a href='/devs?sort=idObj.locate'>Locate</a></th>
+                    <th><a href='/devs?sort=idObj.nplace'>Place</a></th>
+                    <th><a href='/devs?sort=idObj.nshem'>Description</a></th>
+                    <th><a href='/devs?sort=idObj.regionT'>Region Type</a></th>
+                    <th><a href='/devs?sort=idObj.locateT'>Locate Type</a></th>
+                    <th><a href='/devs?sort=idObj.detail'>Place Detail</a></th>
                 </tr>
                 <tr th:each ="dev : ${devs}">
-                    <td th:utext="${dev.idObj}">...</td>
-                    <td th:utext="${dev.sDev.dtype}">...</td>
-                    <td th:utext="${dev.num}">...</td>
-                    <td th:utext="${dev.myear}">...</td>
-                    <td th:utext="${dev.ps}">...</td>
-                    <td th:utext="${dev.dCreate}">...</td>
-                    <td th:utext="${dev.id}">...</td>
-                    <td th:utext="${dev.dNkip}">...</td>
-                    <td th:utext="${dev.dTkip}">...</td>
-                    <td th:utext="${dev.tZam}">...</td>
-                    <td th:if='${dev.dObjRtu.nameObj}' th:utext="${dev.dObjRtu.nameObj}">...</td>
-                    <td th:if='${dev.dObjRtu.name}' th:utext="РТУ---+${dev.dObjRtu.name}">...</td>
-                    <td th:utext="${dev.detail}">...</td>
+                    <td th:text="${dev?.id}">...</td>
+                    <td th:text="${dev?.sDev?.grid}">...</td>
+                    <td th:text="${dev?.sDev?.dtype}">...</td>
+                    <td th:text="${dev?.num}">...</td>
+                    <td th:text="${dev?.myear}">...</td>
+                    <td th:text="${dev?.dTkip}">...</td>
+                    <td th:text="${dev?.tZam}">...</td>
+                    <td th:text="${dev?.dNkip}">...</td>
+                    <td th:text="${dev?.detail}">...</td>
+                    <td th:text="${dev?.ps}">...</td>
+                    <td th:text="${dev.dObjRtu.nameObj} ?: ${dev.dObjRtu.name}" />
+
+                    <td th:text="${dev?.idObj?.region}"></td>
+                    <td th:text="${dev?.idObj?.locate}"></td>
+                    <td th:text="${dev?.idObj?.nplace}"></td>
+                    <td th:text="${dev?.idObj?.nshem}"></td>
+                    <td th:text="${dev?.idObj?.regionT}"></td>
+                    <td th:text="${dev?.idObj?.locateT}"></td>
+                    <td th:text="${dev?.idObj?.detail}"></td>
+
                 </tr>
             </table>
 

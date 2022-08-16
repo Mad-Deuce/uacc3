@@ -31,5 +31,9 @@ public class DevService {
         return devRepository.findAll(pageable);
     }
 
+    public Page<DevModel> devsByPs(String ps, Pageable pageable) {
+        return devRepository.findAllByPs(ps, pageable);
+    }
+
 
 }

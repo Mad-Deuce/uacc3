@@ -1,7 +1,8 @@
 package com.dms_uz.rtubase.model;
 
-import com.dms_uz.rtubase.entity.DObjEntity;
+
 import com.dms_uz.rtubase.entity.DObjRtuEntity;
+import com.dms_uz.rtubase.entity.DevObjEntity;
 import com.dms_uz.rtubase.entity.SDevEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,9 +18,13 @@ import java.sql.Date;
 @Table(name = "dev", schema = "drtu", catalog = "rtubase")
 public class DevModel {
 
-    @Basic
-    @Column(name = "id_obj", nullable = true, precision = 0)
-    private Long idObj;
+//    @Basic
+//    @Column(name = "id_obj", nullable = true, precision = 0)
+//    private Long idObj;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_obj", nullable = true)
+    private DevObjEntity idObj;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "devid", referencedColumnName = "id")
@@ -57,10 +62,11 @@ public class DevModel {
 //    @Column(name = "obj_code", nullable = true, length = 10)
 //    private String objCode;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne(fetch = FetchType.EAGER )
+    //    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "obj_code")
     private DObjRtuEntity dObjRtu;
+
 
     @Basic
     @Column(name = "ok_send", nullable = true, length = -1)

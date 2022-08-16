@@ -45,6 +45,7 @@ public class DevController {
     @GetMapping("/devs")
     public String devList(
             @RequestParam(defaultValue="id") String sort,
+            @RequestParam(required = false) String ps,
             Model model,
             @PageableDefault(page = 0, size = 15)
             @SortDefault.SortDefaults({
@@ -52,7 +53,14 @@ public class DevController {
             })
             Pageable pageable) {
 
-        Page<DevModel> devPage = devService.allDevs(pageable);
+        Page<DevModel> devPage;
+
+        if (ps!=null){
+            devPage = devService.devsByPs(ps, pageable);
+        } else {
+            devPage = devService.allDevs(pageable);
+        }
+
         PageWrapper<DevModel> page = new PageWrapper<DevModel>(devPage, "/devs");
 
         model.addAttribute("devs", page.getContent());
