@@ -1,12 +1,14 @@
 package com.dms_uz.rtubase.entity;
 
 
+import lombok.Data;
+
 import javax.persistence.*;
 
+@Data
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class DObjRtuEntity {
-
 
     @Id
     @GeneratedValue
@@ -14,17 +16,4 @@ public abstract class DObjRtuEntity {
 
     private Integer kodRtu;
 
-    public Integer getKodRtu() {
-        return kodRtu;
-    }
-
-    public void setKodRtu(Integer kodRtu) {
-        this.kodRtu = kodRtu;
-    }
-
-
-
-    public String getId() {
-        return id;
-    }
 }

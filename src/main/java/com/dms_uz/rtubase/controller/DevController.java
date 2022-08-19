@@ -25,23 +25,6 @@ public class DevController {
         this.devService = devService;
     }
 
-//    @GetMapping("/devs")
-//    public String devList(
-//            Model model,
-//            @PageableDefault(page = 0, size = 15)
-//            @SortDefault.SortDefaults({
-//                    @SortDefault(sort = "id", direction = Sort.Direction.ASC)
-//            })
-//            Pageable pageable) {
-//
-//        Page<DevEntity> devPage = devService.allDevs(pageable);
-//        PageWrapper<DevEntity> page = new PageWrapper<DevEntity>(devPage, "/devs");
-//
-//        model.addAttribute("devs", page.getContent());
-//        model.addAttribute("page", page);
-//        return "devs";
-//    }
-
     @GetMapping("/devs")
     public String devList(
             @RequestParam(defaultValue="id") String sort,
