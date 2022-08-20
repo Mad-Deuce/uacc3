@@ -11,5 +11,7 @@ public interface DevRepository extends JpaRepository<DevModel, Long> {
 
     Page<DevModel> findAllByPs(String ps, Pageable pageable);
 
-    DevModel findAllById(Long id);
+    List<DevModel> findAllByPs(String ps);
+
+    List<DevModel> findAllById(Long id);
 }

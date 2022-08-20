@@ -35,7 +35,11 @@ public class DevService {
         return devRepository.findAllByPs(ps, pageable);
     }
 
-    public DevModel devsById(Long id) {
+    public List<DevModel> devsByPs(String ps) {
+        return devRepository.findAllByPs(ps);
+    }
+
+    public List<DevModel> devsById(Long id) {
         return devRepository.findAllById(id);
     }
 }

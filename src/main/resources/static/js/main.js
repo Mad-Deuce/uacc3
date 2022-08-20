@@ -3,7 +3,7 @@ $(document).ready(function(){
     let fn = _.template(template_text);
 
     $.ajax({
-        url: 'http://192.168.1.245:8080/dev/97459',
+        url: 'http://192.168.1.245:8080/dev/',
         method: 'GET',
         async: false,
         contentType: 'json',

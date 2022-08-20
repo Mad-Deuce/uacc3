@@ -21,14 +21,26 @@ STATIC
 -->
 
 <script type="foo/bar" id='tmpl_ListItem'>
-
     <table border="1">
         <tr>
+            <th><a href='/devs?sort=id'>index</a></th>
             <th><a href='/devs?sort=id'>Device Id</a></th>
             <th><a href='/devs?sort=sDev.grid'>Grid</a></th>
         </tr>
-            <td><%- id %></td>
-            <td><%- sdev.grid %></td>
+
+
+    <% _.each(content,function(value,index){ %>
+        <tr>
+            <td><%- index %></td>
+            <td><%- value.id %></td>
+            <td><%- value.sdev.grid %></td>
+        </tr>
+
+    <h2>
+    <% }) %>
+
+
+
     </table>
 
 </script>
