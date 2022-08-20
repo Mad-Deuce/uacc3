@@ -1,28 +1,15 @@
-$(function(){
+$(document).ready(function(){
+    var template_text = $("#tmpl_ListItem").html();
+    let fn = _.template(template_text);
 
-    var lines = [],
-        template = $("#tmpl_ListItem").html();
-
-    lines.push({
-            id : 1,
-            text : 'Test1',
-            done : false
-        },
-        {
-            id : 2,
-            text : 'Test2',
-            done : true
-        },
-        {
-            id : 3,
-            text : 'Test3',
-            done : false
-        });
-
-    let fn = _.template(template);
-    console.log(fn);
-
-    let value = fn({items:lines});
-    $("#lines").html(value);
-
-});
+    $.ajax({
+        url: 'http://192.168.1.245:8080/dev/97459',
+        method: 'GET',
+        async: false,
+        contentType: 'json',
+        success: function (template_data) {
+            let value = fn(template_data);
+            $("#lines").html(value);
+        }
+    });
+})

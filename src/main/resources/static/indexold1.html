@@ -21,16 +21,21 @@ STATIC
 -->
 
 <script type="foo/bar" id='tmpl_ListItem'>
+<%
+    _.each(items,function(oToDo, key, list){
+        var sDone = oToDo.done?'checked="checked" ':'';
+%>
 
-    <table border="1">
-        <tr>
-            <th><a href='/devs?sort=id'>Device Id</a></th>
-            <th><a href='/devs?sort=sDev.grid'>Grid</a></th>
-        </tr>
-            <td><%- id %></td>
-            <td><%- sdev.grid %></td>
-    </table>
+<li data-id="<%= oToDo.id %>">
+        <div class="itm">
+            <input class="cbDone" type="checkbox" <%= sDone %>/>
+            <input class="form-control" type="text" value="<%- oToDo.text %>" />
+        </div>
+</li>
 
+<%
+    });
+%>
 </script>
 <!--Template-->
 
