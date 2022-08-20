@@ -4,17 +4,20 @@ package com.dms_uz.rtubase.model;
 import com.dms_uz.rtubase.entity.DObjRtuEntity;
 import com.dms_uz.rtubase.entity.DevObjEntity;
 import com.dms_uz.rtubase.entity.SDevEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
 
 @Data
 @Accessors(chain = true)
 @Entity
+@JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
 @Table(name = "dev", schema = "drtu", catalog = "rtubase")
-public class DevModel {
+public class DevModel implements Serializable {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_obj", nullable = true)

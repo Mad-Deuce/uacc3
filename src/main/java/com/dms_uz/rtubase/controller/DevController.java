@@ -1,6 +1,5 @@
 package com.dms_uz.rtubase.controller;
 
-import com.dms_uz.rtubase.entity.DevEntity;
 import com.dms_uz.rtubase.model.DevModel;
 import com.dms_uz.rtubase.service.DevService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class DevController {
 
     @GetMapping("/devs")
     public String devList(
-            @RequestParam(defaultValue="id") String sort,
+            @RequestParam(defaultValue = "id") String sort,
             @RequestParam(required = false) String ps,
             Model model,
             @PageableDefault(page = 0, size = 15)
@@ -38,7 +37,7 @@ public class DevController {
 
         Page<DevModel> devPage;
 
-        if (ps!=null){
+        if (ps != null) {
             devPage = devService.devsByPs(ps, pageable);
         } else {
             devPage = devService.allDevs(pageable);

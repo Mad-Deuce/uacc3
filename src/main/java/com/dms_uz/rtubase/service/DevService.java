@@ -35,5 +35,7 @@ public class DevService {
         return devRepository.findAllByPs(ps, pageable);
     }
 
-
+    public DevModel devsById(Long id) {
+        return devRepository.findAllById(id);
+    }
 }

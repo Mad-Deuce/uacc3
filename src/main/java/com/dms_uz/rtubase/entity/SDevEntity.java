@@ -1,15 +1,18 @@
 package com.dms_uz.rtubase.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
 
 @Data
 @Entity
+@JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
 @Table(name = "s_dev", schema = "drtu", catalog = "rtubase")
-public class SDevEntity {
+public class SDevEntity implements Serializable {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
