@@ -1,0 +1,18 @@
+<table border="1">
+  <tr>
+    <th><a href='/devs?sort=id'>index</a></th>
+    <th><a href='/devs?sort=id'>Device Id</a></th>
+    <th><a href='/devs?sort=sDev.grid'>Grid</a></th>
+  </tr>
+
+
+  <% _.each(content,function(value,index){ %>
+  <tr>
+    <td><%- index %></td>
+    <td><%- value.id %></td>
+    <td><%- value.sdev.grid %></td>
+  </tr>
+
+  <% }) %>
+
+</table>
