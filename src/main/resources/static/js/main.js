@@ -1,16 +1,21 @@
-// import {EventBus} from './EventBus.js';
-let uri='dev';
+import {EventBus} from './EventBus.js';
+
+let uri='devs';
 let templateText;
 let contentData;
+const CH_NAME_GETTMPLOK='getTemplate-OK';
+const CH_NAME_GETCONTOK='getContent-OK';
 
 $(document).ready(function () {
 
-    EventBus.subscribe('getTemplate-OK', function () {
-        console.log("getTemplate-OK")
+    EventBus.subscribe(CH_NAME_GETTMPLOK, function (param) {
+        console.log("getTemplate-OK");
+        templateText = param.tmplText;
         getContent(uri);
     })
-    EventBus.subscribe('getContent-OK', function () {
-        console.log("getContent-OK")
+    EventBus.subscribe(CH_NAME_GETCONTOK, function (param) {
+        console.log("getContent-OK");
+        contentData=param.contentData;
         outputHTML();
     })
     getTemplate(uri);
@@ -20,32 +25,30 @@ $(document).ready(function () {
 
 // underscore template loader
 function getTemplate(templateName) {
-    let tmpl_url = '/tmpl/tmpl_' + templateName + '.html';
+    let tmplURL = '/tmpl/tmpl_' + templateName + '.html';
 
     $.ajax({
-        url: tmpl_url,
+        url: tmplURL,
         method: 'GET',
         async: false,
         contentType: 'text',
-        success: function (tmpl_text) {
-            templateText = tmpl_text;
-            EventBus.publish('getTemplate-OK');
+        success: function (tmplText) {
+            EventBus.publish(CH_NAME_GETTMPLOK, {tmplText: tmplText});
         }
     });
 }
 
 // content loader
 function getContent(templateName) {
-    let content_url = '/' + templateName + '/';
+    let contentURL = '/api/' + templateName + '/';
 
     $.ajax({
-        url: content_url,
+        url: contentURL,
         method: 'GET',
         async: false,
         contentType: 'json',
-        success: function (content_data) {
-            contentData=content_data;
-            EventBus.publish('getContent-OK');
+        success: function (contentData) {
+            EventBus.publish(CH_NAME_GETCONTOK, {contentData: contentData});
         }
     });
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/dev")
+@RequestMapping("/api/devs")
 public class DevRESTController {
 
     @Autowired

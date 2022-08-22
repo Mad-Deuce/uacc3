@@ -1,4 +1,4 @@
-const EventBus = {
+export const EventBus = {
     channels: {},
     subscribe (channelName, listener) {
         if (!this.channels[channelName]) {
@@ -16,6 +16,3 @@ const EventBus = {
         channel.forEach(listener => listener(data))
     }
 }
-
-// export class EventBus {
-// }
