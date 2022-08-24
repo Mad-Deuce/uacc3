@@ -1,24 +1,34 @@
 import {EventBus} from './EventBus.js';
 
-let uri='devs';
+let uri = 'devs';
 let templateText;
 let contentData;
-const CH_NAME_GETTMPLOK='getTemplate-OK';
-const CH_NAME_GETCONTOK='getContent-OK';
+
+let requestData = '';
+let requestDTO = {
+    id: "",
+    grid: ""
+};
+// let requestDTO='filter.id=1544552';
+
+
+let ascDirection = "asc";
+
+const CH_NAME_GETTMPLOK = 'getTemplate-OK';
+const CH_NAME_GETCONTOK = 'getContent-OK';
 
 $(document).ready(function () {
-
-    EventBus.subscribe(CH_NAME_GETTMPLOK, function (param) {
-        console.log("getTemplate-OK");
-        templateText = param.tmplText;
-        getContent(uri);
-    })
-    EventBus.subscribe(CH_NAME_GETCONTOK, function (param) {
-        console.log("getContent-OK");
-        contentData=param.contentData;
-        outputHTML();
-    })
-    getTemplate(uri);
+        EventBus.subscribe(CH_NAME_GETTMPLOK, function (param) {
+            console.log(CH_NAME_GETTMPLOK);
+            templateText = param.tmplText;
+            getContent(uri);
+        })
+        EventBus.subscribe(CH_NAME_GETCONTOK, function (param) {
+            console.log(CH_NAME_GETCONTOK);
+            contentData = param.contentData;
+            outputHTML();
+        })
+        getTemplate(uri);
 
     }
 )
@@ -44,17 +54,35 @@ function getContent(templateName) {
 
     $.ajax({
         url: contentURL,
+        // url: '/api/devs/?filter.id=1544552',
         method: 'GET',
+        data: requestDTO,
         async: false,
         contentType: 'json',
+        traditional: false,
         success: function (contentData) {
             EventBus.publish(CH_NAME_GETCONTOK, {contentData: contentData});
         }
     });
 }
 
-function outputHTML(){
+//rendering template
+function outputHTML() {
     let fn = _.template(templateText);
     let value = fn(contentData);
-    $("#output").html(value);
+    $("#content").html(value);
 }
+
+//Events block
+$("#content").on("click", "#sort_byId", function () {
+    ascDirection = (ascDirection === 'asc' ? 'desc' : 'asc');
+    requestData = 'sort=id,' + ascDirection;
+    getContent(uri);
+})
+
+$("#content").on("input", "#filter_byId", function (param) {
+    requestDTO.id = $("#filter_byId").val();
+    console.log(requestDTO);
+    if (requestDTO.id.length > 4) getContent(uri);
+})
+

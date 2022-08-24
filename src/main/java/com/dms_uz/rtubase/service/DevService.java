@@ -1,6 +1,7 @@
 package com.dms_uz.rtubase.service;
 
 
+import com.dms_uz.rtubase.dto.DevRequestDTO;
 import com.dms_uz.rtubase.entity.DevEntity;
 import com.dms_uz.rtubase.model.DevModel;
 import com.dms_uz.rtubase.repository.DevRepository;
@@ -23,13 +24,24 @@ public class DevService {
     @Autowired
     DevRepository devRepository;
 
+    //    Find By Condition
+    public Page<DevModel> devs(Pageable pageable, DevRequestDTO devRequestDTO) {
+        return devRepository.findAll(pageable);
+    }
+
+
+
+
+
+
+
+
+
+
     public List<DevModel> allDevs() {
         return devRepository.findAll();
     }
 
-    public Page<DevModel> allDevs(Pageable pageable) {
-        return devRepository.findAll(pageable);
-    }
 
     public Page<DevModel> devsByPs(String ps, Pageable pageable) {
         return devRepository.findAllByPs(ps, pageable);

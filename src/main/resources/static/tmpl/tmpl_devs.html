@@ -1,18 +1,32 @@
 <!--Dev Template-->
+<input type="range" id="page_cnt_item" min="10" max="50" step="10" value="35">
 <table border="1">
-  <tr>
-    <th><a href='/devs?sort=id'>index</a></th>
-    <th><a href='/devs?sort=id'>Device Id</a></th>
-    <th><a href='/devs?sort=sDev.grid'>Grid</a></th>
-  </tr>
+  <thead>
+    <tr>
+      <th>
+        <h4>index</h4>
+      </th>
+      <th>
+        <h4>Device Id</h4>
+        <input type="text" id="filter_byId">
+        <input type="button" id="sort_byId">
+      </th>
+      <th>
+        <h4>Grid</h4>
+        <input type="text" id="filter_byGrid">
+        <input type="button" id="sort_byGrid">
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <% _.each(content,function(value,index){ %>
+    <tr>
+      <td><%- index %></td>
+      <td><%- value.id %></td>
+      <td><%- value.sdev.grid %></td>
+    </tr>
+    <% }) %>
+  </tbody>
 
 
-  <% _.each(content,function(value,index){ %>
-  <tr>
-    <td><%- index %></td>
-    <td><%- value.id %></td>
-    <td><%- value.sdev.grid %></td>
-  </tr>
-
-  <% }) %>
 </table>
