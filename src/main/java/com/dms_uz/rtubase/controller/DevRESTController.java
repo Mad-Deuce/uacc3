@@ -23,7 +23,7 @@ public class DevRESTController {
 
     @GetMapping(value = "/")
     public Page<DevModel> findAll(Pageable pageable, DevRequestDTO devRequestDTO) {
-        return RestPreconditions.checkFound(devService.devs(pageable, devRequestDTO));
+        return RestPreconditions.checkFound(devService.findDevsBySpecification(pageable, devRequestDTO));
     }
 
 }

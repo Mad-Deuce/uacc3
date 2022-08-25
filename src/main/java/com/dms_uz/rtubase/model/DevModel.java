@@ -46,7 +46,7 @@ public class DevModel implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false, precision = 0)
-    private long id;
+    private Long id;
 
     @Basic
     @Column(name = "d_nkip", nullable = true)

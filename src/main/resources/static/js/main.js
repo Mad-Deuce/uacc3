@@ -80,9 +80,12 @@ $("#content").on("click", "#sort_byId", function () {
     getContent(uri);
 })
 
-$("#content").on("input", "#filter_byId", function (param) {
+$("#content").on("change", "#filter_byId", function (param) {
     requestDTO.id = $("#filter_byId").val();
-    console.log(requestDTO);
-    if (requestDTO.id.length > 4) getContent(uri);
+    getContent(uri);
 })
 
+$("#content").on("change", "#filter_byGrid", function (param) {
+    requestDTO.grid = $("#filter_byGrid").val();
+    getContent(uri);
+})
