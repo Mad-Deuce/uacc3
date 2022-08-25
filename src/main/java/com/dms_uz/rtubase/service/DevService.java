@@ -51,13 +51,13 @@ public class DevService {
             Predicate predicateForGrid;
 
             if (devRequestDTO.getId() != null) {
-                predicateForId = criteriaBuilder.equal(root.get("id"), devRequestDTO.getId());
+                predicateForId = criteriaBuilder.like(root.get("id").as(String.class), "%" + devRequestDTO.getId() + "%");
             } else {
                 predicateForId = criteriaBuilder.equal(root.get("id"), root.get("id"));
             }
 
             if (devRequestDTO.getGrid() != null) {
-                predicateForGrid = criteriaBuilder.equal(sDev.get("grid"), devRequestDTO.getGrid());
+                predicateForGrid = criteriaBuilder.like(sDev.get("grid").as(String.class), "%" + devRequestDTO.getGrid() + "%");
             } else {
                 predicateForGrid = criteriaBuilder.equal(sDev.get("grid"), sDev.get("grid"));
             }
@@ -65,9 +65,6 @@ public class DevService {
             return criteriaBuilder.and(predicateForId, predicateForGrid);
         };
     }
-
-
-
 
 
 }

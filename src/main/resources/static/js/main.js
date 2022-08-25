@@ -3,6 +3,7 @@ import {EventBus} from './EventBus.js';
 let uri = 'devs';
 let templateText;
 let contentData;
+let isUpdate = false;
 
 let requestData = '';
 let requestDTO = {
@@ -17,19 +18,26 @@ let ascDirection = "asc";
 const CH_NAME_GETTMPLOK = 'getTemplate-OK';
 const CH_NAME_GETCONTOK = 'getContent-OK';
 
+
 $(document).ready(function () {
+
         EventBus.subscribe(CH_NAME_GETTMPLOK, function (param) {
-            console.log(CH_NAME_GETTMPLOK);
+            // console.log(CH_NAME_GETTMPLOK);
             templateText = param.tmplText;
             getContent(uri);
         })
-        EventBus.subscribe(CH_NAME_GETCONTOK, function (param) {
-            console.log(CH_NAME_GETCONTOK);
-            contentData = param.contentData;
-            outputHTML();
-        })
-        getTemplate(uri);
 
+        EventBus.subscribe(CH_NAME_GETCONTOK, function (param) {
+            // console.log(CH_NAME_GETCONTOK);
+            contentData = param.contentData;
+            if (isUpdate) {
+                updateHTML();
+            } else {
+                outputHTML();
+            }
+        })
+
+        getTemplate(uri);
     }
 )
 
@@ -54,7 +62,6 @@ function getContent(templateName) {
 
     $.ajax({
         url: contentURL,
-        // url: '/api/devs/?filter.id=1544552',
         method: 'GET',
         data: requestDTO,
         async: false,
@@ -69,8 +76,17 @@ function getContent(templateName) {
 //rendering template
 function outputHTML() {
     let fn = _.template(templateText);
-    let value = fn(contentData);
+    let value = fn({contentData});
     $("#content").html(value);
+}
+
+//update contentData
+function updateHTML(){
+    let regExpForSub = /<!--start_sub_template-->.*<!--end_sub_template-->/gms;
+    let subTemplateText = templateText.match(regExpForSub);
+    let subFn = _.template(subTemplateText[0]);
+    let subValue = subFn({contentData});
+    $("#sub_template").html(subValue);
 }
 
 //Events block
@@ -80,12 +96,15 @@ $("#content").on("click", "#sort_byId", function () {
     getContent(uri);
 })
 
-$("#content").on("change", "#filter_byId", function (param) {
+$("#content").on("input", "#filter_byId", function () {
     requestDTO.id = $("#filter_byId").val();
+    isUpdate = true;
     getContent(uri);
 })
 
-$("#content").on("change", "#filter_byGrid", function (param) {
+
+$("#content").on("input", "#filter_byGrid", function (param) {
     requestDTO.grid = $("#filter_byGrid").val();
+    isUpdate = true;
     getContent(uri);
 })
