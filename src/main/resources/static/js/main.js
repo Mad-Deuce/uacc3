@@ -5,15 +5,20 @@ let templateText;
 let contentData;
 let isUpdate = false;
 
-let requestData = '';
+// let requestData = '';
 let requestDTO = {
+    //data
     id: "",
-    grid: ""
+    grid: "",
+    //sort
+    sort: "",
+    //pagination
+    size: "30",
+    page: "1"
 };
-// let requestDTO='filter.id=1544552';
 
 
-let ascDirection = "asc";
+// let ascDirection = "asc";
 
 const CH_NAME_GETTMPLOK = 'getTemplate-OK';
 const CH_NAME_GETCONTOK = 'getContent-OK';
@@ -89,22 +94,38 @@ function updateHTML(){
     $("#sub_template").html(subValue);
 }
 
-//Events block
-$("#content").on("click", "#sort_byId", function () {
-    ascDirection = (ascDirection === 'asc' ? 'desc' : 'asc');
-    requestData = 'sort=id,' + ascDirection;
+//Events block for $("#content")
+let contentElement = $("#content");
+
+contentElement.on("click", "#sort_byId", function () {
+    requestDTO.sort = (requestDTO.sort === 'id,asc' ? 'id,desc' : 'id,asc');
+    isUpdate = true;
     getContent(uri);
 })
 
-$("#content").on("input", "#filter_byId", function () {
+contentElement.on("click", "#sort_byGrid", function () {
+    requestDTO.sort = (requestDTO.sort === 'sDev.grid,asc' ? 'sDev.grid,desc' : 'sDev.grid,asc');
+    isUpdate = true;
+    getContent(uri);
+})
+
+contentElement.on("input", "#filter_byId", function () {
     requestDTO.id = $("#filter_byId").val();
     isUpdate = true;
     getContent(uri);
 })
 
-
-$("#content").on("input", "#filter_byGrid", function (param) {
+contentElement.on("input", "#filter_byGrid", function (param) {
     requestDTO.grid = $("#filter_byGrid").val();
     isUpdate = true;
     getContent(uri);
+})
+
+contentElement.on("change", "#item_on_page_input", function (param) {
+
+    requestDTO.size = $("#item_on_page_input").val();
+    isUpdate = true;
+    document.getElementById("item_on_page_output").textContent = "Items on page " + $("#item_on_page_input").val();
+    getContent(uri);
+
 })

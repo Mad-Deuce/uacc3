@@ -28,12 +28,6 @@ public class DevService {
     @Autowired
     DevRepository devRepository;
 
-    //    Find By Condition
-    public Page<DevModel> devs(Pageable pageable, DevRequestDTO devRequestDTO) {
-        return devRepository.findAll(pageable);
-    }
-
-
     public Page<DevModel> findDevsBySpecification(Pageable pageable, DevRequestDTO devRequestDTO) {
         return devRepository.findAll(getSpecification(devRequestDTO), pageable);
     }
@@ -45,7 +39,7 @@ public class DevService {
         {
             Join<DevModel, SDevEntity> sDev = root.join("sDev");
 
-            criteriaQuery.distinct(true);
+            criteriaQuery.distinct(false);
 
             Predicate predicateForId;
             Predicate predicateForGrid;
