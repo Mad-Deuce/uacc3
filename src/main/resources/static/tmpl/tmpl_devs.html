@@ -4,12 +4,12 @@
 
 <input type="range" id="range_item_on_page" min="10" max="50" step="10" value="30">
 <br>
-<div id="page_navigation">
-    <input type="button" id="btn_first_page" value="<<">
-    <input type="button" id="btn_prev_page" value="<">
-    <input type="text" id="input_find_page" value="<%- contentData.number+1 %> out of <%- contentData.totalPages %>">
-    <input type="button" id="btn_next_page" value=">">
-    <input type="button" id="btn_last_page" value=">>">
+<div id="page_navigation" class="page_navigations">
+    <input type="button" id="btn_first_page" class="btns_first_page" value="<<">
+    <input type="button" id="btn_prev_page" class="btns_prev_page" value="<">
+    <input type="text" id="input_find_page" class="inputs_find_page" value="<%- contentData.number+1 %> out of <%- contentData.totalPages %>">
+    <input type="button" id="btn_next_page" class="btns_next_page" value=">">
+    <input type="button" id="btn_last_page" class="btns_last_page" value=">>">
 </div>
 
 <table border="1">
@@ -42,6 +42,13 @@
     <% }) %>
     <!--end_sub_template-->
     </tbody>
-
 </table>
 
+<br>
+<div id="bottom_page_navigation" class="page_navigations">
+    <input type="button" id="bottom_btn_first_page" class="btns_first_page" value="<<">
+    <input type="button" id="bottom_btn_prev_page" class="btns_prev_page" value="<">
+    <input type="text" id="bottom_input_find_page" class="inputs_find_page" value="<%- contentData.number+1 %> out of <%- contentData.totalPages %>">
+    <input type="button" id="bottom_btn_next_page" class="btns_next_page" value=">">
+    <input type="button" id="bottom_btn_last_page" class="btns_last_page" value=">>">
+</div>

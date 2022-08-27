@@ -123,7 +123,6 @@ contentElement.on("input", "#filter_byGrid", function (param) {
 
 contentElement.on("change", "#range_item_on_page", function (param) {
     requestDTO.page="0";
-    // contentData.number=0;
     requestDTO.size = $("#range_item_on_page").val();
     isUpdate = true;
     getContent(uri);
@@ -132,42 +131,64 @@ contentElement.on("change", "#range_item_on_page", function (param) {
     document.getElementById("input_find_page").value = (contentData.number + 1) + " out of " + contentData.totalPages;
 })
 
-contentElement.on("keypress", "#input_find_page", function (param) {
+contentElement.on("keypress", ".inputs_find_page", function (param) {
     if (param.which === 13) {           //13 - это код клавиши "Enter"
-        if (!isNaN($("#input_find_page").val())) {
-            requestDTO.page = $("#input_find_page").val() - 1;
+
+        if (!isNaN(param.currentTarget.value)) {
+            requestDTO.page = param.currentTarget.value - 1;
             isUpdate = true;
             getContent(uri);
         }
-        document.getElementById("input_find_page").blur();
-        document.getElementById("input_find_page").value = (contentData.number + 1) + " out of " + contentData.totalPages;
+
+        let elems = Array.from(document.getElementsByClassName("inputs_find_page"));
+        elems.forEach(function (elem,index){
+            elem.blur();
+            elem.value= (contentData.number + 1) + " out of " + contentData.totalPages;
+        });
     }
 })
 
-contentElement.on("click", "#btn_first_page", function () {
+contentElement.on("click", ".btns_first_page", function () {
     requestDTO.page = "0";
     isUpdate = true;
     getContent(uri);
-    document.getElementById("input_find_page").value = (contentData.number + 1) + " out of " + contentData.totalPages;
+    let elems = Array.from(document.getElementsByClassName("inputs_find_page"));
+    elems.forEach(function (elem,index){
+        elem.value= (contentData.number + 1) + " out of " + contentData.totalPages;
+    });
+
 })
-contentElement.on("click", "#btn_last_page", function () {
+contentElement.on("click", ".btns_last_page", function () {
     requestDTO.page = contentData.totalPages - 1;
     isUpdate = true;
     getContent(uri);
-    document.getElementById("input_find_page").value = (contentData.number + 1) + " out of " + contentData.totalPages;
+    let elems = Array.from(document.getElementsByClassName("inputs_find_page"));
+    elems.forEach(function (elem,index){
+        elem.value= (contentData.number + 1) + " out of " + contentData.totalPages;
+    });
+
 })
 
-contentElement.on("click", "#btn_prev_page", function () {
-    // requestDTO.page = "0";
+contentElement.on("click", ".btns_prev_page", function () {
     requestDTO.page = (contentData.number <= 0 ? 0 : contentData.number - 1);
     isUpdate = true;
     getContent(uri);
-    document.getElementById("input_find_page").value = (contentData.number + 1) + " out of " + contentData.totalPages;
+    let elems = Array.from(document.getElementsByClassName("inputs_find_page"));
+    elems.forEach(function (elem,index){
+        elem.value= (contentData.number + 1) + " out of " + contentData.totalPages;
+    });
 })
-contentElement.on("click", "#btn_next_page", function () {
-    // requestDTO.page = "0";
+
+contentElement.on("click", ".btns_next_page", function () {
     requestDTO.page = (contentData.number >= contentData.totalPages - 1 ? contentData.totalPages - 1 : contentData.number + 1);
     isUpdate = true;
     getContent(uri);
-    document.getElementById("input_find_page").value = (contentData.number + 1) + " out of " + contentData.totalPages;
+    let elems = Array.from(document.getElementsByClassName("inputs_find_page"));
+    elems.forEach(function (elem,index){
+        elem.value= (contentData.number + 1) + " out of " + contentData.totalPages;
+    });
+})
+
+contentElement.on("focus", ".inputs_find_page", function (param) {
+    param.currentTarget.select();
 })
