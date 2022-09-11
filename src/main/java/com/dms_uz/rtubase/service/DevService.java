@@ -64,5 +64,8 @@ public class DevService {
         };
     }
 
+    public void deleteDevById(Long id){
+        devRepository.deleteById(id);
+    }
 
 }

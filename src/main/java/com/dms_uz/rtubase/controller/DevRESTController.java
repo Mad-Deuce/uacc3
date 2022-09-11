@@ -31,4 +31,11 @@ public class DevRESTController {
         return RestPreconditions.checkFound(devService.findDevsById(id));
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
+    @DeleteMapping(value = "/{id}")
+    public void deleteById(@PathVariable("id") Long id) {
+        devService.deleteDevById(id);
+    }
+
+
 }
