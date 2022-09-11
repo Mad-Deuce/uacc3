@@ -19,9 +19,16 @@ public class DevRESTController {
     @Autowired
     private DevService devService;
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(value = "/")
     public Page<DevModel> findAll(Pageable pageable, DevRequestDTO devRequestDTO) {
         return RestPreconditions.checkFound(devService.findDevsBySpecification(pageable, devRequestDTO));
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(value = "/{id}")
+    public DevModel findById(@PathVariable("id") Long id) {
+        return RestPreconditions.checkFound(devService.findDevsById(id));
     }
 
 }

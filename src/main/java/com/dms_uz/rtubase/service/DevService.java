@@ -28,6 +28,10 @@ public class DevService {
     @Autowired
     DevRepository devRepository;
 
+    public DevModel findDevsById(Long id){
+        return devRepository.getOne(id);
+    }
+
     public Page<DevModel> findDevsBySpecification(Pageable pageable, DevRequestDTO devRequestDTO) {
         return devRepository.findAll(getSpecification(devRequestDTO), pageable);
     }
