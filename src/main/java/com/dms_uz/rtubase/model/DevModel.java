@@ -43,7 +43,7 @@ public class DevModel implements Serializable {
     @Column(name = "d_create", nullable = true)
     private Date dCreate;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     @Column(name = "id", nullable = false, precision = 0)
     private Long id;
@@ -88,4 +88,27 @@ public class DevModel implements Serializable {
     @Column(name = "detail", nullable = true, length = 160)
     private String detail;
 
+    public DevModel(DevModel devModel) {
+        this.idObj = devModel.idObj;
+        this.sDev = devModel.sDev;
+        this.num = devModel.num;
+        this.myear = devModel.myear;
+        this.ps = devModel.ps;
+        this.dCreate = devModel.dCreate;
+        this.id = devModel.id;
+        this.dNkip = devModel.dNkip;
+        this.dTkip = devModel.dTkip;
+        this.tZam = devModel.tZam;
+//        this.dObjRtu = devModel.dObjRtu;
+        this.okSend = devModel.okSend;
+        this.opcl = devModel.opcl;
+        this.tidPr = devModel.tidPr;
+        this.tidRg = devModel.tidRg;
+        this.scode = devModel.scode;
+        this.detail = devModel.detail;
+    }
+
+    public DevModel() {
+
+    }
 }

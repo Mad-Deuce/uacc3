@@ -43,4 +43,10 @@ public class DevRESTController {
     public void update(@RequestBody DevModel devModel) {
         devService.updateDev(devModel);
     }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
+    @PostMapping(value = "/")
+    public void create(@RequestBody DevModel devModel) {
+        devService.createDev(devModel);
+    }
 }

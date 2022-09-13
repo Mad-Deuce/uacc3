@@ -5,6 +5,7 @@ import com.dms_uz.rtubase.dto.DevRequestDTO;
 import com.dms_uz.rtubase.entity.SDevEntity;
 import com.dms_uz.rtubase.model.DevModel;
 import com.dms_uz.rtubase.repository.DevRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 
+@Slf4j
 @Service
 public class DevService {
 
@@ -67,5 +69,14 @@ public class DevService {
 
     public void updateDev(DevModel devModel){
         devRepository.save(devModel);
+    }
+
+    public void createDev(DevModel devModel){
+        DevModel newDew = new DevModel(devModel);
+        newDew.setId(null);
+
+        log.info("before");
+        devRepository.saveAndFlush(newDew);
+        log.info("after");
     }
 }
