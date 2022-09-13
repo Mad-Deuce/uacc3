@@ -2,14 +2,12 @@ package com.dms_uz.rtubase.service;
 
 
 import com.dms_uz.rtubase.dto.DevRequestDTO;
-import com.dms_uz.rtubase.entity.DevEntity;
 import com.dms_uz.rtubase.entity.SDevEntity;
 import com.dms_uz.rtubase.model.DevModel;
 import com.dms_uz.rtubase.repository.DevRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +15,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
-import java.util.List;
 
 @Service
 public class DevService {
@@ -68,4 +65,7 @@ public class DevService {
         devRepository.deleteById(id);
     }
 
+    public void updateDev(DevModel devModel){
+        devRepository.save(devModel);
+    }
 }

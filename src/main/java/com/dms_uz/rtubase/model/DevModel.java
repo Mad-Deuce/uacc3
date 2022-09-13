@@ -60,9 +60,9 @@ public class DevModel implements Serializable {
     @Column(name = "t_zam", nullable = true, precision = 0)
     private Integer tZam;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "obj_code")
-    private DObjRtuEntity dObjRtu;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "obj_code")
+//    private DObjRtuEntity dObjRtu;
 
     @Basic
     @Column(name = "ok_send", nullable = true, length = -1)
