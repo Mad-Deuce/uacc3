@@ -27,7 +27,7 @@ public class DevService {
     @Autowired
     DevRepository devRepository;
 
-    public DevModel findDevsById(Long id){
+    public DevModel findDevsById(Long id) {
         return devRepository.getOne(id);
     }
 
@@ -63,20 +63,21 @@ public class DevService {
         };
     }
 
-    public void deleteDevById(Long id){
+    public void deleteDevById(Long id) {
         devRepository.deleteById(id);
     }
 
-    public void updateDev(DevModel devModel){
+    public void updateDev(DevModel devModel) {
         devRepository.save(devModel);
     }
 
-    public void createDev(DevModel devModel){
-        DevModel newDew = new DevModel(devModel);
-        newDew.setId(null);
-
-        log.info("before");
-        devRepository.saveAndFlush(newDew);
-        log.info("after");
+    public DevModel createDev(DevModel devModel) {
+        DevModel newDev = new DevModel(devModel);
+        newDev.setId(null);
+        newDev.setIdObj(null);
+//        log.info("before");
+        DevModel savedDev = devRepository.saveAndFlush(newDev);
+//        log.info("after", savedDev.getId());
+        return savedDev;
     }
 }

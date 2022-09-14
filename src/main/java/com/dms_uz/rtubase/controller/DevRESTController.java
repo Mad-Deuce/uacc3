@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import org.springframework.http.MediaType;
+
 import org.springframework.web.bind.annotation.*;
 
 
@@ -46,7 +46,8 @@ public class DevRESTController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/")
-    public void create(@RequestBody DevModel devModel) {
-        devService.createDev(devModel);
+    public DevModel create(@RequestBody DevModel devModel) {
+//        devService.createDev(devModel);
+        return RestPreconditions.checkFound(devService.createDev(devModel));
     }
 }
