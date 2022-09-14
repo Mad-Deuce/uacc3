@@ -60,9 +60,9 @@ public class DevModel implements Serializable {
     @Column(name = "t_zam", nullable = true, precision = 0)
     private Integer tZam;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "obj_code")
-//    private DObjRtuEntity dObjRtu;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "obj_code")
+    private DObjRtuEntity dObjRtu;
 
     @Basic
     @Column(name = "ok_send", nullable = true, length = -1)
@@ -99,7 +99,7 @@ public class DevModel implements Serializable {
         this.dNkip = devModel.dNkip;
         this.dTkip = devModel.dTkip;
         this.tZam = devModel.tZam;
-//        this.dObjRtu = devModel.dObjRtu;
+        this.dObjRtu = devModel.dObjRtu;
         this.okSend = devModel.okSend;
         this.opcl = devModel.opcl;
         this.tidPr = devModel.tidPr;
