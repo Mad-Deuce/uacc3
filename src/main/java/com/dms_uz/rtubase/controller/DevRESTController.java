@@ -12,6 +12,10 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/devs")
@@ -19,6 +23,17 @@ public class DevRESTController {
 
     @Autowired
     private DevService devService;
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(value = "/resource")
+    public Map<String,Object> home() {
+        Map<String,Object> model = new HashMap<String,Object>();
+        model.put("id", UUID.randomUUID().toString());
+        model.put("content", "Hello World");
+        return model;
+    }
+
+
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(value = "/")

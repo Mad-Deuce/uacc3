@@ -4,6 +4,7 @@ import com.dms_uz.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,31 +24,44 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
+
         httpSecurity
-                .csrf()
-                    .disable()
+                .httpBasic()
+                .and()
                 .authorizeRequests()
-                    //Доступ только для не зарегистрированных пользователей
-                    .antMatchers("/registration").not().fullyAuthenticated()
-                    //Доступ только для пользователей с ролью Администратор
-                    .antMatchers("/admin/**").hasRole("ADMIN")
-                    .antMatchers("/news").hasRole("USER")
-                    //Доступ разрешен всем пользователей
-                    .antMatchers("/", "/css/**", "/js/**", "/tmpl/**").permitAll()
-                    .antMatchers("/devs", "/dev/**", "/**", "/resources/**").permitAll()
-                //Все остальные страницы требуют аутентификации
-                .anyRequest().authenticated()
-                .and()
-                    //Настройка для входа в систему
-                    .formLogin()
-                    .loginPage("/login")
-                    //Перенарпавление на главную страницу после успешного входа
-                    .defaultSuccessUrl("/")
-                    .permitAll()
-                .and()
-                    .logout()
-                    .permitAll()
-                    .logoutSuccessUrl("/");
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/css/**", "/js/**", "/tmpl/**").permitAll()
+                .antMatchers("/index.html", "/", "/home", "/login").permitAll()
+                .anyRequest().authenticated();
+
+//        httpSecurity
+//                .csrf().disable()
+//                .authorizeRequests()
+//                //Доступ только для не зарегистрированных пользователей
+//                .antMatchers("/registration").not().fullyAuthenticated()
+//                //Доступ только для пользователей с ролью Администратор
+//                .antMatchers("/admin/**").hasRole("ADMIN")
+//                .antMatchers().hasRole("USER")
+//                //Доступ разрешен всем пользователей
+//                .antMatchers("/css/**", "/js/**", "/tmpl/**").permitAll()
+//                .antMatchers(
+//                        "/",
+//                        "/**",
+//                        "/resources/**"
+//                ).permitAll()
+//                //Все остальные страницы требуют аутентификации
+//                .anyRequest().authenticated()
+//                .and()
+//                //Настройка для входа в систему
+//                .formLogin()
+//                .loginPage("/login")
+//                //Перенарпавление на главную страницу после успешного входа
+//                .defaultSuccessUrl("/")
+//                .permitAll()
+//                .and()
+//                .logout()
+//                .permitAll()
+//                .logoutSuccessUrl("/");
     }
 
     @Autowired
@@ -56,14 +70,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth
                 .inMemoryAuthentication()
                 .withUser("user")
-                    .password(bCryptPasswordEncoder().encode("password"))
-                    .roles("USER")
+                .password(bCryptPasswordEncoder().encode("password"))
+                .roles("USER")
                 .and()
                 .withUser("admin")
-                    .password(bCryptPasswordEncoder().encode("admin"))
-                    .roles("ADMIN");
+                .password(bCryptPasswordEncoder().encode("admin"))
+                .roles("ADMIN");
     }
-
 
 
 }
