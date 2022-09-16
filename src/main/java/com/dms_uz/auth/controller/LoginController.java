@@ -13,7 +13,7 @@ import java.security.Principal;
 public class LoginController {
 
     @CrossOrigin(origins = "http://localhost:4200")
-    @RequestMapping("/user")
+    @RequestMapping("/api/user")
     public Principal user(Principal user) {
         return user;
     }

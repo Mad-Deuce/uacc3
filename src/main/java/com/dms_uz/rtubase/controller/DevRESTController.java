@@ -24,18 +24,7 @@ public class DevRESTController {
     @Autowired
     private DevService devService;
 
-    @CrossOrigin(origins = "http://localhost:4200")
-    @GetMapping(value = "/resource")
-    public Map<String,Object> home() {
-        Map<String,Object> model = new HashMap<String,Object>();
-        model.put("id", UUID.randomUUID().toString());
-        model.put("content", "Hello World");
-        return model;
-    }
-
-
-
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/")
     public Page<DevModel> findAll(Pageable pageable, DevRequestDTO devRequestDTO) {
         return RestPreconditions.checkFound(devService.findDevsBySpecification(pageable, devRequestDTO));

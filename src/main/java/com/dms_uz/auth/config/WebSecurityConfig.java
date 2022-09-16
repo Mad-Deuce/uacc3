@@ -26,12 +26,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
+                .csrf().disable()
                 .httpBasic()
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+//                .antMatchers( "/**").permitAll()
                 .antMatchers("/css/**", "/js/**", "/tmpl/**").permitAll()
-                .antMatchers("/index.html", "/", "/home", "/login").permitAll()
+                .antMatchers("/index.html", "/login").permitAll()
                 .anyRequest().authenticated();
 
 //        httpSecurity
