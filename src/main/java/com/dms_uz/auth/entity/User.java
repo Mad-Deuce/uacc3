@@ -1,14 +1,13 @@
 package com.dms_uz.auth.entity;
 
-import com.dms_uz.auth.validate.LoginForm;
-import com.dms_uz.auth.validate.LoginInfo;
-import com.dms_uz.auth.validate.RegistrationForm;
-import com.dms_uz.auth.validate.RegistrationInfo;
+import com.dms_uz.auth.validate.login.LoginForm;
+import com.dms_uz.auth.validate.login.LoginInfo;
+import com.dms_uz.auth.validate.registration.RegistrationForm;
+import com.dms_uz.auth.validate.registration.RegistrationInfo;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Set;
 
@@ -20,11 +19,15 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "name")
     private String username;
+
     private String password;
+
     @Transient
     private String passwordConfirm;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
 

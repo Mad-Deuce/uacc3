@@ -1,10 +1,10 @@
-package com.dms_uz.auth.validate;
+package com.dms_uz.auth.validate.registration;
 
 import com.dms_uz.auth.entity.User;
 import com.dms_uz.auth.service.UserService;
+import com.dms_uz.auth.validate.registration.RegistrationForm;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.validation.ConstraintDeclarationException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Objects;

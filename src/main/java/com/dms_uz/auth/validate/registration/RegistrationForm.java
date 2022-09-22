@@ -1,4 +1,4 @@
-package com.dms_uz.auth.validate;
+package com.dms_uz.auth.validate.registration;
 
 
 import javax.validation.Constraint;

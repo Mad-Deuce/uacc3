@@ -33,7 +33,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/css/**", "/js/**").permitAll()
                 .antMatchers("/index.html").permitAll()
-                .antMatchers("/auth/**").permitAll()
+                .antMatchers("/auth").permitAll()
+                .antMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated();
 
 //        httpSecurity

@@ -2,6 +2,8 @@ package com.dms_uz.auth.service;
 
 import com.dms_uz.auth.entity.Role;
 import com.dms_uz.auth.entity.User;
+import com.dms_uz.auth.exception.NoEntityException;
+import com.dms_uz.auth.exception.NotUniqueUsernameException;
 import com.dms_uz.auth.repository.RoleRepository;
 import com.dms_uz.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -42,27 +43,37 @@ public class UserService implements UserDetailsService {
     }
 
     public User findUserById(Long userId) {
-        Optional<User> userFromDb = userRepository.findById(userId);
-        return userFromDb.orElse(new User());
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NoEntityException("User with the id = " + userId + " does not exist"));
     }
 
     public List<User> allUsers() {
         return userRepository.findAll();
     }
 
-    public boolean saveUser(User user) {
+    public void addUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            throw new NotUniqueUsernameException("User with the username = " + user.getUsername() + " already exists");
+        }
+        user.setId(null);
         user.setRoles(Collections.singleton(new Role(2L, "ROLE_USER")));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return true;
     }
 
-    public boolean deleteUser(Long userId) {
-        if (userRepository.findById(userId).isPresent()) {
-            userRepository.deleteById(userId);
-            return true;
-        }
-        return false;
+    public void updateUser(User user) {
+        User updatedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new NoEntityException("User with the id = " + user.getId() + " does not exist"));
+        if (user.getUsername() != null) updatedUser.setUsername(user.getUsername());
+        if (user.getPassword() != null) updatedUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userRepository.save(updatedUser);
+    }
+
+
+    public void deleteUser(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NoEntityException("User with the id = " + userId + " does not exist"));
+        userRepository.deleteById(userId);
     }
 
     public List<User> usergtList(Long idMin) {

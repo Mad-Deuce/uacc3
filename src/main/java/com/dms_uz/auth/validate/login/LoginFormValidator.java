@@ -1,6 +1,7 @@
-package com.dms_uz.auth.validate;
+package com.dms_uz.auth.validate.login;
 
 import com.dms_uz.auth.entity.User;
+import com.dms_uz.auth.validate.login.LoginForm;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
