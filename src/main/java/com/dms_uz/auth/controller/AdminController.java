@@ -2,8 +2,6 @@ package com.dms_uz.auth.controller;
 
 import com.dms_uz.auth.dto.UserDTO;
 import com.dms_uz.auth.entity.User;
-import com.dms_uz.auth.exception.NoEntityException;
-import com.dms_uz.auth.exception.NotUniqueUsernameException;
 import com.dms_uz.auth.service.UserService;
 import com.dms_uz.auth.validate.update.UpdateUserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +15,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    AdminController(@Autowired UserService userService){
+        this.userService = userService;
+    }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping("/")
