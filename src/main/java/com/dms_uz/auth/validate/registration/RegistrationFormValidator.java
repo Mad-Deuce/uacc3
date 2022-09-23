@@ -11,10 +11,6 @@ import java.util.Objects;
 
 public class RegistrationFormValidator implements ConstraintValidator<RegistrationForm, User> {
 
-
-    @Autowired
-    private UserService userService;
-
     @Override
     public boolean isValid(User user, ConstraintValidatorContext constraintValidatorContext) {
         constraintValidatorContext.disableDefaultConstraintViolation();
@@ -22,8 +18,7 @@ public class RegistrationFormValidator implements ConstraintValidator<Registrati
         return usernameCheckMinSize(user, constraintValidatorContext) &
                 passwordCheckMinSize(user, constraintValidatorContext) &
                 passwordConfirmCheckMinSize(user, constraintValidatorContext) &
-                passwordConfirm(user, constraintValidatorContext) &
-                isUniqUsername(user, constraintValidatorContext);
+                passwordConfirm(user, constraintValidatorContext);
     }
 
     private boolean usernameCheckMinSize(User user, ConstraintValidatorContext constraintValidatorContext) {
@@ -69,14 +64,5 @@ public class RegistrationFormValidator implements ConstraintValidator<Registrati
         return true;
     }
 
-    private boolean isUniqUsername(User user, ConstraintValidatorContext constraintValidatorContext) {
-        if (userService.isExistsByUsername(user.getUsername())){
-            constraintValidatorContext.buildConstraintViolationWithTemplate("User with username value exist")
-                    .addPropertyNode("username")
-                    .addConstraintViolation();
-            return false;
-        }
-        return true;
-    }
 }
 

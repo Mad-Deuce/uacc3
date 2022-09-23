@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/login")
 public class LoginController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping("/login")
+    @GetMapping("/")
     public Principal user(Principal user) {
         return user;
     }

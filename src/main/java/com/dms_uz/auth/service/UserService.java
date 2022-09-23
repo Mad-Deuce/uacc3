@@ -13,38 +13,34 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
-    @PersistenceContext
-    private EntityManager em;
-    @Autowired
+
     UserRepository userRepository;
-    @Autowired
     RoleRepository roleRepository;
-    @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    UserService(@Autowired UserRepository userRepository,
+                @Autowired RoleRepository roleRepository,
+                @Autowired BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return user;
-    }
-
-    public boolean isExistsByUsername(String username) {
-        return userRepository.findByUsername(username) != null;
+        return Optional.of(userRepository.findByUsername(username))
+                .orElseThrow(() -> new UsernameNotFoundException("User with the id = " + username + " not found"));
     }
 
     public User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NoEntityException("User with the id = " + userId + " does not exist"));
+                .orElseThrow(() -> new NoEntityException("User with the id = " + userId + " not found"));
     }
 
     public List<User> allUsers() {
@@ -63,21 +59,16 @@ public class UserService implements UserDetailsService {
 
     public void updateUser(User user) {
         User updatedUser = userRepository.findById(user.getId())
-                .orElseThrow(() -> new NoEntityException("User with the id = " + user.getId() + " does not exist"));
+                .orElseThrow(() -> new NoEntityException("User with the id = " + user.getId() + " not found"));
         if (user.getUsername() != null) updatedUser.setUsername(user.getUsername());
         if (user.getPassword() != null) updatedUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(updatedUser);
     }
 
-
     public void deleteUser(Long userId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new NoEntityException("User with the id = " + userId + " does not exist"));
+                .orElseThrow(() -> new NoEntityException("User with the id = " + userId + " not found"));
         userRepository.deleteById(userId);
     }
 
-    public List<User> usergtList(Long idMin) {
-        return em.createQuery("SELECT u FROM User u WHERE u.id > :paramId", User.class)
-                .setParameter("paramId", idMin).getResultList();
-    }
 }

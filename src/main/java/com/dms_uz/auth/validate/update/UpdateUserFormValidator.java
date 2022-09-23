@@ -10,9 +10,6 @@ import java.util.Objects;
 
 public class UpdateUserFormValidator implements ConstraintValidator<UpdateUserForm, UserDTO> {
 
-    @Autowired
-    private UserService userService;
-
     @Override
     public boolean isValid(UserDTO userDTO, ConstraintValidatorContext constraintValidatorContext) {
         constraintValidatorContext.disableDefaultConstraintViolation();
@@ -20,8 +17,7 @@ public class UpdateUserFormValidator implements ConstraintValidator<UpdateUserFo
         return usernameCheckMinSizeOrNull(userDTO, constraintValidatorContext) &
                 passwordCheckMinSize(userDTO, constraintValidatorContext) &
                 passwordConfirmCheckMinSize(userDTO, constraintValidatorContext) &
-                passwordConfirm(userDTO, constraintValidatorContext) &
-                isUniqUsername(userDTO, constraintValidatorContext);
+                passwordConfirm(userDTO, constraintValidatorContext);
     }
 
     private boolean usernameCheckMinSizeOrNull(UserDTO userDTO, ConstraintValidatorContext constraintValidatorContext) {
@@ -67,13 +63,4 @@ public class UpdateUserFormValidator implements ConstraintValidator<UpdateUserFo
         return true;
     }
 
-    private boolean isUniqUsername(UserDTO userDTO, ConstraintValidatorContext constraintValidatorContext) {
-        if (userService.isExistsByUsername(userDTO.getUsername())) {
-            constraintValidatorContext.buildConstraintViolationWithTemplate("User with username value exist")
-                    .addPropertyNode("username")
-                    .addConstraintViolation();
-            return false;
-        }
-        return true;
-    }
 }
