@@ -1,7 +1,6 @@
 package com.dms_uz.auth.controller;
 
 
-import com.dms_uz.auth.AuthenticationBean;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;

@@ -2,12 +2,19 @@ package com.dms_uz.auth.controller;
 
 import com.dms_uz.auth.dto.UserDTO;
 import com.dms_uz.auth.entity.User;
+import com.dms_uz.auth.export.UserExcelExporter;
+import com.dms_uz.auth.service.UserExportService;
 import com.dms_uz.auth.service.UserService;
 import com.dms_uz.auth.validate.update.UpdateUserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,9 +23,11 @@ import java.util.stream.Collectors;
 public class AdminController {
 
     private final UserService userService;
+    private final UserExportService userExportService;
 
-    AdminController(@Autowired UserService userService){
+    AdminController(@Autowired UserService userService, @Autowired UserExportService userExportService) {
         this.userService = userService;
+        this.userExportService = userExportService;
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
@@ -50,6 +59,13 @@ public class AdminController {
     public void addUser(UserDTO userDTO) {
         userService.addUser(convert(userDTO));
     }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping("/export")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        userExportService.exportToXlsx(response, userService.allUsers());
+    }
+
 
     private User convert(UserDTO userDTO) {
         User user = new User();
