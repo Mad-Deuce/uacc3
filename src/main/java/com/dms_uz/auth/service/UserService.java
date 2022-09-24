@@ -20,17 +20,12 @@ import java.util.Optional;
 @Service
 public class UserService implements UserDetailsService {
 
+    @Autowired
     UserRepository userRepository;
+    @Autowired
     RoleRepository roleRepository;
+    @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    UserService(@Autowired UserRepository userRepository,
-                @Autowired RoleRepository roleRepository,
-                @Autowired BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

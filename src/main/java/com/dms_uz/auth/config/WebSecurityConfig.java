@@ -26,45 +26,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
-                .csrf().disable()
-                .httpBasic()
-                .and()
+                .cors();
+        httpSecurity
+                .csrf().disable();
+        httpSecurity
+                .httpBasic();
+        httpSecurity
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/css/**", "/js/**").permitAll()
                 .antMatchers("/index.html").permitAll()
-                .antMatchers("/auth").permitAll()
-                .antMatchers("/admin").hasRole("ADMIN")
+                .antMatchers("/api/admin").hasRole("ADMIN")
                 .anyRequest().authenticated();
-
 //        httpSecurity
-//                .csrf().disable()
-//                .authorizeRequests()
-//                //Доступ только для не зарегистрированных пользователей
-//                .antMatchers("/registration").not().fullyAuthenticated()
-//                //Доступ только для пользователей с ролью Администратор
-//                .antMatchers("/admin/**").hasRole("ADMIN")
-//                .antMatchers().hasRole("USER")
-//                //Доступ разрешен всем пользователей
-//                .antMatchers("/css/**", "/js/**", "/tmpl/**").permitAll()
-//                .antMatchers(
-//                        "/",
-//                        "/**",
-//                        "/resources/**"
-//                ).permitAll()
-//                //Все остальные страницы требуют аутентификации
-//                .anyRequest().authenticated()
-//                .and()
-//                //Настройка для входа в систему
 //                .formLogin()
 //                .loginPage("/login")
-//                //Перенарпавление на главную страницу после успешного входа
-//                .defaultSuccessUrl("/")
-//                .permitAll()
-//                .and()
-//                .logout()
-//                .permitAll()
-//                .logoutSuccessUrl("/");
+//                .loginPage("http://localhost:4042/login/")
+//                .defaultSuccessUrl("/main")
+//                .permitAll();
+        httpSecurity
+                .logout()
+                .logoutSuccessUrl("/login")
+                .permitAll();
     }
 
     @Autowired
