@@ -1,6 +1,7 @@
 package com.dms_uz.auth.controller;
 
 import com.dms_uz.auth.dto.UserDTO;
+import com.dms_uz.auth.entity.Role;
 import com.dms_uz.auth.entity.User;
 import com.dms_uz.auth.export.UserExcelExporter;
 import com.dms_uz.auth.service.UserExportService;
@@ -50,13 +51,13 @@ public class AdminController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping("/{id}")
-    public void updateUser(@Validated(UpdateUserInfo.class) UserDTO userDTO) {
+    public void updateUser(@RequestBody @Validated(UpdateUserInfo.class) UserDTO userDTO) {
         userService.updateUser(convert(userDTO));
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping("/")
-    public void addUser(UserDTO userDTO) {
+    public void addUser(@RequestBody UserDTO userDTO) {
         userService.addUser(convert(userDTO));
     }
 
@@ -80,6 +81,11 @@ public class AdminController {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setUsername(user.getUsername());
+
+
+        String rolesNames = user.getRoles().stream().map(Role::getName).collect(Collectors.joining(", "));
+        userDTO.setRoles(rolesNames);
+
         return userDTO;
     }
 
