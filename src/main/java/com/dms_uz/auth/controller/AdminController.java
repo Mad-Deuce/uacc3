@@ -33,7 +33,7 @@ public class AdminController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping("/")
-    public List<UserDTO> userList() {
+    public List<UserDTO> getAllUsers() {
         return userService.allUsers().stream().map(this::convert).collect(Collectors.toList());
     }
 
