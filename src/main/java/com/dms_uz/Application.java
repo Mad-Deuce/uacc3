@@ -1,6 +1,6 @@
 package com.dms_uz;
 
-import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
+//import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -15,10 +15,10 @@ public class Application {
     }
 
 
-    @Bean
-    public LayoutDialect layoutDialect() {
-        return new LayoutDialect();
-    }
+//    @Bean
+//    public LayoutDialect layoutDialect() {
+//        return new LayoutDialect();
+//    }
 
 //    @Bean
 //    public WebMvcConfigurer corsConfigurer() {

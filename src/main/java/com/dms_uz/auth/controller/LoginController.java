@@ -11,8 +11,11 @@ public class LoginController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping("/")
-    public Principal user(Principal user) {
-        return user;
+    public @ResponseBody String greeting() {
+        return "Hello, World";
     }
+//    public Principal user(Principal user) {
+//        return user;
+//    }
 
 }
