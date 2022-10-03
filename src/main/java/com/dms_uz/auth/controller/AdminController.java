@@ -57,8 +57,8 @@ public class AdminController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping("/")
-    public void addUser(@RequestBody UserDTO userDTO) {
-        userService.addUser(convert(userDTO));
+    public UserDTO addUser(@RequestBody UserDTO userDTO) {
+       return convert(userService.addUser(convert(userDTO)));
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)

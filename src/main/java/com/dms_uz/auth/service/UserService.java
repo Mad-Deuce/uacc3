@@ -42,14 +42,14 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public void addUser(User user) {
+    public User addUser(User user) {
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new NotUniqueUsernameException("User with the username = " + user.getUsername() + " already exists");
         }
         user.setId(null);
         user.setRoles(Collections.singleton(new Role(2L, "ROLE_USER")));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public void updateUser(User user) {

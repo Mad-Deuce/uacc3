@@ -1,6 +1,7 @@
 package com.dms_uz.auth.controller;
 
 import com.dms_uz.auth.dto.UserDTO;
+import com.dms_uz.auth.exception.NoEntityException;
 import org.junit.After;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,24 @@ class AdminControllerTest {
 
     @Test
     void deleteUser() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("test_username");
+        userDTO.setPassword("test_password");
+        userDTO.setPasswordConfirm("test_password");
+
+        Long id = restTemplate
+                .withBasicAuth("postgres", "postgres")
+                .postForObject("/api/admin/users/", userDTO, UserDTO.class)
+                .getId();
+
+        restTemplate
+                .withBasicAuth("postgres", "postgres")
+                .delete("/api/admin/users/{id}/", id);
+
+        ResponseEntity<UserDTO> response = restTemplate
+                .withBasicAuth("postgres", "postgres")
+                .getForEntity("/api/admin/users/{id}/", UserDTO.class, id);
+        assertThat(response.getStatusCode(), is(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Test
