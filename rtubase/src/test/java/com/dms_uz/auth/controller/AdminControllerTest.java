@@ -1,7 +1,6 @@
 package com.dms_uz.auth.controller;
 
 import com.dms_uz.auth.dto.UserDTO;
-import com.dms_uz.auth.exception.NoEntityException;
 import org.junit.After;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.test.context.jdbc.Sql;
 
 //import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
-import java.util.Objects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

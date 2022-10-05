@@ -1,29 +1,26 @@
-package com.dms_uz.auth.validate.registration;
+package com.dms_uz.auth.validate.update;
 
-import com.dms_uz.auth.entity.User;
-import com.dms_uz.auth.service.UserService;
-import com.dms_uz.auth.validate.registration.RegistrationForm;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.dms_uz.auth.dto.UserDTO;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Objects;
 
-public class RegistrationFormValidator implements ConstraintValidator<RegistrationForm, User> {
+public class UpdateUserFormValidator implements ConstraintValidator<UpdateUserForm, UserDTO> {
 
     @Override
-    public boolean isValid(User user, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(UserDTO userDTO, ConstraintValidatorContext constraintValidatorContext) {
         constraintValidatorContext.disableDefaultConstraintViolation();
 
-        return usernameCheckMinSize(user, constraintValidatorContext) &
-                passwordCheckMinSize(user, constraintValidatorContext) &
-                passwordConfirmCheckMinSize(user, constraintValidatorContext) &
-                passwordConfirm(user, constraintValidatorContext);
+        return usernameCheckMinSizeOrNull(userDTO, constraintValidatorContext) &
+                passwordCheckMinSize(userDTO, constraintValidatorContext) &
+                passwordConfirmCheckMinSize(userDTO, constraintValidatorContext) &
+                passwordConfirm(userDTO, constraintValidatorContext);
     }
 
-    private boolean usernameCheckMinSize(User user, ConstraintValidatorContext constraintValidatorContext) {
+    private boolean usernameCheckMinSizeOrNull(UserDTO userDTO, ConstraintValidatorContext constraintValidatorContext) {
         final int SIZE_MIN = 2;
-        if (user.getUsername().length() < SIZE_MIN) {
+        if (userDTO.getUsername() != null && userDTO.getUsername().length() < SIZE_MIN) {
             constraintValidatorContext.buildConstraintViolationWithTemplate("Username value is too short")
                     .addPropertyNode("username")
                     .addConstraintViolation();
@@ -32,9 +29,9 @@ public class RegistrationFormValidator implements ConstraintValidator<Registrati
         return true;
     }
 
-    private boolean passwordCheckMinSize(User user, ConstraintValidatorContext constraintValidatorContext) {
+    private boolean passwordCheckMinSize(UserDTO userDTO, ConstraintValidatorContext constraintValidatorContext) {
         final int SIZE_MIN = 2;
-        if (user.getPassword().length() < SIZE_MIN) {
+        if (userDTO.getPassword() != null && userDTO.getPassword().length() < SIZE_MIN) {
             constraintValidatorContext.buildConstraintViolationWithTemplate("Password value is too short")
                     .addPropertyNode("password")
                     .addConstraintViolation();
@@ -43,9 +40,9 @@ public class RegistrationFormValidator implements ConstraintValidator<Registrati
         return true;
     }
 
-    private boolean passwordConfirmCheckMinSize(User user, ConstraintValidatorContext constraintValidatorContext) {
+    private boolean passwordConfirmCheckMinSize(UserDTO userDTO, ConstraintValidatorContext constraintValidatorContext) {
         final int SIZE_MIN = 2;
-        if (user.getPasswordConfirm().length() < SIZE_MIN) {
+        if (userDTO.getPasswordConfirm() != null && userDTO.getPasswordConfirm().length() < SIZE_MIN) {
             constraintValidatorContext.buildConstraintViolationWithTemplate("PasswordConfirm value is too short")
                     .addPropertyNode("passwordConfirm")
                     .addConstraintViolation();
@@ -54,8 +51,8 @@ public class RegistrationFormValidator implements ConstraintValidator<Registrati
         return true;
     }
 
-    private boolean passwordConfirm(User user, ConstraintValidatorContext constraintValidatorContext) {
-        if (!Objects.equals(user.getPassword(), user.getPasswordConfirm())){
+    private boolean passwordConfirm(UserDTO userDTO, ConstraintValidatorContext constraintValidatorContext) {
+        if (!Objects.equals(userDTO.getPassword(), userDTO.getPasswordConfirm())) {
             constraintValidatorContext.buildConstraintViolationWithTemplate("PasswordConfirm value not equal Password value")
                     .addPropertyNode("passwordConfirm")
                     .addConstraintViolation();
@@ -65,4 +62,3 @@ public class RegistrationFormValidator implements ConstraintValidator<Registrati
     }
 
 }
-

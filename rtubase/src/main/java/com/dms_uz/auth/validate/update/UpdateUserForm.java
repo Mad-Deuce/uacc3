@@ -1,7 +1,5 @@
 package com.dms_uz.auth.validate.update;
 
-import com.dms_uz.auth.validate.registration.RegistrationFormValidator;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;

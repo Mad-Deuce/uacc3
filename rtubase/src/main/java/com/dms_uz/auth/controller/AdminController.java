@@ -3,7 +3,6 @@ package com.dms_uz.auth.controller;
 import com.dms_uz.auth.dto.UserDTO;
 import com.dms_uz.auth.entity.Role;
 import com.dms_uz.auth.entity.User;
-import com.dms_uz.auth.export.UserExcelExporter;
 import com.dms_uz.auth.service.UserExportService;
 import com.dms_uz.auth.service.UserService;
 import com.dms_uz.auth.validate.update.UpdateUserInfo;
@@ -13,9 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
