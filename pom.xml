@@ -17,6 +17,7 @@
     <modules>
         <module>rtubase</module>
         <module>auth</module>
+        <module>email</module>
     </modules>
 
 

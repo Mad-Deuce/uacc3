@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -50,4 +52,21 @@ public class DevRESTController {
 //        devService.createDev(devModel);
         return RestPreconditions.checkFound(devService.createDev(devModel));
     }
+
+    @Autowired
+    JavaMailSender emailSender;
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping("/send")
+    public void send() {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("zolotukhinpv@gmail.com");
+        message.setTo("serhij.zolotukhin@gmail.com");
+        message.setSubject("cccccdds");
+        message.setText("gfghtest text");
+        emailSender.send(message);
+    }
+
+
 }

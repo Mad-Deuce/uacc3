@@ -8,3 +8,6 @@ GET http://192.168.1.245:8080/api/devs/97451
 
 ###
 DELETE http://192.168.1.245:8080/api/devs/97451
+
+###
+GET http://localhost:8080/api/devs/send/
