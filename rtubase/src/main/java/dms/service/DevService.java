@@ -1,10 +1,10 @@
-package com.dms_uz.rtubase.service;
+package dms.service;
 
 
-import com.dms_uz.rtubase.dto.DevRequestDTO;
-import com.dms_uz.rtubase.entity.SDevEntity;
-import com.dms_uz.rtubase.model.DevModel;
-import com.dms_uz.rtubase.repository.DevRepository;
+import dms.dto.DevRequestDTO;
+import dms.entity.SDevEntity;
+import dms.model.DevModel;
+import dms.repository.DevRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -80,4 +80,6 @@ public class DevService {
 //        log.info("after", savedDev.getId());
         return savedDev;
     }
+
+
 }

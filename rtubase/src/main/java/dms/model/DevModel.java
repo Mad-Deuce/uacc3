@@ -1,9 +1,9 @@
-package com.dms_uz.rtubase.model;
+package dms.model;
 
 
-import com.dms_uz.rtubase.entity.DObjRtuEntity;
-import com.dms_uz.rtubase.entity.DevObjEntity;
-import com.dms_uz.rtubase.entity.SDevEntity;
+import dms.entity.DObjRtuEntity;
+import dms.entity.DevObjEntity;
+import dms.entity.SDevEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;

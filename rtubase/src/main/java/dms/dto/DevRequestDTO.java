@@ -1,4 +1,4 @@
-package com.dms_uz.rtubase.dto;
+package dms.dto;
 
 
 import lombok.Data;

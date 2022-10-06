@@ -1,17 +1,15 @@
-package com.dms_uz.rtubase.controller;
+package dms.controller;
 
 
-import com.dms_uz.rtubase.dto.DevRequestDTO;
-import com.dms_uz.rtubase.model.DevModel;
-import com.dms_uz.rtubase.service.DevService;
+import dms.dto.DevRequestDTO;
+import dms.model.DevModel;
+import dms.service.DevService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -53,20 +51,7 @@ public class DevRESTController {
         return RestPreconditions.checkFound(devService.createDev(devModel));
     }
 
-    @Autowired
-    JavaMailSender emailSender;
 
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping("/send")
-    public void send() {
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("zolotukhinpv@gmail.com");
-        message.setTo("serhij.zolotukhin@gmail.com");
-        message.setSubject("cccccdds");
-        message.setText("gfghtest text");
-        emailSender.send(message);
-    }
 
 
 }

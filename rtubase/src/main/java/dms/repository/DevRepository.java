@@ -1,6 +1,6 @@
-package com.dms_uz.rtubase.repository;
+package dms.repository;
 
-import com.dms_uz.rtubase.model.DevModel;
+import dms.model.DevModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

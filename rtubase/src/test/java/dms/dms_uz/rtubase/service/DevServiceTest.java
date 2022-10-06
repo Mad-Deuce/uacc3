@@ -1,4 +1,4 @@
-package com.dms_uz.rtubase.service;
+package dms.dms_uz.rtubase.service;
 
 import org.junit.jupiter.api.Test;
 

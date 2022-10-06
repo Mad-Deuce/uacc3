@@ -1,4 +1,4 @@
-package com.dms_uz.rtubase.entity;
+package dms.entity;
 
 import lombok.Data;
 

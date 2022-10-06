@@ -1,4 +1,4 @@
-package com.dms_uz.rtubase.config;
+package dms.config;
 
 import org.springframework.context.annotation.Configuration;
 

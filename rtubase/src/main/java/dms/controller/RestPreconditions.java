@@ -1,4 +1,4 @@
-package com.dms_uz.rtubase.controller;
+package dms.controller;
 
 public class RestPreconditions {
 
