@@ -12,16 +12,16 @@
     <artifactId>dms-uz-rtubase</artifactId>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>dms</groupId>-->
-<!--            <artifactId>dms-uz-auth</artifactId>-->
-<!--            <version>1.0-SNAPSHOT</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>dms</groupId>
-            <artifactId>dms-uz-email</artifactId>
+            <artifactId>dms-uz-auth</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>dms</groupId>-->
+<!--            <artifactId>dms-uz-email</artifactId>-->
+<!--            <version>1.0-SNAPSHOT</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

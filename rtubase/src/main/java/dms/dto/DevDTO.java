@@ -5,7 +5,7 @@ import lombok.Data;
 
 
 @Data
-public class DevRequestDTO {
+public class DevDTO {
 
     Long id;
     Integer grid;

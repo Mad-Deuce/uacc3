@@ -1,13 +1,20 @@
-GET http://192.168.1.245:8080/
+
 
 ###
-GET http://192.168.1.245:8080/api/devs/
+GET http://localhost:8080/
 
 ###
-GET http://192.168.1.245:8080/api/devs/97451
+GET http://localhost:8080/api/devs/?size=10&sort=id&id=975&grid=5
+Authorization: Basic postgres postgres
+Accept: application/json
 
 ###
-DELETE http://192.168.1.245:8080/api/devs/97451
+GET http://localhost:8080/api/devs/1131005975
+Authorization: Basic postgres postgres
+Accept: application/json
+
+###
+DELETE http://localhost:8080/api/devs/97451
 
 ###
 GET http://localhost:8080/api/devs/send/
