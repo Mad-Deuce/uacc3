@@ -1,11 +1,13 @@
-package dms.entity;
+package dms.entity.standing.data;
+
+import dms.entity.standing.data.DObjRtuEntity;
 
 import javax.persistence.*;
 import java.math.BigInteger;
 
 @Entity
 @Table(name = "d_rtu", schema = "drtu", catalog = "rtubase")
-public class DRtuEntity extends DObjRtuEntity{
+public class DRtuEntity extends DObjRtuEntity {
 
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Id
@@ -13,8 +15,9 @@ public class DRtuEntity extends DObjRtuEntity{
 //    private String id;
 
     @Basic
-    @Column(name = "id_rail", nullable = true, length = -1)
+    @Column(name = "id_rail",  length = -1, columnDefinition = "BPCHAR")
     private String idRail;
+
     @Basic
     @Column(name = "name", nullable = true, length = 40)
     private String name;

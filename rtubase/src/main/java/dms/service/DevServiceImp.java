@@ -2,7 +2,8 @@ package dms.service;
 
 
 import dms.dto.DevDTO;
-import dms.entity.SDevEntity;
+import dms.entity.standing.data.SDevEntity;
+import dms.entity.standing.data.SDevgrpEntity;
 import dms.model.DevModel;
 import dms.repository.DevRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +16,15 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Predicate;
 
 @Slf4j
 @Service("DevService1")
 public class DevServiceImp implements DevService {
 
-    @PersistenceContext
-    private EntityManager em;
+//    @PersistenceContext
+//    private EntityManager em;
 
     @Autowired
     DevRepository devRepository;
@@ -42,6 +44,8 @@ public class DevServiceImp implements DevService {
         {
             Join<DevModel, SDevEntity> sDev = root.join("sDev");
 
+            Join<SDevEntity, SDevgrpEntity> grid = sDev.join("grid");
+
             criteriaQuery.distinct(false);
 
             Predicate predicateForId;
@@ -54,9 +58,9 @@ public class DevServiceImp implements DevService {
             }
 
             if (devDTO.getGrid() != null) {
-                predicateForGrid = criteriaBuilder.like(sDev.get("grid").as(String.class), "%" + devDTO.getGrid() + "%");
+                predicateForGrid = criteriaBuilder.like(grid.get("grid").as(String.class), "%" + devDTO.getGrid() + "%");
             } else {
-                predicateForGrid = criteriaBuilder.equal(sDev.get("grid"), sDev.get("grid"));
+                predicateForGrid = criteriaBuilder.equal(grid.get("grid"), grid.get("grid"));
             }
 
             return criteriaBuilder.and(predicateForId, predicateForGrid);

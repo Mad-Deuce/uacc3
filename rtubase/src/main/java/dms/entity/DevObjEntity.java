@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class DevObjEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, columnDefinition = "NUMERIC(14,0)")
     private long id;
 
     @Basic
@@ -30,7 +30,7 @@ public class DevObjEntity {
     private String nshem;
 
     @Basic
-    @Column(name = "locate_t",  length = 2)
+    @Column(name = "locate_t",  length = 2, columnDefinition = "BPCHAR")
     private String locateT;
 
     @Basic
@@ -38,19 +38,19 @@ public class DevObjEntity {
     private String region;
 
     @Basic
-    @Column(name = "region_t",  length = 2)
+    @Column(name = "region_t",  length = 2, columnDefinition = "BPCHAR")
     private String regionT;
 
     @Basic
-    @Column(name = "ok_send",  length = -1)
+    @Column(name = "ok_send",  length = -1, columnDefinition = "BPCHAR")
     private String okSend;
 
     @Basic
-    @Column(name = "opcl",  length = -1)
+    @Column(name = "opcl",  length = -1, columnDefinition = "BPCHAR")
     private String opcl;
 
     @Basic
-    @Column(name = "scode",  length = -1)
+    @Column(name = "scode",  length = -1, columnDefinition = "BPCHAR")
     private String scode;
 
     @Basic

@@ -1,9 +1,9 @@
 package dms.model;
 
 
-import dms.entity.DObjRtuEntity;
+import dms.entity.standing.data.DObjRtuEntity;
 import dms.entity.DevObjEntity;
-import dms.entity.SDevEntity;
+import dms.entity.standing.data.SDevEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -20,7 +20,7 @@ import java.sql.Date;
 public class DevModel implements Serializable {
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_obj", nullable = true)
+    @JoinColumn(name = "id_obj")
     private DevObjEntity idObj;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,36 +28,36 @@ public class DevModel implements Serializable {
     private SDevEntity sDev;
 
     @Basic
-    @Column(name = "num", nullable = true, length = 10)
+    @Column(name = "num",  length = 10)
     private String num;
 
     @Basic
-    @Column(name = "myear", nullable = true, length = 4)
+    @Column(name = "myear",  length = 4)
     private String myear;
 
     @Basic
-    @Column(name = "ps", nullable = true, length = 2)
+    @Column(name = "ps",  length = 2)
     private String ps;
 
     @Basic
-    @Column(name = "d_create", nullable = true)
+    @Column(name = "d_create")
     private Date dCreate;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
-    @Column(name = "id", nullable = false, precision = 0)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Basic
-    @Column(name = "d_nkip", nullable = true)
+    @Column(name = "d_nkip" )
     private Date dNkip;
 
     @Basic
-    @Column(name = "d_tkip", nullable = true)
+    @Column(name = "d_tkip" )
     private Date dTkip;
 
     @Basic
-    @Column(name = "t_zam", nullable = true, precision = 0)
+    @Column(name = "t_zam")
     private Integer tZam;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -65,27 +65,27 @@ public class DevModel implements Serializable {
     private DObjRtuEntity dObjRtu;
 
     @Basic
-    @Column(name = "ok_send", nullable = true, length = -1)
+    @Column(name = "ok_send", length = -1)
     private String okSend;
 
     @Basic
-    @Column(name = "opcl", nullable = true, length = -1)
+    @Column(name = "opcl",  length = -1)
     private String opcl;
 
     @Basic
-    @Column(name = "tid_pr", nullable = true, length = 4)
+    @Column(name = "tid_pr",  length = 4)
     private String tidPr;
 
     @Basic
-    @Column(name = "tid_rg", nullable = true, length = 4)
+    @Column(name = "tid_rg",  length = 4)
     private String tidRg;
 
     @Basic
-    @Column(name = "scode", nullable = true, length = -1)
+    @Column(name = "scode",  length = -1)
     private String scode;
 
     @Basic
-    @Column(name = "detail", nullable = true, length = 160)
+    @Column(name = "detail",  length = 160)
     private String detail;
 
     public DevModel(DevModel devModel) {

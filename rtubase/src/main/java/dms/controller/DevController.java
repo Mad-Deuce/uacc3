@@ -60,7 +60,7 @@ public class DevController {
     private DevDTO convert(DevModel devModel) {
         DevDTO devDTO = new DevDTO();
         devDTO.setId(devModel.getId());
-        devDTO.setGrid(devModel.getSDev().getGrid());
+        devDTO.setGrid(devModel.getSDev().getGrid().getGrid());
         return devDTO;
     }
 

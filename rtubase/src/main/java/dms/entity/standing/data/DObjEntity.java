@@ -1,17 +1,19 @@
-package dms.entity;
+package dms.entity.standing.data;
 
 import javax.persistence.*;
 import java.math.BigInteger;
 
 @Entity
 @Table(name = "d_obj", schema = "drtu", catalog = "rtubase")
-public class DObjEntity extends DObjRtuEntity{
+public class DObjEntity extends DObjRtuEntity {
     @Basic
-    @Column(name = "kod_dor", nullable = false, length = -1)
+    @Column(name = "kod_dor", nullable = false, length = -1, columnDefinition = "BPCHAR")
     private String kodDor;
+
     @Basic
-    @Column(name = "kod_otd", nullable = true, length = -1)
+    @Column(name = "kod_otd", length = -1, columnDefinition = "BPCHAR")
     private String kodOtd;
+
     @Basic
     @Column(name = "kod_dist", nullable = false, precision = 0)
     private BigInteger kodDist;
@@ -21,11 +23,13 @@ public class DObjEntity extends DObjRtuEntity{
 //    private Integer kodRtu;
 
     @Basic
-    @Column(name = "kod_obkt", nullable = false, precision = 0)
+    @Column(name = "kod_obkt", nullable = false, columnDefinition = "NUMERIC(3,0)")
     private int kodObkt;
+
     @Basic
     @Column(name = "kod_obj", nullable = true, length = 3)
     private String kodObj;
+
     @Basic
     @Column(name = "name_obj", nullable = true, length = 50)
     private String nameObj;
@@ -38,8 +42,9 @@ public class DObjEntity extends DObjRtuEntity{
 //    private String id;
 
     @Basic
-    @Column(name = "kind", nullable = true, length = -1)
+    @Column(name = "kind", length = -1, columnDefinition = "BPCHAR")
     private String kind;
+
     @Basic
     @Column(name = "cls", nullable = true, length = 2)
     private String cls;

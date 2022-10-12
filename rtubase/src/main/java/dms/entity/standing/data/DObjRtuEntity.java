@@ -1,4 +1,4 @@
-package dms.entity;
+package dms.entity.standing.data;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,13 +9,14 @@ import javax.persistence.*;
 @Data
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@JsonDeserialize(as=DRtuEntity.class)
+@JsonDeserialize(as= DRtuEntity.class)
 public abstract class DObjRtuEntity {
 
     @Id
     @GeneratedValue
     private String id;
 
+    @Column(columnDefinition = "NUMERIC(1,0)")
     private Integer kodRtu;
 
 }
