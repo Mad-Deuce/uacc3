@@ -1,0 +1,16 @@
+dms\entity\SDevEntity.class
+dms\controller\DevRESTController.class
+dms\entity\DRtuEntity.class
+dms\repository\DevRepository.class
+dms\service\DevService.class
+dms\controller\PageWrapper.class
+dms\model\DevModel.class
+dms\Application.class
+dms\entity\DevEntity.class
+dms\dto\DevRequestDTO.class
+dms\controller\PageWrapper$PageItem.class
+dms\controller\RestPreconditions.class
+dms\entity\DObjRtuEntity.class
+dms\config\WebConfig.class
+dms\entity\DObjEntity.class
+dms\entity\DevObjEntity.class

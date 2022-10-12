@@ -27,15 +27,9 @@ public class DevController {
         this.devService = devService;
     }
 
-//    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-//    @GetMapping(value = "/")
-//    public Page<DevModel> findAll(Pageable pageable, DevDTO devDTO) {
-//        return devService.findDevsBySpecification(pageable, devDTO);
-//    }
-
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/")
-    public Page<DevDTO> findAllAlt(Pageable pageable, DevDTO devDTO) {
+    public Page<DevDTO> findAll(Pageable pageable, DevDTO devDTO) {
         return convert(devService.findDevsBySpecification(pageable, devDTO));
     }
 
