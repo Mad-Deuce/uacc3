@@ -2,14 +2,18 @@ package dms.entity.standing.data;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@EqualsAndHashCode(of = {"kodRtu"})
+@ToString(of = {"kodRtu"})
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@JsonDeserialize(as= DRtuEntity.class)
+@JsonDeserialize(as = DRtuEntity.class)
 public abstract class DObjRtuEntity {
 
     @Id

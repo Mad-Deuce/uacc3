@@ -1,20 +1,19 @@
 package dms.entity.standing.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
 
-@Data
+@Getter
+@EqualsAndHashCode(of = {"grid", "dtype"})
+@ToString(of = {"grid", "dtype"})
+@NoArgsConstructor
 @Entity
-@JsonIgnoreProperties(value = {"hibernateLazyInitializer", "handler", "fieldHandler"})
 @Table(name = "s_dev", schema = "drtu", catalog = "rtubase")
-public class SDevEntity implements Serializable {
+public class SDevEntity {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC")
     private long id;

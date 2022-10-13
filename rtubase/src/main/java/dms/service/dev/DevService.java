@@ -1,4 +1,4 @@
-package dms.service;
+package dms.service.dev;
 
 import dms.dto.DevDTO;
 import dms.model.DevModel;

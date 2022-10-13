@@ -3,7 +3,7 @@ package dms.controller;
 
 import dms.dto.DevDTO;
 import dms.model.DevModel;
-import dms.service.DevService;
+import dms.service.dev.DevService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;

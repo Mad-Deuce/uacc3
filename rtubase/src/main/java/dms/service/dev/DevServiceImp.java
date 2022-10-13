@@ -1,4 +1,4 @@
-package dms.service;
+package dms.service.dev;
 
 
 import dms.dto.DevDTO;
@@ -6,6 +6,7 @@ import dms.entity.standing.data.SDevEntity;
 import dms.entity.standing.data.SDevgrpEntity;
 import dms.model.DevModel;
 import dms.repository.DevRepository;
+import dms.service.dev.DevService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Predicate;
 
 @Slf4j
