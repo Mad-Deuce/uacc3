@@ -33,3 +33,8 @@ Accept: application/json
 GET http://localhost:8080/api/rtu/
 Authorization: Basic postgres postgres
 Accept: application/json
+
+###
+GET http://localhost:8080/api/obj/
+Authorization: Basic postgres postgres
+Accept: application/json

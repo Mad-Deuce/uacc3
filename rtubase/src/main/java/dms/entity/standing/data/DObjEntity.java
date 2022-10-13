@@ -5,33 +5,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.math.BigInteger;
+import javax.persistence.*;
 
 @Getter
-@EqualsAndHashCode(callSuper = true, of = {"kodDor", "kodDist", "kodObj"})
-@ToString(callSuper = true, of = {"kodDor", "kodDist", "kodObj", "nameObj"})
+@EqualsAndHashCode(callSuper = true, of = {"dDist", "kodObj"})
+@ToString(callSuper = true, of = {"dDist", "kodObj", "nameObj"})
 @NoArgsConstructor
 @Entity
 @Table(name = "d_obj", schema = "drtu", catalog = "rtubase")
 public class DObjEntity extends DObjRtuEntity {
 
     //    ManyToOne
-    @Basic
-    @Column(name = "kod_dor", nullable = false, length = -1, columnDefinition = "BPCHAR")
-    private String kodDor;
+//    @Basic
+//    @Column(name = "kod_dor", nullable = false, length = -1, columnDefinition = "BPCHAR")
+//    private String kodDor;
 
     @Basic
     @Column(name = "kod_otd", length = -1, columnDefinition = "BPCHAR")
     private String kodOtd;
 
     //    ManyToOne
-    @Basic
-    @Column(name = "kod_dist", nullable = false)
-    private BigInteger kodDist;
+//    @Basic
+//    @Column(name = "kod_dist", nullable = false)
+//    private BigInteger kodDist;
 
     @Basic
     @Column(name = "kod_obkt", nullable = false, columnDefinition = "NUMERIC(3,0)")
@@ -53,5 +49,12 @@ public class DObjEntity extends DObjRtuEntity {
     @Column(name = "cls", length = 2)
     private String cls;
 
-
+    @ManyToOne
+    @JoinColumns({
+            @JoinColumn(name = "kod_dist", referencedColumnName = "code_dist", columnDefinition = "NUMERIC",
+                    insertable = false, updatable = false),
+            @JoinColumn(name = "kod_dor", referencedColumnName = "id_rail", columnDefinition = "BPCHAR",
+                    insertable = false, updatable = false)
+    })
+    private DDistEntity dDist;
 }
