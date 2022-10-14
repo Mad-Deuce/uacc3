@@ -22,10 +22,8 @@ public class DRtuEntity extends DObjRtuEntity {
 
     @ManyToOne
     @JoinColumns({
-            @JoinColumn(name = "kod_did", referencedColumnName = "code_dist", columnDefinition = "NUMERIC",
-                    insertable = false, updatable = false),
-            @JoinColumn(name = "id_rail", referencedColumnName = "id_rail", columnDefinition = "BPCHAR",
-                    insertable = false, updatable = false)
+            @JoinColumn(name = "kod_did", referencedColumnName = "code_dist", columnDefinition = "NUMERIC"),
+            @JoinColumn(name = "id_rail", referencedColumnName = "id_rail", columnDefinition = "BPCHAR")
     })
     private DDistEntity dDist;
 

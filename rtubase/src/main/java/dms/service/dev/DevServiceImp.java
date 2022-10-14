@@ -2,11 +2,10 @@ package dms.service.dev;
 
 
 import dms.dto.DevDTO;
+import dms.entity.DevEntity;
 import dms.entity.standing.data.SDevEntity;
 import dms.entity.standing.data.SDevgrpEntity;
-import dms.model.DevModel;
 import dms.repository.DevRepository;
-import dms.service.dev.DevService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,26 +20,27 @@ import javax.persistence.criteria.Predicate;
 @Service("DevService1")
 public class DevServiceImp implements DevService {
 
-//    @PersistenceContext
-//    private EntityManager em;
+
+    private final DevRepository devRepository;
 
     @Autowired
-    DevRepository devRepository;
+    public DevServiceImp(DevRepository devRepository) {
+        this.devRepository = devRepository;
+    }
 
-    public DevModel findDevById(Long id) {
+    public DevEntity findDevById(Long id) {
         return devRepository.getOne(id);
     }
 
-    public Page<DevModel> findDevsBySpecification(Pageable pageable, DevDTO devDTO) {
+    public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevDTO devDTO) {
         return devRepository.findAll(getSpecification(devDTO), pageable);
     }
 
 
     private Specification<DevDTO> getSpecification(DevDTO devDTO) {
-        //Build Specification with Dev Id and Filter Text
         return (root, criteriaQuery, criteriaBuilder) ->
         {
-            Join<DevModel, SDevEntity> sDev = root.join("sDev");
+            Join<DevEntity, SDevEntity> sDev = root.join("sDev");
 
             Join<SDevEntity, SDevgrpEntity> grid = sDev.join("grid");
 
@@ -49,14 +49,14 @@ public class DevServiceImp implements DevService {
             Predicate predicateForId;
             Predicate predicateForGrid;
 
-            if (devDTO.getId() != null) {
-                predicateForId = criteriaBuilder.like(root.get("id").as(String.class), "%" + devDTO.getId() + "%");
+            if (devDTO.getDeviceId() != null) {
+                predicateForId = criteriaBuilder.like(root.get("id").as(String.class), "%" + devDTO.getDeviceId() + "%");
             } else {
                 predicateForId = criteriaBuilder.equal(root.get("id"), root.get("id"));
             }
 
-            if (devDTO.getGrid() != null) {
-                predicateForGrid = criteriaBuilder.like(grid.get("grid").as(String.class), "%" + devDTO.getGrid() + "%");
+            if (devDTO.getDeviceTypeGroupId() != null) {
+                predicateForGrid = criteriaBuilder.like(grid.get("grid").as(String.class), "%" + devDTO.getDeviceTypeGroupId() + "%");
             } else {
                 predicateForGrid = criteriaBuilder.equal(grid.get("grid"), grid.get("grid"));
             }
@@ -69,18 +69,14 @@ public class DevServiceImp implements DevService {
         devRepository.deleteById(id);
     }
 
-    public void updateDev(DevModel devModel) {
-        devRepository.save(devModel);
+    public void updateDev(DevEntity dev) {
+        devRepository.save(dev);
     }
 
-    public DevModel createDev(DevModel devModel) {
-        DevModel newDev = new DevModel(devModel);
-        newDev.setId(null);
-        newDev.setIdObj(null);
-//        log.info("before");
-        DevModel savedDev = devRepository.saveAndFlush(newDev);
-//        log.info("after", savedDev.getId());
-        return savedDev;
+    public DevEntity createDev(DevEntity dev) {
+        dev.setId(null);
+        dev.setDevObj(null);
+        return devRepository.saveAndFlush(dev);
     }
 
 

@@ -1,21 +1,32 @@
 package dms.entity;
 
-import lombok.Data;
+
+import dms.converter.StatusConverter;
+import dms.dock.val.Status;
+import dms.entity.standing.data.DObjRtuEntity;
+import dms.entity.standing.data.SDevEntity;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
 
-@Data
+@Getter
+@EqualsAndHashCode(of = {"sDev", "num", "myear"})
+@ToString(of = {"sDev", "num", "myear"})
+@NoArgsConstructor
 @Entity
 @Table(name = "dev", schema = "drtu", catalog = "rtubase")
-public class DevEntity {
-    @Basic
-    @Column(name = "id_obj", columnDefinition = "NUMERIC(14,0)")
-    private Long idObj;
+public class DevEntity implements Serializable {
 
-    @Basic
-    @Column(name = "devid", columnDefinition = "NUMERIC(10,0)")
-    private Integer devid;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_obj", referencedColumnName = "id", columnDefinition = "NUMERIC(14,0)")
+    @Setter
+    private DevObjEntity devObj;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "devid", referencedColumnName = "id")
+    private SDevEntity sDev;
 
     @Basic
     @Column(name = "num", length = 10)
@@ -25,9 +36,14 @@ public class DevEntity {
     @Column(name = "myear", length = 4)
     private String myear;
 
-    @Basic
-    @Column(name = "ps", length = 2, columnDefinition = "BPCHAR")
-    private String ps;
+//    @Basic
+//    @Column(name = "ps", length = 2, columnDefinition = "BPCHAR")
+//    private String ps;
+
+    @Convert(converter = StatusConverter.class)
+    @Column(name = "ps", nullable = false, length = 2, columnDefinition = "BPCHAR")
+    private Status status;
+
 
     @Basic
     @Column(name = "d_create")
@@ -36,7 +52,8 @@ public class DevEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC(10,0)")
-    private int id;
+    @Setter
+    private Long id;
 
     @Basic
     @Column(name = "d_nkip")
@@ -50,9 +67,9 @@ public class DevEntity {
     @Column(name = "t_zam", columnDefinition = "NUMERIC(5,0)")
     private Integer tZam;
 
-    @Basic
-    @Column(name = "obj_code", length = 10)
-    private String objCode;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "obj_code")
+    private DObjRtuEntity dObjRtu;
 
     @Basic
     @Column(name = "ok_send", length = -1, columnDefinition = "BPCHAR")
@@ -77,6 +94,5 @@ public class DevEntity {
     @Basic
     @Column(name = "detail", length = 160)
     private String detail;
-
 
 }

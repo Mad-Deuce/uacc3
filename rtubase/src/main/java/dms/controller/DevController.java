@@ -2,7 +2,7 @@ package dms.controller;
 
 
 import dms.dto.DevDTO;
-import dms.model.DevModel;
+import dms.entity.DevEntity;
 import dms.service.dev.DevService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,27 +47,32 @@ public class DevController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/")
-    public void update(@RequestBody DevModel devModel) {
+    public void update(@RequestBody DevEntity devModel) {
         devService.updateDev(devModel);
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
-    @PostMapping(value = "/")
-    public DevDTO create(@RequestBody DevModel devModel) {
+    @PostMapping(value = "/{id}")
+    public DevDTO create(@PathVariable("id") Long id, @RequestBody DevEntity devModel) {
         return convert(devService.createDev(devModel));
     }
 
-    private DevDTO convert(DevModel devModel) {
+    private DevDTO convert(DevEntity devEntity) {
         DevDTO devDTO = new DevDTO();
-        devDTO.setId(devModel.getId());
-        devDTO.setGrid(devModel.getSDev().getGrid().getGrid());
+        devDTO.setDeviceId(devEntity.getId());
+        devDTO.setDeviceTypeGroupId(devEntity.getSDev().getGrid().getGrid());
         return devDTO;
     }
 
-    private Page<DevDTO> convert(Page<DevModel> page) {
+    private Page<DevDTO> convert(Page<DevEntity> page) {
         List<DevDTO> content = page.getContent().stream().map(this::convert).collect(Collectors.toList());
         return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
     }
 
+    private DevEntity convert(DevDTO devDTO){
+        DevEntity devEntity = new DevEntity();
+        devEntity.setId(devDTO.getDeviceId());
+        return devEntity;
+    }
 
 }

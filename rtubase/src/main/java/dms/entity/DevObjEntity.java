@@ -1,6 +1,8 @@
 package dms.entity;
 
+import dms.entity.standing.data.DObjEntity;
 import lombok.Data;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -10,12 +12,16 @@ import javax.persistence.*;
 public class DevObjEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id", nullable = false, columnDefinition = "NUMERIC(14,0)")
+    @Column(name = "id", nullable = false, columnDefinition = "NUMERIC")
     private long id;
 
-    @Basic
-    @Column(name = "obj_code", length = 10)
-    private String objCode;
+//    @Basic
+//    @Column(name = "obj_code", length = 10)
+//    private String objCode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "obj_code", referencedColumnName = "id", columnDefinition = "BPCHAR")
+    private DObjEntity objCode;
 
     @Basic
     @Column(name = "locate", length = 50)

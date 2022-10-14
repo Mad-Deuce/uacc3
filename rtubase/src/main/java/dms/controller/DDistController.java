@@ -2,7 +2,6 @@ package dms.controller;
 
 import dms.entity.standing.data.DDistEntity;
 import dms.service.ddist.DDistService;
-import dms.service.drtu.DRtuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

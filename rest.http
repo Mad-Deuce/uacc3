@@ -1,4 +1,12 @@
+POST http://localhost:8080/api/devs/
+Authorization: Basic postgres postgres
+Accept: application/json
+Content-Type: application/json
 
+{
+  "id": null,
+  "num": "2000"
+}
 
 ###
 GET http://localhost:8080/
@@ -19,6 +27,8 @@ DELETE http://localhost:8080/api/devs/97451
 ###
 GET http://localhost:8080/api/devs/send/
 
+
+
 ###
 GET http://localhost:8080/api/rails/
 Authorization: Basic postgres postgres
@@ -32,7 +42,7 @@ Accept: application/json
 ###
 GET http://localhost:8080/api/rtu/
 Authorization: Basic postgres postgres
-Accept: application/json
+Accept: application/jsond
 
 ###
 GET http://localhost:8080/api/obj/

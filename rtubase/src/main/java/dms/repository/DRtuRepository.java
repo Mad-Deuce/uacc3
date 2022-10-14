@@ -1,6 +1,5 @@
 package dms.repository;
 
-import dms.entity.standing.data.DRailEntity;
 import dms.entity.standing.data.DRtuEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -61,11 +61,16 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.8.1</version>
+        </dependency>
 
     </dependencies>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>16</java.version>
     </properties>
 
     <build>
@@ -84,7 +89,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${build.directory}/classes/static/</outputDirectory>
+                            <outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>../dms-uz-angular/dist/dms-uz-angular</directory>
@@ -93,6 +98,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>16</source>
+                    <target>16</target>
+                </configuration>
             </plugin>
 
         </plugins>
