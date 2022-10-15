@@ -36,14 +36,9 @@ public class DevEntity implements Serializable {
     @Column(name = "myear", length = 4)
     private String myear;
 
-//    @Basic
-//    @Column(name = "ps", length = 2, columnDefinition = "BPCHAR")
-//    private String ps;
-
     @Convert(converter = StatusConverter.class)
     @Column(name = "ps", nullable = false, length = 2, columnDefinition = "BPCHAR")
     private Status status;
-
 
     @Basic
     @Column(name = "d_create")

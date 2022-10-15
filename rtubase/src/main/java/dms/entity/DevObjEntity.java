@@ -1,8 +1,11 @@
 package dms.entity;
 
+import dms.converter.LocateTypeConverter;
+import dms.converter.RegionTypeConverter;
+import dms.dock.val.LocateType;
+import dms.dock.val.RegionType;
 import dms.entity.standing.data.DObjEntity;
 import lombok.Data;
-import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -35,17 +38,26 @@ public class DevObjEntity {
     @Column(name = "nshem",  length = 50)
     private String nshem;
 
-    @Basic
-    @Column(name = "locate_t",  length = 2, columnDefinition = "BPCHAR")
-    private String locateT;
+//    @Basic
+//    @Column(name = "locate_t",  length = 2, columnDefinition = "BPCHAR")
+//    private String locateT;
+
+    @Convert(converter = LocateTypeConverter.class)
+    @Column(name = "locate_t", nullable = false, length = 2, columnDefinition = "BPCHAR")
+    private LocateType locateType;
 
     @Basic
     @Column(name = "region",  length = 50)
     private String region;
 
-    @Basic
-    @Column(name = "region_t",  length = 2, columnDefinition = "BPCHAR")
-    private String regionT;
+//    @Basic
+//    @Column(name = "region_t",  length = 2, columnDefinition = "BPCHAR")
+//    private String regionType;
+
+    @Convert(converter = RegionTypeConverter.class)
+    @Column(name = "region_t", nullable = false, length = 2, columnDefinition = "BPCHAR")
+    private RegionType regionType;
+
 
     @Basic
     @Column(name = "ok_send",  length = -1, columnDefinition = "BPCHAR")

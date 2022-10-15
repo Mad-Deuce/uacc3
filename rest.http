@@ -12,7 +12,7 @@ Content-Type: application/json
 GET http://localhost:8080/
 
 ###
-GET http://localhost:8080/api/devs/?size=10&sort=id&id=975&grid=12
+GET http://localhost:8080/api/devs/?size=10&sort=id&id=975&deviceTypeGroupId=12
 Authorization: Basic postgres postgres
 Accept: application/json
 

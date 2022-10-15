@@ -45,4 +45,9 @@ public class DObjEntity extends DObjRtuEntity {
             @JoinColumn(name = "kod_dor", referencedColumnName = "id_rail", columnDefinition = "BPCHAR")
     })
     private DDistEntity dDist;
+
+    @Override
+    public String getNameObject() {
+        return this.nameObj;
+    }
 }

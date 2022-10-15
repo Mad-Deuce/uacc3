@@ -49,8 +49,8 @@ public class DevServiceImp implements DevService {
             Predicate predicateForId;
             Predicate predicateForGrid;
 
-            if (devDTO.getDeviceId() != null) {
-                predicateForId = criteriaBuilder.like(root.get("id").as(String.class), "%" + devDTO.getDeviceId() + "%");
+            if (devDTO.getId() != null) {
+                predicateForId = criteriaBuilder.like(root.get("id").as(String.class), "%" + devDTO.getId() + "%");
             } else {
                 predicateForId = criteriaBuilder.equal(root.get("id"), root.get("id"));
             }

@@ -27,4 +27,8 @@ public class DRtuEntity extends DObjRtuEntity {
     })
     private DDistEntity dDist;
 
+    @Override
+    public String getNameObject() {
+        return this.name;
+    }
 }

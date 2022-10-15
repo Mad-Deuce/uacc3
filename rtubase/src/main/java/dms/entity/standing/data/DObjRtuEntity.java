@@ -23,4 +23,5 @@ public abstract class DObjRtuEntity {
     @Column(columnDefinition = "NUMERIC(1,0)")
     private Integer kodRtu;
 
+    public abstract String getNameObject();
 }

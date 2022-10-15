@@ -22,8 +22,7 @@ public class DevController {
     private final DevService devService;
 
     @Autowired
-    public DevController(
-            @Qualifier("DevService1") DevService devService) {
+    public DevController(@Qualifier("DevService1") DevService devService) {
         this.devService = devService;
     }
 
@@ -59,8 +58,32 @@ public class DevController {
 
     private DevDTO convert(DevEntity devEntity) {
         DevDTO devDTO = new DevDTO();
-        devDTO.setDeviceId(devEntity.getId());
+        devDTO.setId(devEntity.getId());
+        devDTO.setDeviceTypeId(devEntity.getSDev().getId());
         devDTO.setDeviceTypeGroupId(devEntity.getSDev().getGrid().getGrid());
+        devDTO.setGroup(devEntity.getSDev().getGrid().getName());
+        devDTO.setType(devEntity.getSDev().getDtype());
+        devDTO.setNumber(devEntity.getNum());
+        devDTO.setReleaseYear(devEntity.getMyear());
+        devDTO.setTestDate(devEntity.getDTkip());
+        devDTO.setNextTestDate(devEntity.getDNkip());
+        devDTO.setStatusCode(devEntity.getStatus().getName());
+        devDTO.setStatusDescription(devEntity.getStatus().getComm());
+        devDTO.setDeviceDetail(devEntity.getDetail());
+        devDTO.setObjectId(devEntity.getDObjRtu().getId());
+        devDTO.setObjectName(devEntity.getDObjRtu().getNameObject());
+        if (devEntity.getDevObj() != null) {
+            devDTO.setPlaceId(devEntity.getDevObj().getId());
+            devDTO.setDescription(devEntity.getDevObj().getNshem());
+            devDTO.setRegion(devEntity.getDevObj().getRegion());
+            devDTO.setRegionTypeCode(devEntity.getDevObj().getRegionType().getName());
+            devDTO.setRegionTypeDescription(devEntity.getDevObj().getRegionType().getComm());
+            devDTO.setLocate(devEntity.getDevObj().getLocate());
+            devDTO.setLocateTypeCode(devEntity.getDevObj().getLocateType().getName());
+            devDTO.setLocateTypeDescription(devEntity.getDevObj().getLocateType().getComm());
+            devDTO.setPlaceNumber(devEntity.getDevObj().getNplace());
+            devDTO.setPlaceDetail(devEntity.getDevObj().getDetail());
+        }
         return devDTO;
     }
 
@@ -69,9 +92,9 @@ public class DevController {
         return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
     }
 
-    private DevEntity convert(DevDTO devDTO){
+    private DevEntity convert(DevDTO devDTO) {
         DevEntity devEntity = new DevEntity();
-        devEntity.setId(devDTO.getDeviceId());
+        devEntity.setId(devDTO.getId());
         return devEntity;
     }
 
