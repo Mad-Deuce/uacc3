@@ -29,7 +29,7 @@ public class DevServiceImp implements DevService {
     }
 
     public DevEntity findDevById(Long id) {
-        return devRepository.getOne(id);
+        return devRepository.getReferenceById(id);
     }
 
     public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevDTO devDTO) {
@@ -41,7 +41,6 @@ public class DevServiceImp implements DevService {
         return (root, criteriaQuery, criteriaBuilder) ->
         {
             Join<DevEntity, SDevEntity> sDev = root.join("sDev");
-
             Join<SDevEntity, SDevgrpEntity> grid = sDev.join("grid");
 
             criteriaQuery.distinct(false);
@@ -55,8 +54,8 @@ public class DevServiceImp implements DevService {
                 predicateForId = criteriaBuilder.equal(root.get("id"), root.get("id"));
             }
 
-            if (devDTO.getDeviceTypeGroupId() != null) {
-                predicateForGrid = criteriaBuilder.like(grid.get("grid").as(String.class), "%" + devDTO.getDeviceTypeGroupId() + "%");
+            if (devDTO.getTypeGroupId() != null) {
+                predicateForGrid = criteriaBuilder.like(grid.get("grid").as(String.class), "%" + devDTO.getTypeGroupId() + "%");
             } else {
                 predicateForGrid = criteriaBuilder.equal(grid.get("grid"), grid.get("grid"));
             }

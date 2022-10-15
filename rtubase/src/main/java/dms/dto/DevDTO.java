@@ -11,31 +11,31 @@ public class DevDTO {
 
     private Long id;
 
-    private Long deviceTypeId;
-    private Integer deviceTypeGroupId;
-    private String group;
-    private String type;
+    private Long typeId;
+    private String typeName;
+
+    private Integer typeGroupId;
+    private String typeGroupName;
 
     private String number;
     private String releaseYear;
     private Date testDate;
     private Date nextTestDate;
     private String statusCode;
-    private String statusDescription;
-    private String deviceDetail;
+    private String statusComment;
+    private String detail;
 
     private String objectId;
     private String objectName;
-//    private Object object;
 
     private Long placeId;
     private String description;
     private String region;
     private String regionTypeCode;
-    private String regionTypeDescription;
+    private String regionTypeComment;
     private String locate;
     private String locateTypeCode;
-    private String locateTypeDescription;
+    private String locateTypeComment;
     private String placeNumber;
     private String placeDetail;
 

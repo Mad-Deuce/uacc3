@@ -7,7 +7,7 @@ import javax.persistence.Converter;
 
 import static org.apache.commons.lang3.StringUtils.trim;
 
-@Converter(autoApply = false)
+@Converter
 public class RegionTypeConverter implements AttributeConverter<RegionType, String> {
     @Override
     public String convertToDatabaseColumn(RegionType regionType) {

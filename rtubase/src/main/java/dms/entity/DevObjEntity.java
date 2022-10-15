@@ -18,10 +18,6 @@ public class DevObjEntity {
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC")
     private long id;
 
-//    @Basic
-//    @Column(name = "obj_code", length = 10)
-//    private String objCode;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obj_code", referencedColumnName = "id", columnDefinition = "BPCHAR")
     private DObjEntity objCode;
@@ -38,10 +34,6 @@ public class DevObjEntity {
     @Column(name = "nshem",  length = 50)
     private String nshem;
 
-//    @Basic
-//    @Column(name = "locate_t",  length = 2, columnDefinition = "BPCHAR")
-//    private String locateT;
-
     @Convert(converter = LocateTypeConverter.class)
     @Column(name = "locate_t", nullable = false, length = 2, columnDefinition = "BPCHAR")
     private LocateType locateType;
@@ -49,10 +41,6 @@ public class DevObjEntity {
     @Basic
     @Column(name = "region",  length = 50)
     private String region;
-
-//    @Basic
-//    @Column(name = "region_t",  length = 2, columnDefinition = "BPCHAR")
-//    private String regionType;
 
     @Convert(converter = RegionTypeConverter.class)
     @Column(name = "region_t", nullable = false, length = 2, columnDefinition = "BPCHAR")

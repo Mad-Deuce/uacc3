@@ -58,29 +58,35 @@ public class DevController {
 
     private DevDTO convert(DevEntity devEntity) {
         DevDTO devDTO = new DevDTO();
+
         devDTO.setId(devEntity.getId());
-        devDTO.setDeviceTypeId(devEntity.getSDev().getId());
-        devDTO.setDeviceTypeGroupId(devEntity.getSDev().getGrid().getGrid());
-        devDTO.setGroup(devEntity.getSDev().getGrid().getName());
-        devDTO.setType(devEntity.getSDev().getDtype());
+
+        devDTO.setTypeId(devEntity.getSDev().getId());
+        devDTO.setTypeName(devEntity.getSDev().getDtype());
+
+        devDTO.setTypeGroupId(devEntity.getSDev().getGrid().getGrid());
+        devDTO.setTypeGroupName(devEntity.getSDev().getGrid().getName());
+
         devDTO.setNumber(devEntity.getNum());
         devDTO.setReleaseYear(devEntity.getMyear());
         devDTO.setTestDate(devEntity.getDTkip());
         devDTO.setNextTestDate(devEntity.getDNkip());
         devDTO.setStatusCode(devEntity.getStatus().getName());
-        devDTO.setStatusDescription(devEntity.getStatus().getComm());
-        devDTO.setDeviceDetail(devEntity.getDetail());
+        devDTO.setStatusComment(devEntity.getStatus().getComm());
+        devDTO.setDetail(devEntity.getDetail());
+
         devDTO.setObjectId(devEntity.getDObjRtu().getId());
         devDTO.setObjectName(devEntity.getDObjRtu().getNameObject());
+
         if (devEntity.getDevObj() != null) {
             devDTO.setPlaceId(devEntity.getDevObj().getId());
             devDTO.setDescription(devEntity.getDevObj().getNshem());
             devDTO.setRegion(devEntity.getDevObj().getRegion());
             devDTO.setRegionTypeCode(devEntity.getDevObj().getRegionType().getName());
-            devDTO.setRegionTypeDescription(devEntity.getDevObj().getRegionType().getComm());
+            devDTO.setRegionTypeComment(devEntity.getDevObj().getRegionType().getComm());
             devDTO.setLocate(devEntity.getDevObj().getLocate());
             devDTO.setLocateTypeCode(devEntity.getDevObj().getLocateType().getName());
-            devDTO.setLocateTypeDescription(devEntity.getDevObj().getLocateType().getComm());
+            devDTO.setLocateTypeComment(devEntity.getDevObj().getLocateType().getComm());
             devDTO.setPlaceNumber(devEntity.getDevObj().getNplace());
             devDTO.setPlaceDetail(devEntity.getDevObj().getDetail());
         }

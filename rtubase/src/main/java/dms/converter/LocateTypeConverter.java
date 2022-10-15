@@ -1,14 +1,13 @@
 package dms.converter;
 
 import dms.dock.val.LocateType;
-import dms.dock.val.RegionType;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 import static org.apache.commons.lang3.StringUtils.trim;
 
-@Converter(autoApply = false)
+@Converter
 public class LocateTypeConverter implements AttributeConverter<LocateType, String> {
     @Override
     public String convertToDatabaseColumn(LocateType locateType) {

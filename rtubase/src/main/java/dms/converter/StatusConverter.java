@@ -5,12 +5,10 @@ import dms.dock.val.Status;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import java.util.Arrays;
-import java.util.function.Predicate;
 
 import static org.apache.commons.lang3.StringUtils.trim;
 
-@Converter(autoApply = false)
+@Converter
 public class StatusConverter implements AttributeConverter<Status, String> {
     @Override
     public String convertToDatabaseColumn(Status status) {
