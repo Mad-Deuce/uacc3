@@ -32,6 +32,12 @@ Authorization: Basic postgres postgres
 Accept: application/json
 
 ###
+POST http://localhost:8080/api/rails/
+Authorization: Basic postgres postgres
+Accept: application/json
+
+
+###
 GET http://localhost:8080/api/dist/
 Authorization: Basic postgres postgres
 Accept: application/json
