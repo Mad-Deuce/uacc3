@@ -21,4 +21,9 @@ public class DObjServiceImpl implements DObjService {
     public List<DObjEntity> getAll() {
         return dObjRepository.findAll();
     }
+
+    @Override
+    public DObjEntity findById(Long id) {
+        return dObjRepository.getReferenceById(id);
+    }
 }

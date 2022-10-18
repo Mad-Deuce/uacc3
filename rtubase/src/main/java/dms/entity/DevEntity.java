@@ -9,8 +9,10 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
+//import java.sql.Date;
 
+@Setter
 @Getter
 @EqualsAndHashCode(of = {"sDev", "num", "myear"})
 @ToString(of = {"sDev", "num", "myear"})
@@ -21,7 +23,6 @@ public class DevEntity implements Serializable {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_obj", referencedColumnName = "id", columnDefinition = "NUMERIC(14,0)")
-    @Setter
     private DevObjEntity devObj;
 
     @ManyToOne(fetch = FetchType.LAZY)

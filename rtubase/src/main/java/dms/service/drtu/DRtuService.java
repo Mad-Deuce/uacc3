@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface DRtuService {
     public List<DRtuEntity> getAll();
+
+    DRtuEntity findById(Long id);
 }

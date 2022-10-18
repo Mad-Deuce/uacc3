@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Date;
 
+@Setter
 @Getter
 @EqualsAndHashCode(of = {"grid", "dtype"})
 @ToString(of = {"grid", "dtype"})

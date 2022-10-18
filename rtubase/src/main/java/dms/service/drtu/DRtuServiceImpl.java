@@ -23,4 +23,9 @@ public class DRtuServiceImpl implements DRtuService {
     public List<DRtuEntity> getAll(){
         return dRtuRepository.findAll();
     }
+
+    @Override
+    public DRtuEntity findById(Long id) {
+        return dRtuRepository.getReferenceById(id);
+    }
 }

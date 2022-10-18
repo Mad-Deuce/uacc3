@@ -1,9 +1,15 @@
 package dms.controller;
 
 
+import dms.converter.StatusConverter;
 import dms.dto.DevDTO;
 import dms.entity.DevEntity;
+import dms.entity.standing.data.SDevEntity;
+import dms.entity.standing.data.SDevgrpEntity;
 import dms.service.dev.DevService;
+import dms.service.dobj.DObjService;
+import dms.service.drtu.DRtuService;
+import dms.service.sdev.SDevService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -20,10 +26,17 @@ import java.util.stream.Collectors;
 public class DevController {
 
     private final DevService devService;
+    private final SDevService sDevService;
+    private final DObjService dObjService;
+    private final DRtuService dRtuService;
 
     @Autowired
-    public DevController(@Qualifier("DevService1") DevService devService) {
+    public DevController(@Qualifier("DevService1") DevService devService,
+                         SDevService sDevService, DObjService dObjService, DRtuService dRtuService) {
         this.devService = devService;
+        this.sDevService = sDevService;
+        this.dObjService = dObjService;
+        this.dRtuService = dRtuService;
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
@@ -98,9 +111,34 @@ public class DevController {
         return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
     }
 
-    private DevEntity convert(DevDTO devDTO) {
+    private DevEntity convertForFilter(DevDTO devDTO) {
         DevEntity devEntity = new DevEntity();
+
         devEntity.setId(devDTO.getId());
+
+//  Add SdevEntity
+        SDevEntity sDevEntity = new SDevEntity();
+        SDevgrpEntity sDevgrpEntity = new SDevgrpEntity();
+        sDevgrpEntity.setGrid(devDTO.getTypeGroupId());
+        sDevgrpEntity.setName(devDTO.getTypeGroupName());
+        sDevEntity.setGrid(sDevgrpEntity);
+        sDevEntity.setDtype(devDTO.getTypeName());
+        devEntity.setSDev(sDevEntity);
+//  END ADD SdevEntity
+        devEntity.setNum(devDTO.getNumber());
+        devEntity.setMyear(devDTO.getReleaseYear());
+        devEntity.setDTkip(devDTO.getTestDate());
+        devEntity.setDNkip(devDTO.getNextTestDate());
+//        WARNING
+        StatusConverter statusConverter = new StatusConverter();
+        devEntity.setStatus(statusConverter.convertToEntityAttribute(devDTO.getStatusCode()));
+//        END OF WARNING
+        devEntity.setDetail(devDTO.getDetail());
+//        WARNING 2
+        devEntity.setDObjRtu(dObjService.findById(devDTO.getId())!=null
+                ? dObjService.findById(devDTO.getId())
+                : dRtuService.findById(devDTO.getId()));
+//        END OF WARNING 2
         return devEntity;
     }
 

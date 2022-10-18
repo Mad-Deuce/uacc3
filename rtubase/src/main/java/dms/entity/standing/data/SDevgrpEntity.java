@@ -1,12 +1,10 @@
 package dms.entity.standing.data;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
+@Setter
 @Getter
 @EqualsAndHashCode(of = {"grid"})
 @ToString(of = {"grid", "name"})

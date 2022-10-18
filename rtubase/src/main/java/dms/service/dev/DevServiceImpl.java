@@ -18,13 +18,13 @@ import javax.persistence.criteria.Predicate;
 
 @Slf4j
 @Service("DevService1")
-public class DevServiceImp implements DevService {
+public class DevServiceImpl implements DevService {
 
 
     private final DevRepository devRepository;
 
     @Autowired
-    public DevServiceImp(DevRepository devRepository) {
+    public DevServiceImpl(DevRepository devRepository) {
         this.devRepository = devRepository;
     }
 

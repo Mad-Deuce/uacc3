@@ -24,4 +24,5 @@ public abstract class DObjRtuEntity {
     private Integer kodRtu;
 
     public abstract String getNameObject();
+
 }

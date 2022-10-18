@@ -50,4 +50,6 @@ public class DObjEntity extends DObjRtuEntity {
     public String getNameObject() {
         return this.nameObj;
     }
+
+
 }
