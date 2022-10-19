@@ -15,7 +15,7 @@ public class SDevgrpEntity {
 
     @Id
     @Column(name = "grid", nullable = false, columnDefinition = "NUMERIC")
-    private int grid;
+    private Integer grid;
 
     @Basic
     @Column(name = "name", length = 160)

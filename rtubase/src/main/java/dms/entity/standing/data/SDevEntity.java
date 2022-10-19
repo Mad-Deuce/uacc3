@@ -17,7 +17,7 @@ public class SDevEntity {
 
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC")
-    private long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grid", referencedColumnName = "grid")

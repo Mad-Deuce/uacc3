@@ -8,6 +8,7 @@ Content-Type: application/json
   "num": "2000"
 }
 
+
 ###
 GET http://localhost:8080/api/devs/?size=10&sort=id&id=975&deviceTypeGroupId=12
 Authorization: Basic postgres postgres

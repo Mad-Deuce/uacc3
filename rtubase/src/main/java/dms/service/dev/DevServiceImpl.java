@@ -5,6 +5,7 @@ import dms.dto.DevDTO;
 import dms.entity.DevEntity;
 import dms.entity.standing.data.SDevEntity;
 import dms.entity.standing.data.SDevgrpEntity;
+import dms.filter.DevFilter;
 import dms.repository.DevRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +33,12 @@ public class DevServiceImpl implements DevService {
         return devRepository.getReferenceById(id);
     }
 
-    public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevDTO devDTO) {
-        return devRepository.findAll(getSpecification(devDTO), pageable);
+    public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter) {
+        return devRepository.findAll(getSpecification(devFilter), pageable);
     }
 
 
-    private Specification<DevDTO> getSpecification(DevDTO devDTO) {
+    private Specification<DevFilter> getSpecification(DevFilter devFilter) {
         return (root, criteriaQuery, criteriaBuilder) ->
         {
             Join<DevEntity, SDevEntity> sDev = root.join("sDev");
@@ -48,14 +49,14 @@ public class DevServiceImpl implements DevService {
             Predicate predicateForId;
             Predicate predicateForGrid;
 
-            if (devDTO.getId() != null) {
-                predicateForId = criteriaBuilder.like(root.get("id").as(String.class), "%" + devDTO.getId() + "%");
+            if (devFilter.getId() != null) {
+                predicateForId = criteriaBuilder.like(root.get("id").as(String.class), "%" + devFilter.getId() + "%");
             } else {
                 predicateForId = criteriaBuilder.equal(root.get("id"), root.get("id"));
             }
 
-            if (devDTO.getTypeGroupId() != null) {
-                predicateForGrid = criteriaBuilder.like(grid.get("grid").as(String.class), "%" + devDTO.getTypeGroupId() + "%");
+            if (devFilter.getTypeGroupId() != null) {
+                predicateForGrid = criteriaBuilder.like(grid.get("grid").as(String.class), "%" + devFilter.getTypeGroupId() + "%");
             } else {
                 predicateForGrid = criteriaBuilder.equal(grid.get("grid"), grid.get("grid"));
             }

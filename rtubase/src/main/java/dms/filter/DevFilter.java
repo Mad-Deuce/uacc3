@@ -1,19 +1,14 @@
-package dms.dto;
-
+package dms.filter;
 
 import lombok.Data;
 
 import java.sql.Date;
 
-//import java.util.Date;
-
-
 @Data
-public class DevDTO {
-
+public class DevFilter {
     private Long id;
 
-    private Long typeId;
+//    private Long typeId;
     private String typeName;
 
     private Integer typeGroupId;
@@ -28,10 +23,10 @@ public class DevDTO {
     private String statusComment;
     private String detail;
 
-    private String objectId;
+    //    private String objectId;
     private String objectName;
 
-    private Long placeId;
+    //    private Long placeId;
     private String description;
     private String region;
     private String regionTypeCode;
@@ -41,7 +36,4 @@ public class DevDTO {
     private String locateTypeComment;
     private String placeNumber;
     private String placeDetail;
-
-
 }
-

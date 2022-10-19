@@ -1,7 +1,7 @@
 package dms.service.dev;
 
-import dms.dto.DevDTO;
 import dms.entity.DevEntity;
+import dms.filter.DevFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -10,7 +10,7 @@ public interface DevService {
 
     public DevEntity findDevById(Long id);
 
-    public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevDTO devDTO);
+    public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter);
 
     public void deleteDevById(Long id);
 
