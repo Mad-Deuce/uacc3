@@ -1,10 +1,9 @@
 package dms.service.dev;
 
 
-import dms.dto.DevDTO;
 import dms.entity.DevEntity;
-import dms.entity.standing.data.SDevEntity;
-import dms.entity.standing.data.SDevgrpEntity;
+import dms.standing.data.entity.SDevEntity;
+import dms.standing.data.entity.SDevgrpEntity;
 import dms.filter.DevFilter;
 import dms.repository.DevRepository;
 import lombok.extern.slf4j.Slf4j;

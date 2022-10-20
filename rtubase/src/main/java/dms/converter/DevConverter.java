@@ -1,87 +1,45 @@
-package dms.controller;
+package dms.converter;
 
-
-import dms.converter.DevConverter;
 import dms.dto.DevDTO;
 import dms.entity.DevEntity;
 import dms.entity.DevObjEntity;
+import dms.exception.NoEntityException;
+import dms.exception.WrongDataException;
 import dms.filter.DevFilter;
-import dms.service.dev.DevService;
 import dms.service.devobj.DevObjService;
+import dms.standing.data.dock.val.Status;
+import dms.standing.data.entity.DObjEntity;
+import dms.standing.data.entity.DObjRtuEntity;
+import dms.standing.data.entity.DRtuEntity;
+import dms.standing.data.entity.SDevEntity;
 import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.drtu.DRtuService;
 import dms.standing.data.service.sdev.SDevService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.trim;
 
-@RestController
-@RequestMapping("/api/devs")
-public class DevController {
-
-    private final DevService devService;
+@Component
+public class DevConverter {
     private final DevObjService devObjService;
     private final SDevService sDevService;
     private final DObjService dObjService;
     private final DRtuService dRtuService;
-    private final DevConverter devConverter;
 
     @Autowired
-    public DevController(@Qualifier("DevService1") DevService devService,
-                         DevObjService devObjService, SDevService sDevService,
-                         DObjService dObjService, DRtuService dRtuService, DevConverter devConverter) {
-        this.devService = devService;
+    public DevConverter(DevObjService devObjService, SDevService sDevService, DObjService dObjService, DRtuService dRtuService) {
         this.devObjService = devObjService;
         this.sDevService = sDevService;
         this.dObjService = dObjService;
         this.dRtuService = dRtuService;
-        this.devConverter = devConverter;
     }
-
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/")
-    public Page<DevDTO> findAll(Pageable pageable, DevDTO devDTO) {
-        return convert(devService.findDevsBySpecification(pageable, convertToFilter(devDTO)));
-    }
-
-    @CrossOrigin(origins = "http://localhost:4200")
-    @GetMapping(value = "/{id}")
-    public DevDTO findById(@PathVariable("id") Long id) {
-        return convert(devService.findDevById(id));
-    }
-
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
-    @DeleteMapping(value = "/{id}")
-    public void deleteById(@PathVariable("id") Long id) {
-        devService.deleteDevById(id);
-    }
-
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
-    @PutMapping(value = "/{id}")
-    public void updateById(@PathVariable("id") Long id, @RequestBody DevEntity devModel) {
-        devService.updateDev(devModel);
-    }
-
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
-    @PostMapping(value = "/")
-    public DevDTO create(@RequestBody DevEntity devModel) {
-        return convert(devService.createDev(devModel));
-    }
-
-    //    temp
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/test-convert-for-filter")
-    public DevEntity testCFF(DevDTO devDTO) {
-        return devConverter.dtoToEntity(devDTO);
-    }
-    //End temp
 
     private DevDTO convert(DevEntity devEntity) {
         DevDTO devDTO = new DevDTO();
@@ -159,4 +117,62 @@ public class DevController {
         return devFilter;
     }
 
+    public DevEntity dtoToEntity(DevDTO devDTO) {
+        DevEntity devEntity = new DevEntity();
+
+        devEntity.setDevObj(resolveDevObj(devDTO.getPlaceId()));
+        devEntity.setSDev(resolveSDev(devDTO.getTypeId()));
+        devEntity.setNum(devDTO.getNumber());
+        devEntity.setMyear(devDTO.getReleaseYear());
+        devEntity.setStatus(resolveStatus(devDTO.getStatusCode()));
+        devEntity.setId(devDTO.getId());
+        devEntity.setDNkip(devDTO.getNextTestDate());
+        devEntity.setDTkip(devDTO.getTestDate());
+        devEntity.setTZam(devDTO.getReplacementPeriod());
+        devEntity.setDObjRtu(resolveDObjRtu(devDTO.getObjectId()));
+        devEntity.setDetail(devDTO.getDetail());
+
+
+        return devEntity;
+    }
+
+
+    private DevObjEntity resolveDevObj(Long devObjId) {
+        if (devObjId == null) return null;
+        return devObjService.findDevObjById(devObjId)
+                .orElseThrow(() -> new NoEntityException("Place for device (DevObjEntity) with the id=" + devObjId + " not found"));
+    }
+
+    private SDevEntity resolveSDev(Long sDevId) {
+        if (sDevId == null) throw new WrongDataException("Id for device type (sDevId) not be NULL");
+        return (sDevService.findSDevByID(sDevId)
+                .orElseThrow(() -> new NoEntityException("Device type (SDevEntity) with the id=" + sDevId + " not found")));
+    }
+
+    private Status resolveStatus(String statusCode) {
+        if (statusCode == null) statusCode = "31";
+        if (trim(statusCode).equals("")) statusCode = "31";
+        for (Status status : Status.values()) {
+            if (status.getName().equals(trim(statusCode))) {
+                return status;
+            }
+        }
+        throw new WrongDataException("Wrong Status Code");
+    }
+
+    private DObjRtuEntity resolveDObjRtu(String objectId) {
+        if (objectId == null) throw new WrongDataException("Id for object (DObjRtuId) not be NULL");
+        if (trim(objectId).equals("")) throw new WrongDataException("Id for object (DObjRtuId) not be NULL");
+        Optional<DRtuEntity> rtu = dRtuService.findById(objectId);
+        if (rtu.isPresent()) {
+            return rtu.get();
+        }
+
+        Optional<DObjEntity> place = dObjService.findById(objectId);
+        if (place.isPresent()) {
+            return place.get();
+        }
+
+        throw new NoEntityException("Object (objectId) with the id=" + objectId + " not found");
+    }
 }

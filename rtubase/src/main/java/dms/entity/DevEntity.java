@@ -1,10 +1,10 @@
 package dms.entity;
 
 
-import dms.converter.StatusConverter;
-import dms.dock.val.Status;
-import dms.entity.standing.data.DObjRtuEntity;
-import dms.entity.standing.data.SDevEntity;
+import dms.standing.data.converter.StatusConverter;
+import dms.standing.data.dock.val.Status;
+import dms.standing.data.entity.DObjRtuEntity;
+import dms.standing.data.entity.SDevEntity;
 import lombok.*;
 
 import javax.persistence.*;

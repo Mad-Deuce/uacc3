@@ -1,6 +1,6 @@
 package dms.repository;
 
-import dms.dock.val.Status;
+import dms.standing.data.dock.val.Status;
 import dms.entity.DevEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

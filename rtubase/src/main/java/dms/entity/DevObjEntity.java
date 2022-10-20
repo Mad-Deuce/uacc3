@@ -1,10 +1,10 @@
 package dms.entity;
 
-import dms.converter.LocateTypeConverter;
-import dms.converter.RegionTypeConverter;
-import dms.dock.val.LocateType;
-import dms.dock.val.RegionType;
-import dms.entity.standing.data.DObjEntity;
+import dms.standing.data.converter.LocateTypeConverter;
+import dms.standing.data.converter.RegionTypeConverter;
+import dms.standing.data.dock.val.LocateType;
+import dms.standing.data.dock.val.RegionType;
+import dms.standing.data.entity.DObjEntity;
 import lombok.Data;
 
 import javax.persistence.*;
