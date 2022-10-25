@@ -4,11 +4,10 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "typeId": "11030146",
-  "objectId": "1011",
-  "number": "1237",
+  "number": "0001",
+  "statusCode": "31",
   "activeProperties": [
-    "NUMBER"
+    "STATUS"
   ]
 }
 

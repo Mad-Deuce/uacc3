@@ -144,14 +144,13 @@ public class DevConverter {
     }
 
     private SDevEntity resolveSDev(Long sDevId) {
-        if (sDevId == null) throw new WrongDataException("Id for device type (sDevId) not be NULL");
+        if (sDevId == null) return null;
         return (sDevService.findSDevByID(sDevId)
                 .orElseThrow(() -> new NoEntityException("Device type (SDevEntity) with the id=" + sDevId + " not found")));
     }
 
     private Status resolveStatus(String statusCode) {
-        if (statusCode == null) statusCode = "31";
-        if (trim(statusCode).equals("")) statusCode = "31";
+        if (statusCode == null) return null;
         for (Status status : Status.values()) {
             if (status.getName().equals(trim(statusCode))) {
                 return status;
@@ -161,8 +160,7 @@ public class DevConverter {
     }
 
     private DObjRtuEntity resolveDObjRtu(String objectId) {
-        if (objectId == null) throw new WrongDataException("Id for object (DObjRtuId) not be NULL");
-        if (trim(objectId).equals("")) throw new WrongDataException("Id for object (DObjRtuId) not be NULL");
+        if (objectId == null) return null;
         Optional<DRtuEntity> rtu = dRtuService.findById(objectId);
         if (rtu.isPresent()) {
             return rtu.get();

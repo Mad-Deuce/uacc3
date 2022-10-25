@@ -28,7 +28,8 @@ public enum DevPropertyNameConstant {
     TEST_DATE("testDate","dTkip"),
     NEXT_TEST_DATE("nextTestDate","dNkip"),
     REPLACEMENT_PERIOD("replacementPeriod","tZam"),
-    STATUS_CODE("statusCode","status.id"),
+    STATUS("statusCode","status"),
+    STATUS_CODE("statusCode","status.name"),
     STATUS_COMMENT("statusComment","status.comm"),
     DETAIL("detail","detail"),
 
