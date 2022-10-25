@@ -41,7 +41,7 @@ public class DevConverter {
         this.dRtuService = dRtuService;
     }
 
-    private DevDTO convert(DevEntity devEntity) {
+    public DevDTO convertEntityToDto(DevEntity devEntity) {
         DevDTO devDTO = new DevDTO();
 
         devDTO.setId(devEntity.getId());
@@ -79,12 +79,12 @@ public class DevConverter {
         return devDTO;
     }
 
-    private Page<DevDTO> convert(Page<DevEntity> page) {
-        List<DevDTO> content = page.getContent().stream().map(this::convert).collect(Collectors.toList());
+    public Page<DevDTO> convertEntityToDto(Page<DevEntity> page) {
+        List<DevDTO> content = page.getContent().stream().map(this::convertEntityToDto).collect(Collectors.toList());
         return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
     }
 
-    private DevFilter convertToFilter(DevDTO devDTO) {
+    public DevFilter convertDtoToFilter(DevDTO devDTO) {
         DevFilter devFilter = new DevFilter();
 
         devFilter.setId(devDTO.getId());
@@ -117,7 +117,7 @@ public class DevConverter {
         return devFilter;
     }
 
-    public DevEntity dtoToEntity(DevDTO devDTO) {
+    public DevEntity convertDtoToEntity(DevDTO devDTO) {
         DevEntity devEntity = new DevEntity();
 
         devEntity.setDevObj(resolveDevObj(devDTO.getPlaceId()));

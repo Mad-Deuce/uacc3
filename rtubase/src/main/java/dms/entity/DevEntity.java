@@ -9,8 +9,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-//import java.util.Date;
 import java.sql.Date;
+
 
 @Setter
 @Getter
@@ -90,5 +90,4 @@ public class DevEntity implements Serializable {
     @Basic
     @Column(name = "detail", length = 160)
     private String detail;
-
 }

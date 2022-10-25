@@ -1,3 +1,18 @@
+PUT http://localhost:8080/api/devs/19
+Authorization: Basic postgres postgres
+Accept: application/json
+Content-Type: application/json
+
+{
+  "typeId": "11030146",
+  "objectId": "1011",
+  "number": "1237",
+  "activeProperties": [
+    "NUMBER"
+  ]
+}
+
+###
 POST http://localhost:8080/api/devs/
 Authorization: Basic postgres postgres
 Accept: application/json
@@ -10,7 +25,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:8080/api/devs/?size=10&sort=id&id=975&deviceTypeGroupId=12
+GET http://localhost:8080/api/devs/?size=10&sort=id&id=975&typeGroupId=12
 Authorization: Basic postgres postgres
 Accept: application/json
 

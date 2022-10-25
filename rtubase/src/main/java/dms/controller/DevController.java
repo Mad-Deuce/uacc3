@@ -4,22 +4,15 @@ package dms.controller;
 import dms.converter.DevConverter;
 import dms.dto.DevDTO;
 import dms.entity.DevEntity;
-import dms.entity.DevObjEntity;
-import dms.filter.DevFilter;
+import dms.property.name.constant.DevPropertyNameConstant;
 import dms.service.dev.DevService;
-import dms.service.devobj.DevObjService;
-import dms.standing.data.service.dobj.DObjService;
-import dms.standing.data.service.drtu.DRtuService;
-import dms.standing.data.service.sdev.SDevService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 
 @RestController
@@ -27,34 +20,24 @@ import java.util.stream.Collectors;
 public class DevController {
 
     private final DevService devService;
-    private final DevObjService devObjService;
-    private final SDevService sDevService;
-    private final DObjService dObjService;
-    private final DRtuService dRtuService;
     private final DevConverter devConverter;
 
     @Autowired
-    public DevController(@Qualifier("DevService1") DevService devService,
-                         DevObjService devObjService, SDevService sDevService,
-                         DObjService dObjService, DRtuService dRtuService, DevConverter devConverter) {
+    public DevController(@Qualifier("DevService1") DevService devService, DevConverter devConverter) {
         this.devService = devService;
-        this.devObjService = devObjService;
-        this.sDevService = sDevService;
-        this.dObjService = dObjService;
-        this.dRtuService = dRtuService;
         this.devConverter = devConverter;
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/")
     public Page<DevDTO> findAll(Pageable pageable, DevDTO devDTO) {
-        return convert(devService.findDevsBySpecification(pageable, convertToFilter(devDTO)));
+        return devConverter.convertEntityToDto(devService.findDevsBySpecification(pageable, devConverter.convertDtoToFilter(devDTO)));
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(value = "/{id}")
     public DevDTO findById(@PathVariable("id") Long id) {
-        return convert(devService.findDevById(id));
+        return devConverter.convertEntityToDto(devService.findDevById(id));
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
@@ -65,98 +48,21 @@ public class DevController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/{id}")
-    public void updateById(@PathVariable("id") Long id, @RequestBody DevEntity devModel) {
-        devService.updateDev(devModel);
+    public void updateById(@PathVariable("id") Long id,
+                           @RequestBody DevDTO devDTO) {
+        devService.updateDev(id, devConverter.convertDtoToEntity(devDTO), devDTO.getActiveProperties());
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/")
-    public DevDTO create(@RequestBody DevEntity devModel) {
-        return convert(devService.createDev(devModel));
+    public DevDTO create(@RequestBody DevDTO devDTO) {
+        return devConverter.convertEntityToDto(devService.createDev(devConverter.convertDtoToEntity(devDTO)));
     }
 
-    //    temp
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/test-convert-for-filter")
     public DevEntity testCFF(DevDTO devDTO) {
-        return devConverter.dtoToEntity(devDTO);
-    }
-    //End temp
-
-    private DevDTO convert(DevEntity devEntity) {
-        DevDTO devDTO = new DevDTO();
-
-        devDTO.setId(devEntity.getId());
-
-        devDTO.setTypeId(devEntity.getSDev().getId());
-        devDTO.setTypeName(devEntity.getSDev().getDtype());
-
-        devDTO.setTypeGroupId(devEntity.getSDev().getGrid().getGrid());
-        devDTO.setTypeGroupName(devEntity.getSDev().getGrid().getName());
-
-        devDTO.setNumber(devEntity.getNum());
-        devDTO.setReleaseYear(devEntity.getMyear());
-        devDTO.setTestDate(devEntity.getDTkip());
-        devDTO.setNextTestDate(devEntity.getDNkip());
-        devDTO.setReplacementPeriod(devEntity.getTZam());
-        devDTO.setStatusCode(devEntity.getStatus().getName());
-        devDTO.setStatusComment(devEntity.getStatus().getComm());
-        devDTO.setDetail(devEntity.getDetail());
-
-        devDTO.setObjectId(devEntity.getDObjRtu().getId());
-        devDTO.setObjectName(devEntity.getDObjRtu().getNameObject());
-
-        if (devEntity.getDevObj() != null) {
-            devDTO.setPlaceId(devEntity.getDevObj().getId());
-            devDTO.setDescription(devEntity.getDevObj().getNshem());
-            devDTO.setRegion(devEntity.getDevObj().getRegion());
-            devDTO.setRegionTypeCode(devEntity.getDevObj().getRegionType().getName());
-            devDTO.setRegionTypeComment(devEntity.getDevObj().getRegionType().getComm());
-            devDTO.setLocate(devEntity.getDevObj().getLocate());
-            devDTO.setLocateTypeCode(devEntity.getDevObj().getLocateType().getName());
-            devDTO.setLocateTypeComment(devEntity.getDevObj().getLocateType().getComm());
-            devDTO.setPlaceNumber(devEntity.getDevObj().getNplace());
-            devDTO.setPlaceDetail(devEntity.getDevObj().getDetail());
-        }
-        return devDTO;
-    }
-
-    private Page<DevDTO> convert(Page<DevEntity> page) {
-        List<DevDTO> content = page.getContent().stream().map(this::convert).collect(Collectors.toList());
-        return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
-    }
-
-    private DevFilter convertToFilter(DevDTO devDTO) {
-        DevFilter devFilter = new DevFilter();
-
-        devFilter.setId(devDTO.getId());
-        devFilter.setTypeName(devDTO.getTypeName());
-
-        devFilter.setTypeGroupId(devDTO.getTypeGroupId());
-        devFilter.setTypeGroupName(devDTO.getTypeGroupName());
-
-        devFilter.setNumber(devDTO.getNumber());
-        devFilter.setReleaseYear(devDTO.getReleaseYear());
-        devFilter.setTestDate(devDTO.getTestDate());
-        devFilter.setNextTestDate(devDTO.getNextTestDate());
-        devFilter.setReplacementPeriod(devDTO.getReplacementPeriod());
-        devFilter.setStatusCode(devDTO.getStatusCode());
-        devFilter.setStatusComment(devDTO.getStatusComment());
-        devFilter.setDetail(devDTO.getDetail());
-
-        devFilter.setObjectName(devDTO.getObjectName());
-
-        devFilter.setDescription(devDTO.getDescription());
-        devFilter.setRegion(devDTO.getRegion());
-        devFilter.setRegionTypeCode(devDTO.getRegionTypeCode());
-        devFilter.setRegionTypeComment(devDTO.getRegionTypeComment());
-        devFilter.setLocate(devDTO.getLocate());
-        devFilter.setLocateTypeCode(devDTO.getLocateTypeCode());
-        devFilter.setLocateTypeComment(devDTO.getLocateTypeComment());
-        devFilter.setPlaceNumber(devDTO.getPlaceNumber());
-        devFilter.setPlaceDetail(devDTO.getPlaceDetail());
-
-        return devFilter;
+        return devConverter.convertDtoToEntity(devDTO);
     }
 
 }
