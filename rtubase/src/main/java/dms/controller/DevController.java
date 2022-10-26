@@ -4,7 +4,6 @@ package dms.controller;
 import dms.converter.DevConverter;
 import dms.dto.DevDTO;
 import dms.entity.DevEntity;
-import dms.property.name.constant.DevPropertyNameConstant;
 import dms.service.dev.DevService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 
 
 @RestController

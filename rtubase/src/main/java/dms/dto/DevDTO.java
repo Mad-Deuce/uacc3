@@ -1,11 +1,10 @@
 package dms.dto;
 
 
-import dms.property.name.constant.DevPropertyNameConstant;
+import dms.property.name.constant.DevPropertyNameMapping;
 import lombok.Data;
 
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -43,6 +42,6 @@ public class DevDTO {
     private String placeNumber;
     private String placeDetail;
 
-    private List<DevPropertyNameConstant> activeProperties;
+    private List<DevPropertyNameMapping> activeProperties;
 }
 

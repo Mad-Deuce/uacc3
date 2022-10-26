@@ -3,12 +3,14 @@ package dms.service.dev;
 
 import dms.entity.DevEntity;
 import dms.exception.NoEntityException;
-import dms.property.name.constant.DevPropertyNameConstant;
+import dms.filter.DevFilter;
+import dms.property.name.constant.DevPropertyNameMapping;
+import dms.repository.DevRepository;
 import dms.standing.data.entity.SDevEntity;
 import dms.standing.data.entity.SDevgrpEntity;
-import dms.filter.DevFilter;
-import dms.repository.DevRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,10 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service("DevService1")
@@ -44,46 +48,54 @@ public class DevServiceImpl implements DevService {
 
 
     private Specification<DevFilter> getSpecification(DevFilter devFilter) {
-        return (root, criteriaQuery, criteriaBuilder) ->
-        {
+
+        return (root, criteriaQuery, criteriaBuilder) -> {
             Join<DevEntity, SDevEntity> sDev = root.join("sDev");
             Join<SDevEntity, SDevgrpEntity> grid = sDev.join("grid");
 
             criteriaQuery.distinct(false);
 
-            Predicate predicateForId;
-            Predicate predicateForGrid;
+            Predicate predicateDefault = criteriaBuilder.equal(root, root);
 
-            if (devFilter.getId() != null) {
-                predicateForId = criteriaBuilder.like(root.get("id").as(String.class), "%" + devFilter.getId() + "%");
-            } else {
-                predicateForId = criteriaBuilder.equal(root.get("id"), root.get("id"));
+            List<Predicate> predicates = new ArrayList<>();
+
+            for (DevPropertyNameMapping item : DevPropertyNameMapping.values()) {
+                if (getProperty(devFilter, item) != null) {
+                    predicates.add(criteriaBuilder.like(
+                            root.get(item.getEntityPropertyName()).as(String.class),
+                            "%" + getProperty(devFilter, item) + "%"));
+                }
             }
 
-            if (devFilter.getTypeGroupId() != null) {
-                predicateForGrid = criteriaBuilder.like(grid.get("grid").as(String.class), "%" + devFilter.getTypeGroupId() + "%");
-            } else {
-                predicateForGrid = criteriaBuilder.equal(grid.get("grid"), grid.get("grid"));
-            }
+//            if (devFilter.getTypeName() != null) {
+//                predicates.add(criteriaBuilder.like(
+//                        sDev.get("dtype").as(String.class),
+//                        "%" + devFilter.getTypeName() + "%"));
+//            }
 
-            return criteriaBuilder.and(predicateForId, predicateForGrid);
+            return predicates.stream().reduce(predicateDefault, criteriaBuilder::and);
         };
+    }
+
+    @SneakyThrows
+    private String getProperty(DevFilter devFilter, DevPropertyNameMapping item) {
+        return BeanUtils.getProperty(devFilter, item.getFilterPropertyName());
     }
 
     public void deleteDevById(Long id) {
         devRepository.deleteById(id);
     }
 
-    public void updateDev(Long id, DevEntity dev, List<DevPropertyNameConstant> activeProperties) {
+    public void updateDev(Long id, DevEntity dev, List<DevPropertyNameMapping> activeProperties) {
         DevEntity targetDev = devRepository.findById(id).orElseThrow(
                 () -> new NoEntityException("Device with the id=" + id + " not found"));
         copyProperties(dev, targetDev, getProps(activeProperties));
         devRepository.save(targetDev);
     }
 
-    private List<String> getProps(List<DevPropertyNameConstant> activeProperties) {
+    private List<String> getProps(List<DevPropertyNameMapping> activeProperties) {
         return activeProperties.stream()
-                .map(DevPropertyNameConstant::getEntityPropertyName)
+                .map(DevPropertyNameMapping::getEntityPropertyName)
                 .collect(Collectors.toList());
     }
 
