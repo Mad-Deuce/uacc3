@@ -21,6 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -34,6 +37,8 @@ import java.util.stream.Collectors;
 @Service("DevService1")
 public class DevServiceImpl implements DevService {
 
+    @PersistenceContext
+    EntityManager em;
 
     private final DevRepository devRepository;
 
@@ -42,14 +47,22 @@ public class DevServiceImpl implements DevService {
         this.devRepository = devRepository;
     }
 
+
     public DevEntity findDevById(Long id) {
         return devRepository.getReferenceById(id);
+    }
+
+    public List findDevsByQuery(Pageable pageable, DevFilter devFilter){
+        Query query = em.createQuery("SELECT d FROM DevEntity d WHERE d.sDev.grid.grid=1 ORDER BY d.sDev.grid.grid");
+        query.setFirstResult(30);
+        query.setMaxResults(10);
+        List result = query.getResultList();
+        return result;
     }
 
     public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter) {
         return devRepository.findAll(getSpecification(devFilter), pageable);
     }
-
 
     private Specification<DevFilter> getSpecification(DevFilter devFilter) {
 

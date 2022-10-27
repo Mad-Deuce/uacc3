@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @RestController
@@ -29,7 +30,14 @@ public class DevController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/")
     public Page<DevDTO> findAll(Pageable pageable, DevDTO devDTO) {
-        return devConverter.convertEntityToDto(devService.findDevsBySpecification(pageable, devConverter.convertDtoToFilter(devDTO)));
+        return devConverter.convertEntityToDto(devService
+                .findDevsBySpecification(pageable, devConverter.convertDtoToFilter(devDTO)));
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/by-query")
+    public List findAllByQuery(Pageable pageable, DevDTO devDTO) {
+        return devService.findDevsByQuery(pageable, devConverter.convertDtoToFilter(devDTO));
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
