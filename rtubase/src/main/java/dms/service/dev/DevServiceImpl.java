@@ -2,10 +2,12 @@ package dms.service.dev;
 
 
 import dms.entity.DevEntity;
+import dms.entity.DevObjEntity;
 import dms.exception.NoEntityException;
 import dms.filter.DevFilter;
 import dms.property.name.constant.DevPropertyNameMapping;
 import dms.repository.DevRepository;
+import dms.standing.data.entity.DObjRtuEntity;
 import dms.standing.data.entity.SDevEntity;
 import dms.standing.data.entity.SDevgrpEntity;
 import lombok.SneakyThrows;
@@ -22,7 +24,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -52,6 +56,14 @@ public class DevServiceImpl implements DevService {
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<DevEntity, SDevEntity> sDev = root.join("sDev");
             Join<SDevEntity, SDevgrpEntity> grid = sDev.join("grid");
+            Join<DevEntity, DevObjEntity> devObj = root.join("devObj");
+            Join<DevEntity, DObjRtuEntity> dObjRtu = root.join("dObjRtu");
+
+            Map<String, Join<?, ?>> joinsMap = new HashMap<>();
+            joinsMap.put("sDev", sDev);
+            joinsMap.put("grid", grid);
+            joinsMap.put("devObj", devObj);
+            joinsMap.put("dObjRtu", dObjRtu);
 
             criteriaQuery.distinct(false);
 
@@ -61,17 +73,22 @@ public class DevServiceImpl implements DevService {
 
             for (DevPropertyNameMapping item : DevPropertyNameMapping.values()) {
                 if (getProperty(devFilter, item) != null) {
-                    predicates.add(criteriaBuilder.like(
-                            root.get(item.getEntityPropertyName()).as(String.class),
-                            "%" + getProperty(devFilter, item) + "%"));
+
+                    int splitSize = item.getEntityPropertyName().split("\\.").length;
+                    String[] splitArr = item.getEntityPropertyName().split("\\.");
+
+                    if (splitSize == 1) {
+                        predicates.add(criteriaBuilder.like(
+                                root.get(splitArr[0]).as(String.class),
+                                "%" + getProperty(devFilter, item) + "%"));
+                    } else {
+                        predicates.add(criteriaBuilder.like(
+                                joinsMap.get(splitArr[splitArr.length-2])
+                                        .get(splitArr[splitArr.length-1]).as(String.class),
+                                "%" + getProperty(devFilter, item) + "%"));
+                    }
                 }
             }
-
-//            if (devFilter.getTypeName() != null) {
-//                predicates.add(criteriaBuilder.like(
-//                        sDev.get("dtype").as(String.class),
-//                        "%" + devFilter.getTypeName() + "%"));
-//            }
 
             return predicates.stream().reduce(predicateDefault, criteriaBuilder::and);
         };
