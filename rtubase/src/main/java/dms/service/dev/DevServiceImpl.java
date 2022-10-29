@@ -56,15 +56,41 @@ public class DevServiceImpl implements DevService {
 
     public Page<DevEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) {
 
-        Query contentSizeQuery = em.createQuery(
-                "SELECT count (distinct d.id) FROM DevEntity d WHERE d.sDev.grid.grid=1");
-        Long contentSize = (Long)contentSizeQuery.getSingleResult();
-        TypedQuery<DevEntity> contentQuery = em.createQuery(
-                "SELECT d FROM DevEntity d WHERE d.sDev.grid.grid=1 ORDER BY d.id ASC",
-                DevEntity.class);
+
+        String contentSizeQueryStr = "SELECT count (distinct d.id) FROM DevEntity d WHERE 1=1 ";
+        String contentQueryStr = "SELECT d FROM DevEntity d WHERE 1=1 ";
+
+        StringBuilder contentSizeSb = new StringBuilder(contentSizeQueryStr);
+        StringBuilder contentSb = new StringBuilder(contentQueryStr);
+
+        for (DevPropertyNameMapping item : DevPropertyNameMapping.values()) {
+            if (getProperty(devFilter, item) != null) {
+                contentSizeSb
+                        .append(" AND CAST (d.")
+                        .append(item.getEntityPropertyName())
+                        .append(" as string) LIKE '%")
+                        .append(getProperty(devFilter, item))
+                        .append("%'");
+
+                contentSb
+                        .append(" AND CAST (d.")
+                        .append(item.getEntityPropertyName())
+                        .append(" as string) LIKE '%")
+                        .append(getProperty(devFilter, item))
+                        .append("%'");
+
+            }
+        }
+        contentSb.append(" ORDER BY d.id ASC");
+
+        Query contentSizeQuery = em.createQuery(contentSizeSb.toString());
+        Long contentSize = (Long) contentSizeQuery.getSingleResult();
+
+        TypedQuery<DevEntity> contentQuery = em.createQuery(contentSb.toString(), DevEntity.class);
         contentQuery.setFirstResult((int) pageable.getOffset());
         contentQuery.setMaxResults(pageable.getPageSize());
         List<DevEntity> content = contentQuery.getResultList();
+
         return new PageImpl<>(content, pageable, contentSize);
     }
 
