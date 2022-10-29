@@ -36,7 +36,7 @@ public class DevController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-query")
-    public Page<DevEntity> findAllByQuery(Pageable pageable, DevDTO devDTO) {
+    public Page<DevEntity> findAllByQuery(Pageable pageable, DevDTO devDTO) throws NoSuchFieldException {
         return devService.findDevsByQuery(pageable, devConverter.convertDtoToFilter(devDTO));
     }
 

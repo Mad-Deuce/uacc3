@@ -24,10 +24,9 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,23 +53,13 @@ public class DevServiceImpl implements DevService {
         return devRepository.getReferenceById(id);
     }
 
-    public Page<DevEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) {
-
-
-//        String contentSizeQueryStr = "SELECT count (distinct d.id) FROM DevEntity d WHERE 1=1 ";
-//        String contentQueryStr = "SELECT d " +
-//                "FROM DevEntity d " +
-//                "JOIN FETCH d.sDev s " +
-//                "JOIN FETCH s.grid g " +
-//                "JOIN FETCH d.dObjRtu dor " +
-//                "JOIN FETCH d.devObj do " +
-//                "WHERE 1=1 ";
+    public Page<DevEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) throws NoSuchFieldException {
 
         Long contentSize = (Long) em.createQuery(
-                "SELECT count (distinct d.id) " +
-                        "FROM DevEntity d " +
-                        "WHERE 1=1 " +
-                        getQueryConditionsPart(devFilter))
+                        "SELECT count (distinct d.id) " +
+                                "FROM DevEntity d " +
+                                "WHERE 1=1 " +
+                                getQueryConditionsPart(devFilter))
                 .getSingleResult();
 
         List<DevEntity> content = em.createQuery(
@@ -90,29 +79,32 @@ public class DevServiceImpl implements DevService {
         return new PageImpl<>(content, pageable, contentSize);
     }
 
-    private String getQueryConditionsPart(DevFilter devFilter) {
+    private String getQueryConditionsPart(DevFilter devFilter) throws NoSuchFieldException {
         StringBuilder queryConditionsPart = new StringBuilder();
 
         for (DevPropertyNameMapping item : DevPropertyNameMapping.values()) {
             if (getProperty(devFilter, item) != null) {
-                if (item.getFilterPropertyName().equals("testDateMin") ||
-                        item.getFilterPropertyName().equals("nextTestDateMin")) {
+                Field field = DevEntity.class.getDeclaredField(item.getEntityPropertyName());
+                if (java.util.Date.class.isAssignableFrom(field.getType())) {
 
-                    queryConditionsPart
-                            .append(" AND CAST (d.")
-                            .append(item.getEntityPropertyName())
-                            .append(" as date) >= '")
-                            .append(getProperty(devFilter, item))
-                            .append("'");
+                    if (item.getFilterPropertyName().toLowerCase().contains("min")) {
+                        queryConditionsPart
+                                .append(" AND CAST (d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" as date) >= '")
+                                .append(getProperty(devFilter, item))
+                                .append("'");
+                    }
 
-                } else if (item.getFilterPropertyName().equals("testDateMax") ||
-                        item.getFilterPropertyName().equals("nextTestDateMax")) {
-                    queryConditionsPart
-                            .append(" AND CAST (d.")
-                            .append(item.getEntityPropertyName())
-                            .append(" as date) <= '")
-                            .append(getProperty(devFilter, item))
-                            .append("'");
+                    if (item.getFilterPropertyName().toLowerCase().contains("max")) {
+                        queryConditionsPart
+                                .append(" AND CAST (d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" as date) <= '")
+                                .append(getProperty(devFilter, item))
+                                .append("'");
+                    }
+
                 } else {
                     queryConditionsPart
                             .append(" AND CAST (d.")
