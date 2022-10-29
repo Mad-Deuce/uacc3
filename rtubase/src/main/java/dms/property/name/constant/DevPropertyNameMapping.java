@@ -16,8 +16,15 @@ public enum DevPropertyNameMapping {
 
     NUMBER("number","number","num"),
     RELEASE_YEAR("releaseYear","releaseYear","myear"),
+
     TEST_DATE("testDate","testDate","dTkip"),
+    TEST_DATE_MIN("testDateMin","testDateMin","dTkip"),
+    TEST_DATE_MAX("testDateMax","testDateMax","dTkip"),
+
     NEXT_TEST_DATE("nextTestDate","nextTestDate","dNkip"),
+    NEXT_TEST_DATE_MIN("nextTestDateMin","nextTestDateMin","dNkip"),
+    NEXT_TEST_DATE_MAX("nextTestDateMax","nextTestDateMax","dNkip"),
+
     REPLACEMENT_PERIOD("replacementPeriod","replacementPeriod","tZam"),
     STATUS("statusCode","statusCode","status"),
     STATUS_CODE("statusCode","statusCode","status.name"),

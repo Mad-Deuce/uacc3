@@ -17,7 +17,7 @@ public class ReplacementTypeConverter implements AttributeConverter<ReplacementT
 
     @Override
     public ReplacementType convertToEntityAttribute(String name) {
-
+//        if (name==null) return null;
         for (ReplacementType replacementType : ReplacementType.values()) {
             if (replacementType.getName().equals(trim(name))) {
                 return replacementType;

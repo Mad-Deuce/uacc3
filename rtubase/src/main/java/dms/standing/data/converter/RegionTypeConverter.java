@@ -16,6 +16,7 @@ public class RegionTypeConverter implements AttributeConverter<RegionType, Strin
 
     @Override
     public RegionType convertToEntityAttribute(String name) {
+        if (name==null) return null;
         for (RegionType regionType : RegionType.values()) {
             if (regionType.getName().equals(trim(name))) {
                 return regionType;

@@ -95,8 +95,15 @@ public class DevConverter {
 
         devFilter.setNumber(devDTO.getNumber());
         devFilter.setReleaseYear(devDTO.getReleaseYear());
+
         devFilter.setTestDate(devDTO.getTestDate());
+        devFilter.setTestDateMin(devDTO.getTestDateMin());
+        devFilter.setTestDateMax(devDTO.getTestDateMax());
+
         devFilter.setNextTestDate(devDTO.getNextTestDate());
+        devFilter.setNextTestDateMin(devDTO.getNextTestDateMin());
+        devFilter.setNextTestDateMax(devDTO.getNextTestDateMax());
+
         devFilter.setReplacementPeriod(devDTO.getReplacementPeriod());
         devFilter.setStatusCode(devDTO.getStatusCode());
         devFilter.setStatusComment(devDTO.getStatusComment());

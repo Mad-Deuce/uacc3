@@ -17,7 +17,7 @@ public class StatusConverter implements AttributeConverter<Status, String> {
 
     @Override
     public Status convertToEntityAttribute(String name) {
-
+//        if (name==null) return null;
         for (Status status : Status.values()) {
             if (status.getName().equals(trim(name))) {
                 return status;

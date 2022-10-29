@@ -21,8 +21,14 @@ public class DevDTO {
 
     private String number;
     private String releaseYear;
+
     private Date testDate;
+    private Date testDateMin;
+    private Date testDateMax;
     private Date nextTestDate;
+    private Date nextTestDateMin;
+    private Date nextTestDateMax;
+
     private Integer replacementPeriod;
     private String statusCode;
     private String statusComment;
