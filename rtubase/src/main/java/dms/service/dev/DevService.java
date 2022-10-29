@@ -14,7 +14,7 @@ public interface DevService {
     public DevEntity findDevById(Long id);
 
     public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter);
-    public List findDevsByQuery(Pageable pageable, DevFilter devFilter);
+    public Page<DevEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter);
 
     public void deleteDevById(Long id);
 

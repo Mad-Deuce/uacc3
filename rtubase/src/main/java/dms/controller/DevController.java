@@ -36,7 +36,7 @@ public class DevController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-query")
-    public List findAllByQuery(Pageable pageable, DevDTO devDTO) {
+    public Page<DevEntity> findAllByQuery(Pageable pageable, DevDTO devDTO) {
         return devService.findDevsByQuery(pageable, devConverter.convertDtoToFilter(devDTO));
     }
 

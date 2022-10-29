@@ -16,6 +16,7 @@ public class LocateTypeConverter implements AttributeConverter<LocateType, Strin
 
     @Override
     public LocateType convertToEntityAttribute(String name) {
+//        if (name==null) return null;
         for (LocateType locateType : LocateType.values()) {
             if (locateType.getName().equals(trim(name))) {
                 return locateType;

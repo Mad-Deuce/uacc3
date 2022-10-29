@@ -17,6 +17,7 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -52,12 +54,18 @@ public class DevServiceImpl implements DevService {
         return devRepository.getReferenceById(id);
     }
 
-    public List findDevsByQuery(Pageable pageable, DevFilter devFilter){
-        Query query = em.createQuery("SELECT d FROM DevEntity d WHERE d.sDev.grid.grid=1 ORDER BY d.sDev.grid.grid");
-        query.setFirstResult(30);
-        query.setMaxResults(10);
-        List result = query.getResultList();
-        return result;
+    public Page<DevEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) {
+
+        Query contentSizeQuery = em.createQuery(
+                "SELECT count (distinct d.id) FROM DevEntity d WHERE d.sDev.grid.grid=1");
+        Long contentSize = (Long)contentSizeQuery.getSingleResult();
+        TypedQuery<DevEntity> contentQuery = em.createQuery(
+                "SELECT d FROM DevEntity d WHERE d.sDev.grid.grid=1 ORDER BY d.id ASC",
+                DevEntity.class);
+        contentQuery.setFirstResult((int) pageable.getOffset());
+        contentQuery.setMaxResults(pageable.getPageSize());
+        List<DevEntity> content = contentQuery.getResultList();
+        return new PageImpl<>(content, pageable, contentSize);
     }
 
     public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter) {
@@ -96,8 +104,8 @@ public class DevServiceImpl implements DevService {
                                 "%" + getProperty(devFilter, item) + "%"));
                     } else {
                         predicates.add(criteriaBuilder.like(
-                                joinsMap.get(splitArr[splitArr.length-2])
-                                        .get(splitArr[splitArr.length-1]).as(String.class),
+                                joinsMap.get(splitArr[splitArr.length - 2])
+                                        .get(splitArr[splitArr.length - 1]).as(String.class),
                                 "%" + getProperty(devFilter, item) + "%"));
                     }
                 }
