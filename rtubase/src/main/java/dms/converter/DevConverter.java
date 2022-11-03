@@ -1,8 +1,8 @@
 package dms.converter;
 
 import dms.dto.DevDTO;
-import dms.entity.DevEntity;
-import dms.entity.DevObjEntity;
+import dms.entity.DeviceEntity;
+import dms.entity.DeviceLocationEntity;
 import dms.exception.NoEntityException;
 import dms.exception.WrongDataException;
 import dms.filter.DevFilter;
@@ -41,45 +41,45 @@ public class DevConverter {
         this.dRtuService = dRtuService;
     }
 
-    public DevDTO convertEntityToDto(DevEntity devEntity) {
+    public DevDTO convertEntityToDto(DeviceEntity deviceEntity) {
         DevDTO devDTO = new DevDTO();
 
-        devDTO.setId(devEntity.getId());
+        devDTO.setId(deviceEntity.getId());
 
-        devDTO.setTypeId(devEntity.getSDev().getId());
-        devDTO.setTypeName(devEntity.getSDev().getDtype());
+        devDTO.setTypeId(deviceEntity.getType().getId());
+        devDTO.setTypeName(deviceEntity.getType().getDtype());
 
-        devDTO.setTypeGroupId(devEntity.getSDev().getGrid().getGrid());
-        devDTO.setTypeGroupName(devEntity.getSDev().getGrid().getName());
+        devDTO.setTypeGroupId(deviceEntity.getType().getGrid().getGrid());
+        devDTO.setTypeGroupName(deviceEntity.getType().getGrid().getName());
 
-        devDTO.setNumber(devEntity.getNum());
-        devDTO.setReleaseYear(devEntity.getMyear());
-        devDTO.setTestDate(devEntity.getDTkip());
-        devDTO.setNextTestDate(devEntity.getDNkip());
-        devDTO.setReplacementPeriod(devEntity.getTZam());
-        devDTO.setStatusCode(devEntity.getStatus().getName());
-        devDTO.setStatusComment(devEntity.getStatus().getComm());
-        devDTO.setDetail(devEntity.getDetail());
+        devDTO.setNumber(deviceEntity.getNumber());
+        devDTO.setReleaseYear(deviceEntity.getReleaseYear());
+        devDTO.setTestDate(deviceEntity.getTestDate());
+        devDTO.setNextTestDate(deviceEntity.getNextTestDate());
+        devDTO.setReplacementPeriod(deviceEntity.getReplacementPeriod());
+        devDTO.setStatusCode(deviceEntity.getStatus().getName());
+        devDTO.setStatusComment(deviceEntity.getStatus().getComm());
+        devDTO.setDetail(deviceEntity.getDetail());
 
-        devDTO.setObjectId(devEntity.getDObjRtu().getId());
-        devDTO.setObjectName(devEntity.getDObjRtu().getNameObject());
+        devDTO.setObjectId(deviceEntity.getObject().getId());
+        devDTO.setObjectName(deviceEntity.getObject().getNameObject());
 
-        if (devEntity.getDevObj() != null) {
-            devDTO.setPlaceId(devEntity.getDevObj().getId());
-            devDTO.setDescription(devEntity.getDevObj().getNshem());
-            devDTO.setRegion(devEntity.getDevObj().getRegion());
-            devDTO.setRegionTypeCode(devEntity.getDevObj().getRegionType().getName());
-            devDTO.setRegionTypeComment(devEntity.getDevObj().getRegionType().getComm());
-            devDTO.setLocate(devEntity.getDevObj().getLocate());
-            devDTO.setLocateTypeCode(devEntity.getDevObj().getLocateType().getName());
-            devDTO.setLocateTypeComment(devEntity.getDevObj().getLocateType().getComm());
-            devDTO.setPlaceNumber(devEntity.getDevObj().getNplace());
-            devDTO.setPlaceDetail(devEntity.getDevObj().getDetail());
+        if (deviceEntity.getLocation() != null) {
+            devDTO.setPlaceId(deviceEntity.getLocation().getId());
+            devDTO.setDescription(deviceEntity.getLocation().getNshem());
+            devDTO.setRegion(deviceEntity.getLocation().getRegion());
+            devDTO.setRegionTypeCode(deviceEntity.getLocation().getRegionType().getName());
+            devDTO.setRegionTypeComment(deviceEntity.getLocation().getRegionType().getComm());
+            devDTO.setLocate(deviceEntity.getLocation().getLocate());
+            devDTO.setLocateTypeCode(deviceEntity.getLocation().getLocateType().getName());
+            devDTO.setLocateTypeComment(deviceEntity.getLocation().getLocateType().getComm());
+            devDTO.setPlaceNumber(deviceEntity.getLocation().getNplace());
+            devDTO.setPlaceDetail(deviceEntity.getLocation().getDetail());
         }
         return devDTO;
     }
 
-    public Page<DevDTO> convertEntityToDto(Page<DevEntity> page) {
+    public Page<DevDTO> convertEntityToDto(Page<DeviceEntity> page) {
         List<DevDTO> content = page.getContent().stream().map(this::convertEntityToDto).collect(Collectors.toList());
         return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
     }
@@ -124,30 +124,30 @@ public class DevConverter {
         return devFilter;
     }
 
-    public DevEntity convertDtoToEntity(DevDTO devDTO) {
-        DevEntity devEntity = new DevEntity();
+    public DeviceEntity convertDtoToEntity(DevDTO devDTO) {
+        DeviceEntity deviceEntity = new DeviceEntity();
 
-        devEntity.setDevObj(resolveDevObj(devDTO.getPlaceId()));
-        devEntity.setSDev(resolveSDev(devDTO.getTypeId()));
-        devEntity.setNum(devDTO.getNumber());
-        devEntity.setMyear(devDTO.getReleaseYear());
-        devEntity.setStatus(resolveStatus(devDTO.getStatusCode()));
-        devEntity.setId(devDTO.getId());
-        devEntity.setDNkip(devDTO.getNextTestDate());
-        devEntity.setDTkip(devDTO.getTestDate());
-        devEntity.setTZam(devDTO.getReplacementPeriod());
-        devEntity.setDObjRtu(resolveDObjRtu(devDTO.getObjectId()));
-        devEntity.setDetail(devDTO.getDetail());
+        deviceEntity.setLocation(resolveDevObj(devDTO.getPlaceId()));
+        deviceEntity.setType(resolveSDev(devDTO.getTypeId()));
+        deviceEntity.setNumber(devDTO.getNumber());
+        deviceEntity.setReleaseYear(devDTO.getReleaseYear());
+        deviceEntity.setStatus(resolveStatus(devDTO.getStatusCode()));
+        deviceEntity.setId(devDTO.getId());
+        deviceEntity.setNextTestDate(devDTO.getNextTestDate());
+        deviceEntity.setTestDate(devDTO.getTestDate());
+        deviceEntity.setReplacementPeriod(devDTO.getReplacementPeriod());
+        deviceEntity.setObject(resolveDObjRtu(devDTO.getObjectId()));
+        deviceEntity.setDetail(devDTO.getDetail());
 
 
-        return devEntity;
+        return deviceEntity;
     }
 
 
-    private DevObjEntity resolveDevObj(Long devObjId) {
+    private DeviceLocationEntity resolveDevObj(Long devObjId) {
         if (devObjId == null) return null;
         return devObjService.findDevObjById(devObjId)
-                .orElseThrow(() -> new NoEntityException("Place for device (DevObjEntity) with the id=" + devObjId + " not found"));
+                .orElseThrow(() -> new NoEntityException("Place for device (DeviceLocationEntity) with the id=" + devObjId + " not found"));
     }
 
     private SDevEntity resolveSDev(Long sDevId) {

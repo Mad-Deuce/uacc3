@@ -14,28 +14,28 @@ import java.sql.Date;
 
 @Setter
 @Getter
-@EqualsAndHashCode(of = {"sDev", "num", "myear"})
-@ToString(of = {"sDev", "num", "myear"})
+@EqualsAndHashCode(of = {"type", "number", "releaseYear"})
+@ToString(of = {"type", "number", "releaseYear"})
 @NoArgsConstructor
 @Entity
 @Table(name = "dev", schema = "drtu", catalog = "rtubase")
-public class DevEntity implements Serializable {
+public class DeviceEntity implements Serializable {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_obj", referencedColumnName = "id", columnDefinition = "NUMERIC(14,0)")
-    private DevObjEntity devObj;
+    private DeviceLocationEntity location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "devid", referencedColumnName = "id")
-    private SDevEntity sDev;
+    private SDevEntity type;
 
     @Basic
     @Column(name = "num", length = 10)
-    private String num;
+    private String number;
 
     @Basic
     @Column(name = "myear", length = 4)
-    private String myear;
+    private String releaseYear;
 
     @Convert(converter = StatusConverter.class)
     @Column(name = "ps", nullable = false, length = 2, columnDefinition = "BPCHAR")
@@ -43,7 +43,7 @@ public class DevEntity implements Serializable {
 
     @Basic
     @Column(name = "d_create")
-    private Date dCreate;
+    private Date createDate;
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -53,19 +53,19 @@ public class DevEntity implements Serializable {
 
     @Basic
     @Column(name = "d_nkip")
-    private Date dNkip;
+    private Date nextTestDate;
 
     @Basic
     @Column(name = "d_tkip")
-    private Date dTkip;
+    private Date testDate;
 
     @Basic
     @Column(name = "t_zam", columnDefinition = "NUMERIC(5,0)")
-    private Integer tZam;
+    private Integer replacementPeriod;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "obj_code")
-    private DObjRtuEntity dObjRtu;
+    private DObjRtuEntity object;
 
     @Basic
     @Column(name = "ok_send", length = -1, columnDefinition = "BPCHAR")

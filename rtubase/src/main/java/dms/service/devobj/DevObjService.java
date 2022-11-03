@@ -1,10 +1,10 @@
 package dms.service.devobj;
 
-import dms.entity.DevObjEntity;
+import dms.entity.DeviceLocationEntity;
 
 import java.util.Optional;
 
 public interface DevObjService {
 
-    public Optional<DevObjEntity> findDevObjById(Long id);
+    public Optional<DeviceLocationEntity> findDevObjById(Long id);
 }

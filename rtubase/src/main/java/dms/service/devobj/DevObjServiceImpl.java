@@ -1,6 +1,6 @@
 package dms.service.devobj;
 
-import dms.entity.DevObjEntity;
+import dms.entity.DeviceLocationEntity;
 import dms.repository.DevObjRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class DevObjServiceImpl implements DevObjService{
     }
 
     @Override
-    public Optional<DevObjEntity> findDevObjById(Long id) {
+    public Optional<DeviceLocationEntity> findDevObjById(Long id) {
         return devObjRepository.findById(id);
     }
 

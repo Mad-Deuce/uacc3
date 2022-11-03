@@ -1,8 +1,8 @@
 package dms.service.dev;
 
 
-import dms.entity.DevEntity;
-import dms.entity.DevObjEntity;
+import dms.entity.DeviceEntity;
+import dms.entity.DeviceLocationEntity;
 import dms.exception.NoEntityException;
 import dms.filter.DevFilter;
 import dms.property.name.constant.DevPropertyNameMapping;
@@ -49,29 +49,29 @@ public class DevServiceImpl implements DevService {
     }
 
 
-    public DevEntity findDevById(Long id) {
+    public DeviceEntity findDevById(Long id) {
         return devRepository.getReferenceById(id);
     }
 
-    public Page<DevEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) throws NoSuchFieldException {
+    public Page<DeviceEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) throws NoSuchFieldException {
 
         Long contentSize = (Long) em.createQuery(
                         "SELECT count (distinct d.id) " +
-                                "FROM DevEntity d " +
+                                "FROM DeviceEntity d " +
                                 "WHERE 1=1 " +
                                 getQueryConditionsPart(devFilter))
                 .getSingleResult();
 
-        List<DevEntity> content = em.createQuery(
+        List<DeviceEntity> content = em.createQuery(
                         "SELECT d " +
-                                "FROM DevEntity d " +
+                                "FROM DeviceEntity d " +
                                 "JOIN FETCH d.sDev s " +
                                 "JOIN FETCH s.grid g " +
                                 "JOIN FETCH d.dObjRtu dor " +
-                                "JOIN FETCH d.devObj do " +
+                                "JOIN FETCH d.location do " +
                                 "WHERE 1=1 " +
                                 getQueryConditionsPart(devFilter) +
-                                " ORDER BY d.id ASC", DevEntity.class)
+                                " ORDER BY d.id ASC", DeviceEntity.class)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
@@ -84,7 +84,7 @@ public class DevServiceImpl implements DevService {
 
         for (DevPropertyNameMapping item : DevPropertyNameMapping.values()) {
             if (getProperty(devFilter, item) != null) {
-                Field field = DevEntity.class.getDeclaredField(item.getEntityPropertyName());
+                Field field = DeviceEntity.class.getDeclaredField(item.getEntityPropertyName());
                 if (java.util.Date.class.isAssignableFrom(field.getType())) {
 
                     if (item.getFilterPropertyName().toLowerCase().contains("min")) {
@@ -118,17 +118,17 @@ public class DevServiceImpl implements DevService {
         return queryConditionsPart.toString();
     }
 
-    public Page<DevEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter) {
+    public Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter) {
         return devRepository.findAll(getSpecification(devFilter), pageable);
     }
 
     private Specification<DevFilter> getSpecification(DevFilter devFilter) {
 
         return (root, criteriaQuery, criteriaBuilder) -> {
-            Join<DevEntity, SDevEntity> sDev = root.join("sDev");
+            Join<DeviceEntity, SDevEntity> sDev = root.join("sDev");
             Join<SDevEntity, SDevgrpEntity> grid = sDev.join("grid");
-            Join<DevEntity, DevObjEntity> devObj = root.join("devObj");
-            Join<DevEntity, DObjRtuEntity> dObjRtu = root.join("dObjRtu");
+            Join<DeviceEntity, DeviceLocationEntity> devObj = root.join("devObj");
+            Join<DeviceEntity, DObjRtuEntity> dObjRtu = root.join("dObjRtu");
 
             Map<String, Join<?, ?>> joinsMap = new HashMap<>();
             joinsMap.put("sDev", sDev);
@@ -174,8 +174,8 @@ public class DevServiceImpl implements DevService {
         devRepository.deleteById(id);
     }
 
-    public void updateDev(Long id, DevEntity dev, List<DevPropertyNameMapping> activeProperties) {
-        DevEntity targetDev = devRepository.findById(id).orElseThrow(
+    public void updateDev(Long id, DeviceEntity dev, List<DevPropertyNameMapping> activeProperties) {
+        DeviceEntity targetDev = devRepository.findById(id).orElseThrow(
                 () -> new NoEntityException("Device with the id=" + id + " not found"));
         copyProperties(dev, targetDev, getProps(activeProperties));
         devRepository.save(targetDev);
@@ -187,9 +187,9 @@ public class DevServiceImpl implements DevService {
                 .collect(Collectors.toList());
     }
 
-    public DevEntity createDev(DevEntity dev) {
+    public DeviceEntity createDev(DeviceEntity dev) {
         dev.setId(null);
-        dev.setDevObj(null);
+        dev.setLocation(null);
         return devRepository.saveAndFlush(dev);
     }
 
