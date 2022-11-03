@@ -66,14 +66,14 @@ public class DevConverter {
 
         if (deviceEntity.getLocation() != null) {
             devDTO.setPlaceId(deviceEntity.getLocation().getId());
-            devDTO.setDescription(deviceEntity.getLocation().getNshem());
+            devDTO.setDescription(deviceEntity.getLocation().getDescription());
             devDTO.setRegion(deviceEntity.getLocation().getRegion());
             devDTO.setRegionTypeCode(deviceEntity.getLocation().getRegionType().getName());
             devDTO.setRegionTypeComment(deviceEntity.getLocation().getRegionType().getComm());
             devDTO.setLocate(deviceEntity.getLocation().getLocate());
             devDTO.setLocateTypeCode(deviceEntity.getLocation().getLocateType().getName());
             devDTO.setLocateTypeComment(deviceEntity.getLocation().getLocateType().getComm());
-            devDTO.setPlaceNumber(deviceEntity.getLocation().getNplace());
+            devDTO.setPlaceNumber(deviceEntity.getLocation().getPlaceNumber());
             devDTO.setPlaceDetail(deviceEntity.getLocation().getDetail());
         }
         return devDTO;

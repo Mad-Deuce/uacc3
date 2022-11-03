@@ -20,7 +20,7 @@ public class DeviceLocationEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obj_code", referencedColumnName = "id", columnDefinition = "BPCHAR")
-    private DObjEntity objCode;
+    private DObjEntity object;
 
     @Basic
     @Column(name = "locate", length = 50)
@@ -28,11 +28,11 @@ public class DeviceLocationEntity {
 
     @Basic
     @Column(name = "nplace",  length = 4)
-    private String nplace;
+    private String placeNumber;
 
     @Basic
     @Column(name = "nshem",  length = 50)
-    private String nshem;
+    private String description;
 
     @Convert(converter = LocateTypeConverter.class)
     @Column(name = "locate_t", nullable = false, length = 2, columnDefinition = "BPCHAR")
