@@ -23,7 +23,7 @@ public class DDistEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "id_rail", referencedColumnName = "id", columnDefinition = "BPCHAR")
-    private DRailEntity dRail;
+    private RailwayEntity dRail;
 
     @Basic
     @Column(name = "dist", length = 8)

@@ -11,7 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "d_rail", schema = "drtu", catalog = "rtubase")
-public class DRailEntity {
+public class RailwayEntity {
 
     @Id
     @Column(name = "id", nullable = false, length = -1, columnDefinition = "BPCHAR")

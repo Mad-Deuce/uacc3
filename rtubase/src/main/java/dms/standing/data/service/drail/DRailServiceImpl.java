@@ -1,6 +1,6 @@
 package dms.standing.data.service.drail;
 
-import dms.standing.data.entity.DRailEntity;
+import dms.standing.data.entity.RailwayEntity;
 import dms.standing.data.repository.DRailRepository;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -27,7 +27,7 @@ public class DRailServiceImpl implements DRailService {
     }
 
     @Override
-    public List<DRailEntity> getAll() {
+    public List<RailwayEntity> getAll() {
         return dRailRepository.findAll();
     }
 
@@ -43,7 +43,7 @@ public class DRailServiceImpl implements DRailService {
         Iterator<Row> rows = sheet.iterator();
         int rowNumber = 0;
 
-        List<DRailEntity> rails = new ArrayList<DRailEntity>();
+        List<RailwayEntity> rails = new ArrayList<RailwayEntity>();
 
         while (rows.hasNext()) {
             Row currentRow = rows.next();
@@ -52,7 +52,7 @@ public class DRailServiceImpl implements DRailService {
                 rowNumber++;
                 continue;
             }
-            DRailEntity rail = new DRailEntity();
+            RailwayEntity rail = new RailwayEntity();
             rail.setId(currentRow.getCell(0).getStringCellValue());
             rail.setName(currentRow.getCell(1).getStringCellValue());
             rail.setCode(currentRow.getCell(2).getStringCellValue());
