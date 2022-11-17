@@ -6,16 +6,16 @@ import javax.persistence.*;
 
 @Setter
 @Getter
-@EqualsAndHashCode(of = {"grid"})
-@ToString(of = {"grid", "name"})
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"id", "name"})
 @NoArgsConstructor
 @Entity
 @Table(name = "s_devgrp", schema = "drtu", catalog = "rtubase")
-public class SDevgrpEntity {
+public class DeviceTypeGroupEntity {
 
     @Id
     @Column(name = "grid", nullable = false, columnDefinition = "NUMERIC")
-    private Integer grid;
+    private Integer id;
 
     @Basic
     @Column(name = "name", length = 160)

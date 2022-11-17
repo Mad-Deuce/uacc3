@@ -49,7 +49,7 @@ public class DevConverter {
         devDTO.setTypeId(deviceEntity.getType().getId());
         devDTO.setTypeName(deviceEntity.getType().getName());
 
-        devDTO.setTypeGroupId(deviceEntity.getType().getDeviceTypeGroup().getGrid());
+        devDTO.setTypeGroupId(deviceEntity.getType().getDeviceTypeGroup().getId());
         devDTO.setTypeGroupName(deviceEntity.getType().getDeviceTypeGroup().getName());
 
         devDTO.setNumber(deviceEntity.getNumber());

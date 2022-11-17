@@ -9,7 +9,7 @@ import dms.property.name.constant.DevPropertyNameMapping;
 import dms.repository.DevRepository;
 import dms.standing.data.entity.DObjRtuEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
-import dms.standing.data.entity.SDevgrpEntity;
+import dms.standing.data.entity.DeviceTypeGroupEntity;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
@@ -126,7 +126,7 @@ public class DevServiceImpl implements DevService {
 
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<DeviceEntity, DeviceTypeEntity> sDev = root.join("sDev");
-            Join<DeviceTypeEntity, SDevgrpEntity> grid = sDev.join("grid");
+            Join<DeviceTypeEntity, DeviceTypeGroupEntity> grid = sDev.join("grid");
             Join<DeviceEntity, DeviceLocationEntity> devObj = root.join("devObj");
             Join<DeviceEntity, DObjRtuEntity> dObjRtu = root.join("dObjRtu");
 

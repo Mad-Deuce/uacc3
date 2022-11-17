@@ -21,7 +21,7 @@ public class DeviceTypeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grid", referencedColumnName = "grid")
-    private SDevgrpEntity deviceTypeGroup;
+    private DeviceTypeGroupEntity deviceTypeGroup;
 
     @Basic
     @Column(name = "dtype", length = 20)
