@@ -4,7 +4,7 @@ package dms.entity;
 import dms.standing.data.converter.StatusConverter;
 import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.DObjRtuEntity;
-import dms.standing.data.entity.SDevEntity;
+import dms.standing.data.entity.DeviceTypeEntity;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,7 +27,7 @@ public class DeviceEntity implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "devid", referencedColumnName = "id")
-    private SDevEntity type;
+    private DeviceTypeEntity type;
 
     @Basic
     @Column(name = "num", length = 10)

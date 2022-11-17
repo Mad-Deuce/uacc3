@@ -1,6 +1,6 @@
 package dms.standing.data.service.sdev;
 
-import dms.standing.data.entity.SDevEntity;
+import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.repository.SDevRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class SDevServiceImpl implements SDevService{
     }
 
     @Override
-    public Optional<SDevEntity> findSDevByID(Long id) {
+    public Optional<DeviceTypeEntity> findSDevByID(Long id) {
         return sDevRepository.findById(id);
     }
 }

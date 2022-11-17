@@ -13,7 +13,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "s_dev", schema = "drtu", catalog = "rtubase")
-public class SDevEntity {
+public class DeviceTypeEntity {
 
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC")

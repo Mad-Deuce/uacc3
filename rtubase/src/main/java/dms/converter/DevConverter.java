@@ -11,7 +11,7 @@ import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.DObjEntity;
 import dms.standing.data.entity.DObjRtuEntity;
 import dms.standing.data.entity.DRtuEntity;
-import dms.standing.data.entity.SDevEntity;
+import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.drtu.DRtuService;
 import dms.standing.data.service.sdev.SDevService;
@@ -150,10 +150,10 @@ public class DevConverter {
                 .orElseThrow(() -> new NoEntityException("Place for device (DeviceLocationEntity) with the id=" + devObjId + " not found"));
     }
 
-    private SDevEntity resolveSDev(Long sDevId) {
+    private DeviceTypeEntity resolveSDev(Long sDevId) {
         if (sDevId == null) return null;
         return (sDevService.findSDevByID(sDevId)
-                .orElseThrow(() -> new NoEntityException("Device type (SDevEntity) with the id=" + sDevId + " not found")));
+                .orElseThrow(() -> new NoEntityException("Device type (DeviceTypeEntity) with the id=" + sDevId + " not found")));
     }
 
     private Status resolveStatus(String statusCode) {

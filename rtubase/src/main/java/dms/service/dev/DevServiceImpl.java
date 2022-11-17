@@ -8,7 +8,7 @@ import dms.filter.DevFilter;
 import dms.property.name.constant.DevPropertyNameMapping;
 import dms.repository.DevRepository;
 import dms.standing.data.entity.DObjRtuEntity;
-import dms.standing.data.entity.SDevEntity;
+import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.SDevgrpEntity;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -125,8 +125,8 @@ public class DevServiceImpl implements DevService {
     private Specification<DevFilter> getSpecification(DevFilter devFilter) {
 
         return (root, criteriaQuery, criteriaBuilder) -> {
-            Join<DeviceEntity, SDevEntity> sDev = root.join("sDev");
-            Join<SDevEntity, SDevgrpEntity> grid = sDev.join("grid");
+            Join<DeviceEntity, DeviceTypeEntity> sDev = root.join("sDev");
+            Join<DeviceTypeEntity, SDevgrpEntity> grid = sDev.join("grid");
             Join<DeviceEntity, DeviceLocationEntity> devObj = root.join("devObj");
             Join<DeviceEntity, DObjRtuEntity> dObjRtu = root.join("dObjRtu");
 
