@@ -8,8 +8,8 @@ import java.sql.Date;
 
 @Setter
 @Getter
-@EqualsAndHashCode(of = {"grid", "dtype"})
-@ToString(of = {"grid", "dtype"})
+@EqualsAndHashCode(of = {"deviceTypeGroup", "name"})
+@ToString(of = {"deviceTypeGroup", "name"})
 @NoArgsConstructor
 @Entity
 @Table(name = "s_dev", schema = "drtu", catalog = "rtubase")
@@ -21,47 +21,47 @@ public class DeviceTypeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grid", referencedColumnName = "grid")
-    private SDevgrpEntity grid;
+    private SDevgrpEntity deviceTypeGroup;
 
     @Basic
     @Column(name = "dtype", length = 20)
-    private String dtype;
-
-    @Basic
-    @Column(name = "mtest", columnDefinition = "NUMERIC")
-    private Integer mtest;
-
-    @Basic
-    @Column(name = "rtime", precision = 3)
-    private BigDecimal rtime;
-
-    @Basic
-    @Column(name = "ttime", precision = 3)
-    private BigDecimal ttime;
-
-    @Basic
-    @Column(name = "narg", precision = 4)
-    private BigDecimal narg;
-
-    @Basic
-    @Column(name = "ngold", precision = 4)
-    private BigDecimal ngold;
-
-    @Basic
-    @Column(name = "nplat", precision = 4)
-    private BigDecimal nplat;
-
-    @Basic
-    @Column(name = "nalk", precision = 4)
-    private BigDecimal nalk;
-
-    @Basic
-    @Column(name = "name", length = 160)
     private String name;
 
     @Basic
+    @Column(name = "mtest", columnDefinition = "NUMERIC")
+    private Integer replacementPeriod;
+
+    @Basic
+    @Column(name = "rtime", precision = 3)
+    private BigDecimal adjustmentTime;
+
+    @Basic
+    @Column(name = "ttime", precision = 3)
+    private BigDecimal acceptanceTime;
+
+    @Basic
+    @Column(name = "narg", precision = 4)
+    private BigDecimal argentNorm;
+
+    @Basic
+    @Column(name = "ngold", precision = 4)
+    private BigDecimal goldNorm;
+
+    @Basic
+    @Column(name = "nplat", precision = 4)
+    private BigDecimal platinumNorm;
+
+    @Basic
+    @Column(name = "nalk", precision = 4)
+    private BigDecimal alcoholNorm;
+
+    @Basic
+    @Column(name = "name", length = 160)
+    private String nameOld;
+
+    @Basic
     @Column(name = "d_create")
-    private Date dCreate;
+    private Date createDate;
 
     @Basic
     @Column(name = "plant", length = 160)
