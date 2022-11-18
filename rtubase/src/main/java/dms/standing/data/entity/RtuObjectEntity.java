@@ -14,7 +14,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "d_rtu", schema = "drtu", catalog = "rtubase")
-public class RtuEntity extends DObjRtuEntity {
+public class RtuObjectEntity extends ObjectEntity {
 
     @Basic
     @Column(name = "name", length = 40)

@@ -4,7 +4,7 @@ import dms.standing.data.converter.LocateTypeConverter;
 import dms.standing.data.converter.RegionTypeConverter;
 import dms.standing.data.dock.val.LocateType;
 import dms.standing.data.dock.val.RegionType;
-import dms.standing.data.entity.DObjEntity;
+import dms.standing.data.entity.LineObjectEntity;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -20,7 +20,7 @@ public class DeviceLocationEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "obj_code", referencedColumnName = "id", columnDefinition = "BPCHAR")
-    private DObjEntity object;
+    private LineObjectEntity object;
 
     @Basic
     @Column(name = "locate", length = 50)

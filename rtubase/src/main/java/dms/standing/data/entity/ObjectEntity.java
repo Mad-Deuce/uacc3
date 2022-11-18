@@ -13,8 +13,8 @@ import javax.persistence.*;
 @ToString(of = {"kodRtu"})
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@JsonDeserialize(as = RtuEntity.class)
-public abstract class DObjRtuEntity {
+@JsonDeserialize(as = RtuObjectEntity.class)
+public abstract class ObjectEntity {
 
     @Id
     @GeneratedValue

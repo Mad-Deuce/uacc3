@@ -3,7 +3,7 @@ package dms.entity;
 
 import dms.standing.data.converter.StatusConverter;
 import dms.standing.data.dock.val.Status;
-import dms.standing.data.entity.DObjRtuEntity;
+import dms.standing.data.entity.ObjectEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
 import lombok.*;
 
@@ -65,7 +65,7 @@ public class DeviceEntity implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "obj_code")
-    private DObjRtuEntity object;
+    private ObjectEntity object;
 
     @Basic
     @Column(name = "ok_send", length = -1, columnDefinition = "BPCHAR")

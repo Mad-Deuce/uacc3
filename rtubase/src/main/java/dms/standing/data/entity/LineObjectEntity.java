@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "d_obj", schema = "drtu", catalog = "rtubase")
-public class DObjEntity extends DObjRtuEntity {
+public class LineObjectEntity extends ObjectEntity {
 
     @Basic
     @Column(name = "kod_otd", length = -1, columnDefinition = "BPCHAR")

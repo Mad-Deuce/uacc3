@@ -8,9 +8,9 @@ import dms.exception.WrongDataException;
 import dms.filter.DevFilter;
 import dms.service.devobj.DevObjService;
 import dms.standing.data.dock.val.Status;
-import dms.standing.data.entity.DObjEntity;
-import dms.standing.data.entity.DObjRtuEntity;
-import dms.standing.data.entity.RtuEntity;
+import dms.standing.data.entity.LineObjectEntity;
+import dms.standing.data.entity.ObjectEntity;
+import dms.standing.data.entity.RtuObjectEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.drtu.DRtuService;
@@ -166,14 +166,14 @@ public class DevConverter {
         throw new WrongDataException("Wrong Status Code");
     }
 
-    private DObjRtuEntity resolveDObjRtu(String objectId) {
+    private ObjectEntity resolveDObjRtu(String objectId) {
         if (objectId == null) return null;
-        Optional<RtuEntity> rtu = dRtuService.findById(objectId);
+        Optional<RtuObjectEntity> rtu = dRtuService.findById(objectId);
         if (rtu.isPresent()) {
             return rtu.get();
         }
 
-        Optional<DObjEntity> place = dObjService.findById(objectId);
+        Optional<LineObjectEntity> place = dObjService.findById(objectId);
         if (place.isPresent()) {
             return place.get();
         }
