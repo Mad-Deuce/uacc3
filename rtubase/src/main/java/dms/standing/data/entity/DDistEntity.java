@@ -7,10 +7,9 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.math.BigInteger;
 
 @Getter
-@EqualsAndHashCode(of = {"dRail", "codeDist"})
+@EqualsAndHashCode(of = {"railway", "code"})
 @ToString
 @NoArgsConstructor
 @Entity
@@ -23,18 +22,18 @@ public class DDistEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "id_rail", referencedColumnName = "id", columnDefinition = "BPCHAR")
-    private RailwayEntity dRail;
+    private RailwayEntity railway;
 
     @Basic
     @Column(name = "dist", length = 8)
-    private String dist;
+    private String shortName;
 
     @Basic
     @Column(name = "name", length = 40)
     private String name;
 
     @Basic
-    @Column(name = "code_dist")
-    private BigInteger codeDist;
+    @Column(name = "code_dist", columnDefinition = "NUMERIC")
+    private Integer code;
 
 }

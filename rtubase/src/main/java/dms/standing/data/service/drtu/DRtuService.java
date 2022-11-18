@@ -1,12 +1,12 @@
 package dms.standing.data.service.drtu;
 
-import dms.standing.data.entity.DRtuEntity;
+import dms.standing.data.entity.RtuEntity;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface DRtuService {
-    public List<DRtuEntity> getAll();
+    public List<RtuEntity> getAll();
 
-   Optional<DRtuEntity> findById(String id);
+   Optional<RtuEntity> findById(String id);
 }

@@ -8,8 +8,8 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Getter
-@EqualsAndHashCode(callSuper = true, of = {"dDist", "kodObj"})
-@ToString(callSuper = true, of = {"dDist", "kodObj", "nameObj"})
+@EqualsAndHashCode(callSuper = true, of = {"subdivision", "codeStr"})
+@ToString(callSuper = true, of = {"subdivision", "codeStr", "name"})
 @NoArgsConstructor
 @Entity
 @Table(name = "d_obj", schema = "drtu", catalog = "rtubase")
@@ -17,19 +17,19 @@ public class DObjEntity extends DObjRtuEntity {
 
     @Basic
     @Column(name = "kod_otd", length = -1, columnDefinition = "BPCHAR")
-    private String kodOtd;
+    private String affiliateCode;
 
     @Basic
     @Column(name = "kod_obkt", nullable = false, columnDefinition = "NUMERIC(3,0)")
-    private int kodObkt;
+    private Integer codeNum;
 
     @Basic
     @Column(name = "kod_obj", length = 3)
-    private String kodObj;
+    private String codeStr;
 
     @Basic
     @Column(name = "name_obj", length = 50)
-    private String nameObj;
+    private String name;
 
     @Basic
     @Column(name = "kind", length = -1, columnDefinition = "BPCHAR")
@@ -44,11 +44,11 @@ public class DObjEntity extends DObjRtuEntity {
             @JoinColumn(name = "kod_dist", referencedColumnName = "code_dist", columnDefinition = "NUMERIC"),
             @JoinColumn(name = "kod_dor", referencedColumnName = "id_rail", columnDefinition = "BPCHAR")
     })
-    private DDistEntity dDist;
+    private DDistEntity subdivision;
 
     @Override
     public String getNameObject() {
-        return this.nameObj;
+        return this.name;
     }
 
 

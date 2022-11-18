@@ -10,7 +10,7 @@ import dms.service.devobj.DevObjService;
 import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.DObjEntity;
 import dms.standing.data.entity.DObjRtuEntity;
-import dms.standing.data.entity.DRtuEntity;
+import dms.standing.data.entity.RtuEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.drtu.DRtuService;
@@ -168,7 +168,7 @@ public class DevConverter {
 
     private DObjRtuEntity resolveDObjRtu(String objectId) {
         if (objectId == null) return null;
-        Optional<DRtuEntity> rtu = dRtuService.findById(objectId);
+        Optional<RtuEntity> rtu = dRtuService.findById(objectId);
         if (rtu.isPresent()) {
             return rtu.get();
         }

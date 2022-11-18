@@ -1,6 +1,6 @@
 package dms.standing.data.service.drtu;
 
-import dms.standing.data.entity.DRtuEntity;
+import dms.standing.data.entity.RtuEntity;
 import dms.standing.data.repository.DRtuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,12 @@ public class DRtuServiceImpl implements DRtuService {
     }
 
 
-    public List<DRtuEntity> getAll(){
+    public List<RtuEntity> getAll(){
         return dRtuRepository.findAll();
     }
 
     @Override
-    public Optional<DRtuEntity> findById(String id) {
+    public Optional<RtuEntity> findById(String id) {
         return dRtuRepository.findById(id);
     }
 }
