@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface DRailService {
-    public List<RailwayEntity> getAll();
+     List<RailwayEntity> getAll();
 
-    public void importFromExcel(MultipartFile files) throws IOException;
+     void importFromExcel(MultipartFile files) throws IOException;
 }

@@ -5,5 +5,5 @@ import dms.standing.data.entity.DeviceTypeEntity;
 import java.util.Optional;
 
 public interface SDevService {
-    public Optional<DeviceTypeEntity> findSDevByID(Long id);
+    Optional<DeviceTypeEntity> findSDevByID(Long id);
 }

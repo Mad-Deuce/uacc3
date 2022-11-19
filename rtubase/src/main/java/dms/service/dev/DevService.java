@@ -11,14 +11,15 @@ import java.util.List;
 
 public interface DevService {
 
-    public DeviceEntity findDevById(Long id);
+    DeviceEntity findDevById(Long id);
 
-    public Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter);
-    public Page<DeviceEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) throws NoSuchFieldException;
+    Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter);
 
-    public void deleteDevById(Long id);
+    Page<DeviceEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) throws NoSuchFieldException;
 
-    public void updateDev(Long id, DeviceEntity devModel, List<DevPropertyNameMapping> activeProperties);
+    void deleteDevById(Long id);
 
-    public DeviceEntity createDev(DeviceEntity devModel);
+    void updateDev(Long id, DeviceEntity devModel, List<DevPropertyNameMapping> activeProperties);
+
+    DeviceEntity createDev(DeviceEntity devModel);
 }
