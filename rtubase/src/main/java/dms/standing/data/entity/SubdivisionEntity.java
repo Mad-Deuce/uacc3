@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "d_dist", schema = "drtu", catalog = "rtubase")
-public class DDistEntity implements Serializable {
+public class SubdivisionEntity implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false, length = 5)

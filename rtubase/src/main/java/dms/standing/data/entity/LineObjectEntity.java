@@ -41,10 +41,10 @@ public class LineObjectEntity extends ObjectEntity {
 
     @ManyToOne
     @JoinColumns({
-            @JoinColumn(name = "kod_dist", referencedColumnName = "code_dist", columnDefinition = "NUMERIC"),
-            @JoinColumn(name = "kod_dor", referencedColumnName = "id_rail", columnDefinition = "BPCHAR")
+            @JoinColumn(name = "kod_dor", referencedColumnName = "id_rail", columnDefinition = "BPCHAR"),
+            @JoinColumn(name = "kod_dist", referencedColumnName = "code_dist", columnDefinition = "NUMERIC")
     })
-    private DDistEntity subdivision;
+    private SubdivisionEntity subdivision;
 
     @Override
     public String getNameObject() {

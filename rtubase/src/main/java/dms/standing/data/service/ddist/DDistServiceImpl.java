@@ -1,6 +1,6 @@
 package dms.standing.data.service.ddist;
 
-import dms.standing.data.entity.DDistEntity;
+import dms.standing.data.entity.SubdivisionEntity;
 import dms.standing.data.repository.DDistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class DDistServiceImpl implements DDistService {
     }
 
 
-    public List<DDistEntity> getAll(){
+    public List<SubdivisionEntity> getAll(){
         return dDistRepository.findAll();
     }
 }

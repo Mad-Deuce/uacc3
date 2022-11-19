@@ -22,10 +22,10 @@ public class RtuObjectEntity extends ObjectEntity {
 
     @ManyToOne
     @JoinColumns({
-            @JoinColumn(name = "kod_did", referencedColumnName = "code_dist", columnDefinition = "NUMERIC"),
-            @JoinColumn(name = "id_rail", referencedColumnName = "id_rail", columnDefinition = "BPCHAR")
+            @JoinColumn(name = "id_rail", referencedColumnName = "id_rail", columnDefinition = "BPCHAR"),
+            @JoinColumn(name = "kod_did", referencedColumnName = "code_dist", columnDefinition = "NUMERIC")
     })
-    private DDistEntity subdivision;
+    private SubdivisionEntity subdivision;
 
     @Override
     public String getNameObject() {
