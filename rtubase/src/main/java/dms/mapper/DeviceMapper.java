@@ -14,6 +14,21 @@ public interface DeviceMapper {
     @Mapping(target = "typeName", source = "type.name")
     @Mapping(target = "typeGroupId", source = "type.group.id")
     @Mapping(target = "typeGroupName", source = "type.group.name")
+    @Mapping(target = "statusName", source = "status.name")
+    @Mapping(target = "statusComment", source = "status.comm")
+    @Mapping(target = "objectId", source = "object.id")
+    @Mapping(target = "objectName", source = "object.name")
+
+    @Mapping(target = "locationId", source = "location.id")
+    @Mapping(target = "description", source = "location.description")
+    @Mapping(target = "region", source = "location.region")
+    @Mapping(target = "regionTypeName", source = "location.regionType.name")
+    @Mapping(target = "regionTypeComment", source = "location.regionType.comm")
+    @Mapping(target = "locate", source = "location.locate")
+    @Mapping(target = "locateTypeName", source = "location.locateType.name")
+    @Mapping(target = "locateTypeComment", source = "location.locateType.comm")
+    @Mapping(target = "placeNumber", source = "location.placeNumber")
+    @Mapping(target = "locationDetail", source = "location.detail")
     DeviceDTO entityToDTO (DeviceEntity entity);
 
 

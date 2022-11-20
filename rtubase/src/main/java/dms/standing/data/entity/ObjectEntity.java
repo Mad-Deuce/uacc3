@@ -2,13 +2,13 @@ package dms.standing.data.entity;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
+@Setter
+@NoArgsConstructor
 @EqualsAndHashCode(of = {"kodRtu"})
 @ToString(of = {"kodRtu"})
 @Entity
