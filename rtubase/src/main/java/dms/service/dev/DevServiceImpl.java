@@ -4,8 +4,8 @@ package dms.service.dev;
 import dms.entity.DeviceEntity;
 import dms.entity.DeviceLocationEntity;
 import dms.exception.NoEntityException;
-import dms.filter.DevFilter;
-import dms.property.name.constant.DevPropertyNameMapping;
+import dms.filter.DeviceFilter;
+import dms.property.name.constant.DevicePropertyNameMapping;
 import dms.repository.DevRepository;
 import dms.standing.data.entity.ObjectEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
@@ -53,13 +53,13 @@ public class DevServiceImpl implements DevService {
         return devRepository.getReferenceById(id);
     }
 
-    public Page<DeviceEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) throws NoSuchFieldException {
+    public Page<DeviceEntity> findDevsByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
 
         Long contentSize = (Long) em.createQuery(
                         "SELECT count (distinct d.id) " +
                                 "FROM DeviceEntity d " +
                                 "WHERE 1=1 " +
-                                getQueryConditionsPart(devFilter))
+                                getQueryConditionsPart(deviceFilter))
                 .getSingleResult();
 
         List<DeviceEntity> content = em.createQuery(
@@ -70,7 +70,7 @@ public class DevServiceImpl implements DevService {
                                 "JOIN FETCH d.dObjRtu dor " +
                                 "JOIN FETCH d.location do " +
                                 "WHERE 1=1 " +
-                                getQueryConditionsPart(devFilter) +
+                                getQueryConditionsPart(deviceFilter) +
                                 " ORDER BY d.id ASC", DeviceEntity.class)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
@@ -79,11 +79,11 @@ public class DevServiceImpl implements DevService {
         return new PageImpl<>(content, pageable, contentSize);
     }
 
-    private String getQueryConditionsPart(DevFilter devFilter) throws NoSuchFieldException {
+    private String getQueryConditionsPart(DeviceFilter deviceFilter) throws NoSuchFieldException {
         StringBuilder queryConditionsPart = new StringBuilder();
 
-        for (DevPropertyNameMapping item : DevPropertyNameMapping.values()) {
-            if (getProperty(devFilter, item) != null) {
+        for (DevicePropertyNameMapping item : DevicePropertyNameMapping.values()) {
+            if (getProperty(deviceFilter, item) != null) {
                 Field field = DeviceEntity.class.getDeclaredField(item.getEntityPropertyName());
                 if (java.util.Date.class.isAssignableFrom(field.getType())) {
 
@@ -92,7 +92,7 @@ public class DevServiceImpl implements DevService {
                                 .append(" AND CAST (d.")
                                 .append(item.getEntityPropertyName())
                                 .append(" as date) >= '")
-                                .append(getProperty(devFilter, item))
+                                .append(getProperty(deviceFilter, item))
                                 .append("'");
                     }
 
@@ -101,7 +101,7 @@ public class DevServiceImpl implements DevService {
                                 .append(" AND CAST (d.")
                                 .append(item.getEntityPropertyName())
                                 .append(" as date) <= '")
-                                .append(getProperty(devFilter, item))
+                                .append(getProperty(deviceFilter, item))
                                 .append("'");
                     }
 
@@ -110,7 +110,7 @@ public class DevServiceImpl implements DevService {
                             .append(" AND CAST (d.")
                             .append(item.getEntityPropertyName())
                             .append(" as string) LIKE '%")
-                            .append(getProperty(devFilter, item))
+                            .append(getProperty(deviceFilter, item))
                             .append("%'");
                 }
             }
@@ -118,11 +118,11 @@ public class DevServiceImpl implements DevService {
         return queryConditionsPart.toString();
     }
 
-    public Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter) {
-        return devRepository.findAll(getSpecification(devFilter), pageable);
+    public Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DeviceFilter deviceFilter) {
+        return devRepository.findAll(getSpecification(deviceFilter), pageable);
     }
 
-    private Specification<DevFilter> getSpecification(DevFilter devFilter) {
+    private Specification<DeviceFilter> getSpecification(DeviceFilter deviceFilter) {
 
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<DeviceEntity, DeviceTypeEntity> sDev = root.join("sDev");
@@ -142,8 +142,8 @@ public class DevServiceImpl implements DevService {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            for (DevPropertyNameMapping item : DevPropertyNameMapping.values()) {
-                if (getProperty(devFilter, item) != null) {
+            for (DevicePropertyNameMapping item : DevicePropertyNameMapping.values()) {
+                if (getProperty(deviceFilter, item) != null) {
 
                     int splitSize = item.getEntityPropertyName().split("\\.").length;
                     String[] splitArr = item.getEntityPropertyName().split("\\.");
@@ -151,12 +151,12 @@ public class DevServiceImpl implements DevService {
                     if (splitSize == 1) {
                         predicates.add(criteriaBuilder.like(
                                 root.get(splitArr[0]).as(String.class),
-                                "%" + getProperty(devFilter, item) + "%"));
+                                "%" + getProperty(deviceFilter, item) + "%"));
                     } else {
                         predicates.add(criteriaBuilder.like(
                                 joinsMap.get(splitArr[splitArr.length - 2])
                                         .get(splitArr[splitArr.length - 1]).as(String.class),
-                                "%" + getProperty(devFilter, item) + "%"));
+                                "%" + getProperty(deviceFilter, item) + "%"));
                     }
                 }
             }
@@ -166,24 +166,24 @@ public class DevServiceImpl implements DevService {
     }
 
     @SneakyThrows
-    private String getProperty(DevFilter devFilter, DevPropertyNameMapping item) {
-        return BeanUtils.getProperty(devFilter, item.getFilterPropertyName());
+    private String getProperty(DeviceFilter deviceFilter, DevicePropertyNameMapping item) {
+        return BeanUtils.getProperty(deviceFilter, item.getFilterPropertyName());
     }
 
     public void deleteDevById(Long id) {
         devRepository.deleteById(id);
     }
 
-    public void updateDev(Long id, DeviceEntity dev, List<DevPropertyNameMapping> activeProperties) {
+    public void updateDev(Long id, DeviceEntity dev, List<DevicePropertyNameMapping> activeProperties) {
         DeviceEntity targetDev = devRepository.findById(id).orElseThrow(
                 () -> new NoEntityException("Device with the id=" + id + " not found"));
         copyProperties(dev, targetDev, getProps(activeProperties));
         devRepository.save(targetDev);
     }
 
-    private List<String> getProps(List<DevPropertyNameMapping> activeProperties) {
+    private List<String> getProps(List<DevicePropertyNameMapping> activeProperties) {
         return activeProperties.stream()
-                .map(DevPropertyNameMapping::getEntityPropertyName)
+                .map(DevicePropertyNameMapping::getEntityPropertyName)
                 .collect(Collectors.toList());
     }
 

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.sql.Date;
 
 @Data
-public class DevFilter {
+public class DeviceFilter {
     private Long id;
 
     private Long typeId;
@@ -23,21 +23,21 @@ public class DevFilter {
     private Date nextTestDateMin;
     private Date nextTestDateMax;
     private Integer replacementPeriod;
-    private String statusCode;
+    private String statusName;
     private String statusComment;
     private String detail;
 
     private String objectId;
     private String objectName;
 
-    private Long placeId;
+    private Long locationId;
     private String description;
     private String region;
-    private String regionTypeCode;
+    private String regionTypeName;
     private String regionTypeComment;
     private String locate;
-    private String locateTypeCode;
+    private String locateTypeName;
     private String locateTypeComment;
     private String placeNumber;
-    private String placeDetail;
+    private String locationDetail;
 }

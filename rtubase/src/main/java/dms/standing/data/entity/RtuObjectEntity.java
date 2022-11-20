@@ -28,7 +28,7 @@ public class RtuObjectEntity extends ObjectEntity {
     private SubdivisionEntity subdivision;
 
     @Override
-    public String getNameObject() {
+    public String getName() {
         return this.name;
     }
 }

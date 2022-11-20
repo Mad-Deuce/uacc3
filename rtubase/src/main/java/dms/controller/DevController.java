@@ -2,7 +2,7 @@ package dms.controller;
 
 
 import dms.converter.DevConverter;
-import dms.dto.DevDTO;
+import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.service.dev.DevService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,20 +27,20 @@ public class DevController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/")
-    public Page<DevDTO> findAll(Pageable pageable, DevDTO devDTO) {
+    public Page<DeviceDTO> findAll(Pageable pageable, DeviceDTO deviceDTO) {
         return devConverter.convertEntityToDto(devService
-                .findDevsBySpecification(pageable, devConverter.convertDtoToFilter(devDTO)));
+                .findDevsBySpecification(pageable, devConverter.convertDtoToFilter(deviceDTO)));
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-query")
-    public Page<DeviceEntity> findAllByQuery(Pageable pageable, DevDTO devDTO) throws NoSuchFieldException {
-        return devService.findDevsByQuery(pageable, devConverter.convertDtoToFilter(devDTO));
+    public Page<DeviceEntity> findAllByQuery(Pageable pageable, DeviceDTO deviceDTO) throws NoSuchFieldException {
+        return devService.findDevsByQuery(pageable, devConverter.convertDtoToFilter(deviceDTO));
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(value = "/{id}")
-    public DevDTO findById(@PathVariable("id") Long id) {
+    public DeviceDTO findById(@PathVariable("id") Long id) {
         return devConverter.convertEntityToDto(devService.findDevById(id));
     }
 
@@ -53,20 +53,20 @@ public class DevController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/{id}")
     public void updateById(@PathVariable("id") Long id,
-                           @RequestBody DevDTO devDTO) {
-        devService.updateDev(id, devConverter.convertDtoToEntity(devDTO), devDTO.getActiveProperties());
+                           @RequestBody DeviceDTO deviceDTO) {
+        devService.updateDev(id, devConverter.convertDtoToEntity(deviceDTO), deviceDTO.getActiveProperties());
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/")
-    public DevDTO create(@RequestBody DevDTO devDTO) {
-        return devConverter.convertEntityToDto(devService.createDev(devConverter.convertDtoToEntity(devDTO)));
+    public DeviceDTO create(@RequestBody DeviceDTO deviceDTO) {
+        return devConverter.convertEntityToDto(devService.createDev(devConverter.convertDtoToEntity(deviceDTO)));
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/test-convert-for-filter")
-    public DeviceEntity testCFF(DevDTO devDTO) {
-        return devConverter.convertDtoToEntity(devDTO);
+    public DeviceEntity testCFF(DeviceDTO deviceDTO) {
+        return devConverter.convertDtoToEntity(deviceDTO);
     }
 
 }

@@ -23,6 +23,6 @@ public abstract class ObjectEntity {
     @Column(columnDefinition = "NUMERIC(1,0)")
     private Integer kodRtu;
 
-    public abstract String getNameObject();
+    public abstract String getName();
 
 }

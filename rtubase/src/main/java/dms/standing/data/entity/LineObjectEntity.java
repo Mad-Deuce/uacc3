@@ -47,7 +47,7 @@ public class LineObjectEntity extends ObjectEntity {
     private SubdivisionEntity subdivision;
 
     @Override
-    public String getNameObject() {
+    public String getName() {
         return this.name;
     }
 

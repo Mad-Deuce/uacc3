@@ -1,11 +1,11 @@
 package dms.converter;
 
-import dms.dto.DevDTO;
+import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.entity.DeviceLocationEntity;
 import dms.exception.NoEntityException;
 import dms.exception.WrongDataException;
-import dms.filter.DevFilter;
+import dms.filter.DeviceFilter;
 import dms.service.devobj.DevObjService;
 import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.LineObjectEntity;
@@ -41,103 +41,103 @@ public class DevConverter {
         this.dRtuService = dRtuService;
     }
 
-    public DevDTO convertEntityToDto(DeviceEntity deviceEntity) {
-        DevDTO devDTO = new DevDTO();
+    public DeviceDTO convertEntityToDto(DeviceEntity deviceEntity) {
+        DeviceDTO deviceDTO = new DeviceDTO();
 
-        devDTO.setId(deviceEntity.getId());
+        deviceDTO.setId(deviceEntity.getId());
 
-        devDTO.setTypeId(deviceEntity.getType().getId());
-        devDTO.setTypeName(deviceEntity.getType().getName());
+        deviceDTO.setTypeId(deviceEntity.getType().getId());
+        deviceDTO.setTypeName(deviceEntity.getType().getName());
 
-        devDTO.setTypeGroupId(deviceEntity.getType().getDeviceTypeGroup().getId());
-        devDTO.setTypeGroupName(deviceEntity.getType().getDeviceTypeGroup().getName());
+        deviceDTO.setTypeGroupId(deviceEntity.getType().getGroup().getId());
+        deviceDTO.setTypeGroupName(deviceEntity.getType().getGroup().getName());
 
-        devDTO.setNumber(deviceEntity.getNumber());
-        devDTO.setReleaseYear(deviceEntity.getReleaseYear());
-        devDTO.setTestDate(deviceEntity.getTestDate());
-        devDTO.setNextTestDate(deviceEntity.getNextTestDate());
-        devDTO.setReplacementPeriod(deviceEntity.getReplacementPeriod());
-        devDTO.setStatusCode(deviceEntity.getStatus().getName());
-        devDTO.setStatusComment(deviceEntity.getStatus().getComm());
-        devDTO.setDetail(deviceEntity.getDetail());
+        deviceDTO.setNumber(deviceEntity.getNumber());
+        deviceDTO.setReleaseYear(deviceEntity.getReleaseYear());
+        deviceDTO.setTestDate(deviceEntity.getTestDate());
+        deviceDTO.setNextTestDate(deviceEntity.getNextTestDate());
+        deviceDTO.setReplacementPeriod(deviceEntity.getReplacementPeriod());
+        deviceDTO.setStatusName(deviceEntity.getStatus().getName());
+        deviceDTO.setStatusComment(deviceEntity.getStatus().getComm());
+        deviceDTO.setDetail(deviceEntity.getDetail());
 
-        devDTO.setObjectId(deviceEntity.getObject().getId());
-        devDTO.setObjectName(deviceEntity.getObject().getNameObject());
+        deviceDTO.setObjectId(deviceEntity.getObject().getId());
+        deviceDTO.setObjectName(deviceEntity.getObject().getName());
 
         if (deviceEntity.getLocation() != null) {
-            devDTO.setPlaceId(deviceEntity.getLocation().getId());
-            devDTO.setDescription(deviceEntity.getLocation().getDescription());
-            devDTO.setRegion(deviceEntity.getLocation().getRegion());
-            devDTO.setRegionTypeCode(deviceEntity.getLocation().getRegionType().getName());
-            devDTO.setRegionTypeComment(deviceEntity.getLocation().getRegionType().getComm());
-            devDTO.setLocate(deviceEntity.getLocation().getLocate());
-            devDTO.setLocateTypeCode(deviceEntity.getLocation().getLocateType().getName());
-            devDTO.setLocateTypeComment(deviceEntity.getLocation().getLocateType().getComm());
-            devDTO.setPlaceNumber(deviceEntity.getLocation().getPlaceNumber());
-            devDTO.setPlaceDetail(deviceEntity.getLocation().getDetail());
+            deviceDTO.setLocationId(deviceEntity.getLocation().getId());
+            deviceDTO.setDescription(deviceEntity.getLocation().getDescription());
+            deviceDTO.setRegion(deviceEntity.getLocation().getRegion());
+            deviceDTO.setRegionTypeName(deviceEntity.getLocation().getRegionType().getName());
+            deviceDTO.setRegionTypeComment(deviceEntity.getLocation().getRegionType().getComm());
+            deviceDTO.setLocate(deviceEntity.getLocation().getLocate());
+            deviceDTO.setLocateTypeName(deviceEntity.getLocation().getLocateType().getName());
+            deviceDTO.setLocateTypeComment(deviceEntity.getLocation().getLocateType().getComm());
+            deviceDTO.setPlaceNumber(deviceEntity.getLocation().getPlaceNumber());
+            deviceDTO.setLocationDetail(deviceEntity.getLocation().getDetail());
         }
-        return devDTO;
+        return deviceDTO;
     }
 
-    public Page<DevDTO> convertEntityToDto(Page<DeviceEntity> page) {
-        List<DevDTO> content = page.getContent().stream().map(this::convertEntityToDto).collect(Collectors.toList());
+    public Page<DeviceDTO> convertEntityToDto(Page<DeviceEntity> page) {
+        List<DeviceDTO> content = page.getContent().stream().map(this::convertEntityToDto).collect(Collectors.toList());
         return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
     }
 
-    public DevFilter convertDtoToFilter(DevDTO devDTO) {
-        DevFilter devFilter = new DevFilter();
+    public DeviceFilter convertDtoToFilter(DeviceDTO deviceDTO) {
+        DeviceFilter deviceFilter = new DeviceFilter();
 
-        devFilter.setId(devDTO.getId());
-        devFilter.setTypeName(devDTO.getTypeName());
+        deviceFilter.setId(deviceDTO.getId());
+        deviceFilter.setTypeName(deviceDTO.getTypeName());
 
-        devFilter.setTypeGroupId(devDTO.getTypeGroupId());
-        devFilter.setTypeGroupName(devDTO.getTypeGroupName());
+        deviceFilter.setTypeGroupId(deviceDTO.getTypeGroupId());
+        deviceFilter.setTypeGroupName(deviceDTO.getTypeGroupName());
 
-        devFilter.setNumber(devDTO.getNumber());
-        devFilter.setReleaseYear(devDTO.getReleaseYear());
+        deviceFilter.setNumber(deviceDTO.getNumber());
+        deviceFilter.setReleaseYear(deviceDTO.getReleaseYear());
 
-        devFilter.setTestDate(devDTO.getTestDate());
-        devFilter.setTestDateMin(devDTO.getTestDateMin());
-        devFilter.setTestDateMax(devDTO.getTestDateMax());
+        deviceFilter.setTestDate(deviceDTO.getTestDate());
+        deviceFilter.setTestDateMin(deviceDTO.getTestDateMin());
+        deviceFilter.setTestDateMax(deviceDTO.getTestDateMax());
 
-        devFilter.setNextTestDate(devDTO.getNextTestDate());
-        devFilter.setNextTestDateMin(devDTO.getNextTestDateMin());
-        devFilter.setNextTestDateMax(devDTO.getNextTestDateMax());
+        deviceFilter.setNextTestDate(deviceDTO.getNextTestDate());
+        deviceFilter.setNextTestDateMin(deviceDTO.getNextTestDateMin());
+        deviceFilter.setNextTestDateMax(deviceDTO.getNextTestDateMax());
 
-        devFilter.setReplacementPeriod(devDTO.getReplacementPeriod());
-        devFilter.setStatusCode(devDTO.getStatusCode());
-        devFilter.setStatusComment(devDTO.getStatusComment());
-        devFilter.setDetail(devDTO.getDetail());
+        deviceFilter.setReplacementPeriod(deviceDTO.getReplacementPeriod());
+        deviceFilter.setStatusName(deviceDTO.getStatusName());
+        deviceFilter.setStatusComment(deviceDTO.getStatusComment());
+        deviceFilter.setDetail(deviceDTO.getDetail());
 
-        devFilter.setObjectName(devDTO.getObjectName());
+        deviceFilter.setObjectName(deviceDTO.getObjectName());
 
-        devFilter.setDescription(devDTO.getDescription());
-        devFilter.setRegion(devDTO.getRegion());
-        devFilter.setRegionTypeCode(devDTO.getRegionTypeCode());
-        devFilter.setRegionTypeComment(devDTO.getRegionTypeComment());
-        devFilter.setLocate(devDTO.getLocate());
-        devFilter.setLocateTypeCode(devDTO.getLocateTypeCode());
-        devFilter.setLocateTypeComment(devDTO.getLocateTypeComment());
-        devFilter.setPlaceNumber(devDTO.getPlaceNumber());
-        devFilter.setPlaceDetail(devDTO.getPlaceDetail());
+        deviceFilter.setDescription(deviceDTO.getDescription());
+        deviceFilter.setRegion(deviceDTO.getRegion());
+        deviceFilter.setRegionTypeName(deviceDTO.getRegionTypeName());
+        deviceFilter.setRegionTypeComment(deviceDTO.getRegionTypeComment());
+        deviceFilter.setLocate(deviceDTO.getLocate());
+        deviceFilter.setLocateTypeName(deviceDTO.getLocateTypeName());
+        deviceFilter.setLocateTypeComment(deviceDTO.getLocateTypeComment());
+        deviceFilter.setPlaceNumber(deviceDTO.getPlaceNumber());
+        deviceFilter.setLocationDetail(deviceDTO.getLocationDetail());
 
-        return devFilter;
+        return deviceFilter;
     }
 
-    public DeviceEntity convertDtoToEntity(DevDTO devDTO) {
+    public DeviceEntity convertDtoToEntity(DeviceDTO deviceDTO) {
         DeviceEntity deviceEntity = new DeviceEntity();
 
-        deviceEntity.setLocation(resolveDevObj(devDTO.getPlaceId()));
-        deviceEntity.setType(resolveSDev(devDTO.getTypeId()));
-        deviceEntity.setNumber(devDTO.getNumber());
-        deviceEntity.setReleaseYear(devDTO.getReleaseYear());
-        deviceEntity.setStatus(resolveStatus(devDTO.getStatusCode()));
-        deviceEntity.setId(devDTO.getId());
-        deviceEntity.setNextTestDate(devDTO.getNextTestDate());
-        deviceEntity.setTestDate(devDTO.getTestDate());
-        deviceEntity.setReplacementPeriod(devDTO.getReplacementPeriod());
-        deviceEntity.setObject(resolveDObjRtu(devDTO.getObjectId()));
-        deviceEntity.setDetail(devDTO.getDetail());
+        deviceEntity.setLocation(resolveDevObj(deviceDTO.getLocationId()));
+        deviceEntity.setType(resolveSDev(deviceDTO.getTypeId()));
+        deviceEntity.setNumber(deviceDTO.getNumber());
+        deviceEntity.setReleaseYear(deviceDTO.getReleaseYear());
+        deviceEntity.setStatus(resolveStatus(deviceDTO.getStatusName()));
+        deviceEntity.setId(deviceDTO.getId());
+        deviceEntity.setNextTestDate(deviceDTO.getNextTestDate());
+        deviceEntity.setTestDate(deviceDTO.getTestDate());
+        deviceEntity.setReplacementPeriod(deviceDTO.getReplacementPeriod());
+        deviceEntity.setObject(resolveDObjRtu(deviceDTO.getObjectId()));
+        deviceEntity.setDetail(deviceDTO.getDetail());
 
 
         return deviceEntity;

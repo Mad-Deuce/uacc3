@@ -1,8 +1,8 @@
 package dms.service.dev;
 
 import dms.entity.DeviceEntity;
-import dms.filter.DevFilter;
-import dms.property.name.constant.DevPropertyNameMapping;
+import dms.filter.DeviceFilter;
+import dms.property.name.constant.DevicePropertyNameMapping;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,13 +13,13 @@ public interface DevService {
 
     DeviceEntity findDevById(Long id);
 
-    Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DevFilter devFilter);
+    Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DeviceFilter deviceFilter);
 
-    Page<DeviceEntity> findDevsByQuery(Pageable pageable, DevFilter devFilter) throws NoSuchFieldException;
+    Page<DeviceEntity> findDevsByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException;
 
     void deleteDevById(Long id);
 
-    void updateDev(Long id, DeviceEntity devModel, List<DevPropertyNameMapping> activeProperties);
+    void updateDev(Long id, DeviceEntity devModel, List<DevicePropertyNameMapping> activeProperties);
 
     DeviceEntity createDev(DeviceEntity devModel);
 }

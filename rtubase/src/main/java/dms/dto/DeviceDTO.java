@@ -1,7 +1,7 @@
 package dms.dto;
 
 
-import dms.property.name.constant.DevPropertyNameMapping;
+import dms.property.name.constant.DevicePropertyNameMapping;
 import lombok.Data;
 
 import java.sql.Date;
@@ -9,7 +9,7 @@ import java.util.List;
 
 
 @Data
-public class DevDTO {
+public class DeviceDTO {
 
     private Long id;
 
@@ -30,24 +30,24 @@ public class DevDTO {
     private Date nextTestDateMax;
 
     private Integer replacementPeriod;
-    private String statusCode;
+    private String statusName;
     private String statusComment;
     private String detail;
 
     private String objectId;
     private String objectName;
 
-    private Long placeId;
+    private Long locationId;
     private String description;
     private String region;
-    private String regionTypeCode;
+    private String regionTypeName;
     private String regionTypeComment;
     private String locate;
-    private String locateTypeCode;
+    private String locateTypeName;
     private String locateTypeComment;
     private String placeNumber;
-    private String placeDetail;
+    private String locationDetail;
 
-    private List<DevPropertyNameMapping> activeProperties;
+    private List<DevicePropertyNameMapping> activeProperties;
 }
 

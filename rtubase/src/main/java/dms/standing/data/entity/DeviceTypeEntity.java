@@ -8,8 +8,8 @@ import java.sql.Date;
 
 @Setter
 @Getter
-@EqualsAndHashCode(of = {"deviceTypeGroup", "name"})
-@ToString(of = {"deviceTypeGroup", "name"})
+@EqualsAndHashCode(of = {"group", "name"})
+@ToString(of = {"group", "name"})
 @NoArgsConstructor
 @Entity
 @Table(name = "s_dev", schema = "drtu", catalog = "rtubase")
@@ -21,7 +21,7 @@ public class DeviceTypeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grid", referencedColumnName = "grid")
-    private DeviceTypeGroupEntity deviceTypeGroup;
+    private DeviceTypeGroupEntity group;
 
     @Basic
     @Column(name = "dtype", length = 20)
