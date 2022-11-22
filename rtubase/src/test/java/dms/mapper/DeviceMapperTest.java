@@ -8,18 +8,26 @@ import dms.standing.data.dock.val.RegionType;
 import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
-import dms.standing.data.entity.ObjectEntity;
 import dms.standing.data.entity.RtuObjectEntity;
+import dms.standing.data.service.sdev.SDevService;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
-import org.jeasy.random.FieldPredicates;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.sql.Date;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest
 class DeviceMapperTest {
+
+    @Autowired
+    private DeviceMapperAbstract mapperAbstract;
+
+    @Autowired
+    protected SDevService deviceTypeService;
 
     @Test
     void entityToDTO() {
@@ -31,7 +39,7 @@ class DeviceMapperTest {
         type.setId(4321L);
         type.setName("some_type_name");
 
-        DeviceTypeGroupEntity group=new DeviceTypeGroupEntity();
+        DeviceTypeGroupEntity group = new DeviceTypeGroupEntity();
         group.setId(5);
         group.setName("some_group_name");
         type.setGroup(group);
@@ -64,7 +72,7 @@ class DeviceMapperTest {
         entity.setLocation(location);
 
 //===================================================================
-        DeviceDTO dto = DeviceMapper.INSTANCE.entityToDTO( entity );
+        DeviceDTO dto = DeviceMapper.INSTANCE.entityToDTO(entity);
 //===================================================================
         assertEquals(dto.getId(), entity.getId());
 
@@ -102,16 +110,16 @@ class DeviceMapperTest {
     }
 
     @Test
-    void entityToDTOAlt(){
+    void entityToDTOAlt() {
         EasyRandomParameters parameters = new EasyRandomParameters();
         parameters.scanClasspathForConcreteTypes(true);
 
         EasyRandom generator = new EasyRandom(parameters);
         DeviceEntity entity = generator.nextObject(DeviceEntity.class);
-//
-////===================================================================
-        DeviceDTO dto = DeviceMapper.INSTANCE.entityToDTO( entity );
-////===================================================================
+
+        ////===================================================================
+        DeviceDTO dto = DeviceMapper.INSTANCE.entityToDTO(entity);
+        ////===================================================================
         assertEquals(dto.getId(), entity.getId());
 
         assertEquals(dto.getTypeId(), entity.getType().getId());
@@ -144,5 +152,21 @@ class DeviceMapperTest {
         assertEquals(dto.getLocateTypeComment(), entity.getLocation().getLocateType().getComm());
         assertEquals(dto.getPlaceNumber(), entity.getLocation().getPlaceNumber());
         assertEquals(dto.getLocationDetail(), entity.getLocation().getDetail());
+    }
+
+    @Test
+    void dTOToEntity() {
+        EasyRandomParameters parameters = new EasyRandomParameters();
+        parameters.scanClasspathForConcreteTypes(true);
+
+        EasyRandom generator = new EasyRandom(parameters);
+        DeviceDTO dto = generator.nextObject(DeviceDTO.class);
+
+        ////===================================================================
+        DeviceEntity entity = mapperAbstract.dTOToEntity(dto);
+        ////===================================================================
+
+
+
     }
 }

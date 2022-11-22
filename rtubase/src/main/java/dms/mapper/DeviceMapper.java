@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+
 public interface DeviceMapper {
     DeviceMapper INSTANCE = Mappers.getMapper(DeviceMapper.class);
 
@@ -31,5 +31,9 @@ public interface DeviceMapper {
     @Mapping(target = "locationDetail", source = "location.detail")
     DeviceDTO entityToDTO (DeviceEntity entity);
 
-
+    @Mapping(target = "type.id", source = "typeId")
+    @Mapping(target = "object.id", source = "objectId")
+    @Mapping(target = "location.id", source = "locationId")
+    @Mapping(target = "status", source = "status.name")
+    DeviceEntity dTOToEntity (DeviceDTO dto);
 }
