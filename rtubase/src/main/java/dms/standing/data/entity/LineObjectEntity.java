@@ -1,5 +1,6 @@
 package dms.standing.data.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "d_obj", schema = "drtu", catalog = "rtubase")
+@JsonDeserialize(as = LineObjectEntity.class)
 public class LineObjectEntity extends ObjectEntity {
 
     @Basic

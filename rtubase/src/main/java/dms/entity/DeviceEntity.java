@@ -1,6 +1,7 @@
 package dms.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dms.standing.data.converter.StatusConverter;
 import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.ObjectEntity;

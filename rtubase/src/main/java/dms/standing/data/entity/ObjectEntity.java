@@ -1,10 +1,13 @@
 package dms.standing.data.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -14,7 +17,7 @@ import javax.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @JsonDeserialize(as = RtuObjectEntity.class)
-public abstract class ObjectEntity {
+public abstract class ObjectEntity implements Serializable {
 
     @Id
     @GeneratedValue

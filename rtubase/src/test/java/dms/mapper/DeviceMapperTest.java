@@ -1,5 +1,7 @@
 package dms.mapper;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.entity.DeviceLocationEntity;
@@ -15,13 +17,21 @@ import org.jeasy.random.EasyRandomParameters;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class DeviceMapperTest {
+
+//    @Resource(name="classpath: entity.json")
+//    private org.springframework.core.io.Resource defaultFile;
 
     @Autowired
     private DeviceMapperAbstract mapperAbstract;
@@ -155,18 +165,30 @@ class DeviceMapperTest {
     }
 
     @Test
-    void dTOToEntity() {
-        EasyRandomParameters parameters = new EasyRandomParameters();
-        parameters.scanClasspathForConcreteTypes(true);
+    void dTOToEntity() throws IOException {
+//        EasyRandomParameters parameters = new EasyRandomParameters();
+//        parameters.scanClasspathForConcreteTypes(true);
+//
+//        EasyRandom generator = new EasyRandom(parameters);
+//        DeviceDTO dto = generator.nextObject(DeviceDTO.class);
+//
+//        //===================================================================
+//        DeviceEntity entity = mapperAbstract.dTOToEntity(dto);
+        //===================================================================
 
-        EasyRandom generator = new EasyRandom(parameters);
-        DeviceDTO dto = generator.nextObject(DeviceDTO.class);
+        // create object mapper instance
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        ////===================================================================
-        DeviceEntity entity = mapperAbstract.dTOToEntity(dto);
-        ////===================================================================
+//        mapper.registerSubtypes(RtuObjectEntity.class);
 
+        Resource resource = new ClassPathResource("device_entity.json");
+        InputStream is = resource.getInputStream();
+//        mapper.writeValue(Paths.get("entity.json").toFile(), entity);
+        // convert map to JSON file
+//        mapper.writeValue(file, entity);
+        DeviceEntity entity1 = mapper.readValue(is, DeviceEntity.class);
 
-
+        System.out.println("1");
     }
 }

@@ -1,0 +1,83 @@
+{
+  "location": {
+    "id": 10110010000003,
+    "object": {
+      "id": "1011001",
+      "kodRtu": 1,
+      "name": "some_object_name",
+      "subdivision": {
+        "id": "1",
+        "railway": {
+          "id": "1",
+          "name": "some_name",
+          "code": "1"
+        },
+        "shortName": "some_short_name",
+        "name": "some_name",
+        "code": 1
+      }
+    },
+    "locate": "131",
+    "placeNumber": "96",
+    "description": "some_description",
+    "locateType": "ST",
+    "region": "some_region",
+    "regionType": "EC",
+    "okSend": "2",
+    "opcl": "0",
+    "scode": "F",
+    "detail": "some_detail"
+  },
+  "type": {
+    "id": 10100101,
+    "group": {
+      "id": 1,
+      "name": "Реле"
+    },
+    "name": "НР1-400",
+    "replacementPeriod": 120,
+    "adjustmentTime": 2.100,
+    "acceptanceTime": 3.200,
+    "argentNorm": 11.9200,
+    "goldNorm": 0.0000,
+    "platinumNorm": 0.0000,
+    "alcoholNorm": 0.0000,
+    "nameOld": null,
+    "createDate": "2007-04-18",
+    "plant": "+",
+    "tag1": null,
+    "tag2": null
+  },
+  "number": "00125",
+  "releaseYear": "1990",
+  "status": "PS11",
+  "createDate": "2023-11-21",
+  "id": 1011000045,
+  "nextTestDate": "2020-12-20",
+  "testDate": "2000-01-01",
+  "replacementPeriod": 120,
+  "object": {
+    "id": "1011001",
+    "kodRtu": 1,
+    "name": "some_object_name",
+    "subdivision": {
+      "id": "1",
+      "railway": {
+        "id": "1",
+        "name": "some_name",
+        "code": "1"
+      },
+      "shortName": "some_short_name",
+      "name": "some_name",
+      "code": 1
+    }
+  },
+  "okSend": "some_okSend",
+  "opcl": "some_opcl",
+  "tidPr": "some_tidPr",
+  "tidRg": "some_tidRg",
+  "scode": "some_scode",
+  "detail": "some_detail"
+}
+
+
