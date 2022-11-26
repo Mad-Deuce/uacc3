@@ -35,6 +35,7 @@ class DeviceMapperTest {
         ) {
             DeviceEntity originalEntity = jsonMapper.readValue(entityIs, DeviceEntity.class);
             DeviceDTO originalDto = jsonMapper.readValue(dTOIs, DeviceDTO.class);
+
             DeviceEntity mappedEntity = deviceMapper.dTOToEntity(originalDto);
 
             assertEquals(originalEntity, mappedEntity);
@@ -45,6 +46,22 @@ class DeviceMapperTest {
     }
 
     @Test
-    void entityToDTO() {
+    void entityToDTO() throws IOException {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        try (InputStream entityIs = new ClassPathResource("device_entity.json").getInputStream();
+             InputStream dTOIs = new ClassPathResource("device_dto.json").getInputStream()
+        ) {
+            DeviceEntity originalEntity = jsonMapper.readValue(entityIs, DeviceEntity.class);
+            DeviceDTO originalDto = jsonMapper.readValue(dTOIs, DeviceDTO.class);
+
+            DeviceDTO mappedDto = deviceMapper.entityToDTO(originalEntity);
+
+            assertEquals(originalDto, mappedDto);
+            assertThat(originalDto)
+                    .usingRecursiveComparison()
+                    .isEqualTo(mappedDto);
+        }
     }
 }
