@@ -19,7 +19,7 @@ public class DeviceTypeEntity {
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "grid", referencedColumnName = "grid")
     private DeviceTypeGroupEntity group;
 

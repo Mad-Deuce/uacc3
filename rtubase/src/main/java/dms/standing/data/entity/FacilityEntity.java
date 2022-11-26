@@ -1,8 +1,6 @@
 package dms.standing.data.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 
@@ -16,8 +14,8 @@ import java.io.Serializable;
 @ToString(of = {"kodRtu"})
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@JsonDeserialize(as = RtuObjectEntity.class)
-public abstract class ObjectEntity implements Serializable {
+@JsonDeserialize(as = RtuFacilityEntity.class)
+public abstract class FacilityEntity implements Serializable {
 
     @Id
     @GeneratedValue

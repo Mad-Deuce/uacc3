@@ -1,10 +1,9 @@
 package dms.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import dms.standing.data.converter.StatusConverter;
 import dms.standing.data.dock.val.Status;
-import dms.standing.data.entity.ObjectEntity;
+import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
 import lombok.*;
 
@@ -66,7 +65,7 @@ public class DeviceEntity implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "obj_code")
-    private ObjectEntity object;
+    private FacilityEntity facility;
 
     @Basic
     @Column(name = "ok_send", length = -1, columnDefinition = "BPCHAR")

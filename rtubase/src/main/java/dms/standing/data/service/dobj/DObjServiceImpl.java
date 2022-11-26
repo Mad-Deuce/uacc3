@@ -1,6 +1,6 @@
 package dms.standing.data.service.dobj;
 
-import dms.standing.data.entity.LineObjectEntity;
+import dms.standing.data.entity.LineFacilityEntity;
 import dms.standing.data.repository.DObjRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,12 @@ public class DObjServiceImpl implements DObjService {
     }
 
 
-    public List<LineObjectEntity> getAll() {
+    public List<LineFacilityEntity> getAll() {
         return dObjRepository.findAll();
     }
 
     @Override
-    public Optional<LineObjectEntity> findById(String id) {
+    public Optional<LineFacilityEntity> findById(String id) {
         return dObjRepository.findById(id);
     }
 }

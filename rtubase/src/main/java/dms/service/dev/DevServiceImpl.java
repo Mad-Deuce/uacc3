@@ -7,7 +7,7 @@ import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
 import dms.property.name.constant.DevicePropertyNameMapping;
 import dms.repository.DevRepository;
-import dms.standing.data.entity.ObjectEntity;
+import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
 import lombok.SneakyThrows;
@@ -128,7 +128,7 @@ public class DevServiceImpl implements DevService {
             Join<DeviceEntity, DeviceTypeEntity> sDev = root.join("sDev");
             Join<DeviceTypeEntity, DeviceTypeGroupEntity> grid = sDev.join("grid");
             Join<DeviceEntity, DeviceLocationEntity> devObj = root.join("devObj");
-            Join<DeviceEntity, ObjectEntity> dObjRtu = root.join("dObjRtu");
+            Join<DeviceEntity, FacilityEntity> dObjRtu = root.join("dObjRtu");
 
             Map<String, Join<?, ?>> joinsMap = new HashMap<>();
             joinsMap.put("sDev", sDev);

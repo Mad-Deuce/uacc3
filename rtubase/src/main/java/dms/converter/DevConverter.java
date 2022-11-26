@@ -8,10 +8,9 @@ import dms.exception.WrongDataException;
 import dms.filter.DeviceFilter;
 import dms.service.devobj.DevObjService;
 import dms.standing.data.dock.val.Status;
-import dms.standing.data.entity.LineObjectEntity;
-import dms.standing.data.entity.ObjectEntity;
-import dms.standing.data.entity.RtuObjectEntity;
-import dms.standing.data.entity.DeviceTypeEntity;
+import dms.standing.data.entity.*;
+import dms.standing.data.entity.FacilityEntity;
+import dms.standing.data.entity.RtuFacilityEntity;
 import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.drtu.DRtuService;
 import dms.standing.data.service.sdev.SDevService;
@@ -61,8 +60,8 @@ public class DevConverter {
         deviceDTO.setStatusComment(deviceEntity.getStatus().getComm());
         deviceDTO.setDetail(deviceEntity.getDetail());
 
-        deviceDTO.setObjectId(deviceEntity.getObject().getId());
-        deviceDTO.setObjectName(deviceEntity.getObject().getName());
+        deviceDTO.setFacilityId(deviceEntity.getFacility().getId());
+        deviceDTO.setFacilityName(deviceEntity.getFacility().getName());
 
         if (deviceEntity.getLocation() != null) {
             deviceDTO.setLocationId(deviceEntity.getLocation().getId());
@@ -109,7 +108,7 @@ public class DevConverter {
         deviceFilter.setStatusComment(deviceDTO.getStatusComment());
         deviceFilter.setDetail(deviceDTO.getDetail());
 
-        deviceFilter.setObjectName(deviceDTO.getObjectName());
+        deviceFilter.setObjectName(deviceDTO.getFacilityName());
 
         deviceFilter.setDescription(deviceDTO.getDescription());
         deviceFilter.setRegion(deviceDTO.getRegion());
@@ -136,7 +135,7 @@ public class DevConverter {
         deviceEntity.setNextTestDate(deviceDTO.getNextTestDate());
         deviceEntity.setTestDate(deviceDTO.getTestDate());
         deviceEntity.setReplacementPeriod(deviceDTO.getReplacementPeriod());
-        deviceEntity.setObject(resolveDObjRtu(deviceDTO.getObjectId()));
+        deviceEntity.setFacility(resolveDObjRtu(deviceDTO.getFacilityId()));
         deviceEntity.setDetail(deviceDTO.getDetail());
 
 
@@ -166,14 +165,14 @@ public class DevConverter {
         throw new WrongDataException("Wrong Status Code");
     }
 
-    private ObjectEntity resolveDObjRtu(String objectId) {
+    private FacilityEntity resolveDObjRtu(String objectId) {
         if (objectId == null) return null;
-        Optional<RtuObjectEntity> rtu = dRtuService.findById(objectId);
+        Optional<RtuFacilityEntity> rtu = dRtuService.findById(objectId);
         if (rtu.isPresent()) {
             return rtu.get();
         }
 
-        Optional<LineObjectEntity> place = dObjService.findById(objectId);
+        Optional<LineFacilityEntity> place = dObjService.findById(objectId);
         if (place.isPresent()) {
             return place.get();
         }

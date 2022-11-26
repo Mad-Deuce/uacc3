@@ -1,7 +1,7 @@
 package dms.standing.data.repository;
 
-import dms.standing.data.entity.RtuObjectEntity;
+import dms.standing.data.entity.RtuFacilityEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DRtuRepository extends JpaRepository<RtuObjectEntity, String> {
+public interface DRtuRepository extends JpaRepository<RtuFacilityEntity, String> {
 }

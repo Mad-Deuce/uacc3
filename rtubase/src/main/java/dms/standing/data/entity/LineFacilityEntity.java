@@ -12,8 +12,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "d_obj", schema = "drtu", catalog = "rtubase")
-@JsonDeserialize(as = LineObjectEntity.class)
-public class LineObjectEntity extends ObjectEntity {
+@JsonDeserialize(as = LineFacilityEntity.class)
+public class LineFacilityEntity extends FacilityEntity {
 
     @Basic
     @Column(name = "kod_otd", length = -1, columnDefinition = "BPCHAR")

@@ -1,32 +1,36 @@
 {
   "location": {
     "id": 10110010000003,
-    "object": {
+    "facility": {
       "id": "1011001",
       "kodRtu": 1,
-      "name": "some_object_name",
+      "codeNum": 1,
+      "codeStr": "001",
+      "name": "ст. Близнецы",
+      "kind": "S",
+      "cls": "ST",
       "subdivision": {
-        "id": "1",
+        "id": "101",
         "railway": {
           "id": "1",
-          "name": "some_name",
+          "name": "Донецька",
           "code": "1"
         },
-        "shortName": "some_short_name",
-        "name": "some_name",
+        "shortName": "ШЧ-1",
+        "name": "ШЧ-1 Слов'янськ",
         "code": 1
       }
     },
     "locate": "131",
     "placeNumber": "96",
-    "description": "some_description",
+    "description": "ПР3  ПХС",
     "locateType": "ST",
-    "region": "some_region",
+    "region": null,
     "regionType": "EC",
     "okSend": "2",
     "opcl": "0",
     "scode": "F",
-    "detail": "some_detail"
+    "detail": null
   },
   "type": {
     "id": 10100101,
@@ -37,46 +41,51 @@
     "name": "НР1-400",
     "replacementPeriod": 120,
     "adjustmentTime": 2.100,
-    "acceptanceTime": 3.200,
+    "acceptanceTime": 0.170,
     "argentNorm": 11.9200,
     "goldNorm": 0.0000,
     "platinumNorm": 0.0000,
     "alcoholNorm": 0.0000,
     "nameOld": null,
-    "createDate": "2007-04-18",
-    "plant": "+",
+    "createDate": "2007-04-17T21:00:00.000",
+    "plant": null,
+    "scode": "+",
     "tag1": null,
     "tag2": null
   },
   "number": "00125",
   "releaseYear": "1990",
   "status": "PS11",
-  "createDate": "2023-11-21",
+  "createDate": null,
   "id": 1011000045,
   "nextTestDate": "2020-12-20",
   "testDate": "2000-01-01",
   "replacementPeriod": 120,
-  "object": {
+  "facility": {
     "id": "1011001",
     "kodRtu": 1,
-    "name": "some_object_name",
+    "codeNum": 1,
+    "codeStr": "001",
+    "name": "ст. Близнецы",
+    "kind": "S",
+    "cls": "ST",
     "subdivision": {
-      "id": "1",
+      "id": "101",
       "railway": {
         "id": "1",
-        "name": "some_name",
+        "name": "Донецька",
         "code": "1"
       },
-      "shortName": "some_short_name",
-      "name": "some_name",
+      "shortName": "ШЧ-1",
+      "name": "ШЧ-1 Слов'янськ",
       "code": 1
     }
   },
-  "okSend": "some_okSend",
-  "opcl": "some_opcl",
-  "tidPr": "some_tidPr",
-  "tidRg": "some_tidRg",
-  "scode": "some_scode",
+  "okSend": null,
+  "opcl": null,
+  "tidPr": null,
+  "tidRg": null,
+  "scode": null,
   "detail": "some_detail"
 }
 

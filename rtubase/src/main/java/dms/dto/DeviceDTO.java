@@ -30,12 +30,13 @@ public class DeviceDTO {
     private Date nextTestDateMax;
 
     private Integer replacementPeriod;
+    private String status;
     private String statusName;
     private String statusComment;
     private String detail;
 
-    private String objectId;
-    private String objectName;
+    private String facilityId;
+    private String facilityName;
 
     private Long locationId;
     private String description;

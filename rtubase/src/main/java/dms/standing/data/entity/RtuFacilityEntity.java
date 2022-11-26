@@ -13,8 +13,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "d_rtu", schema = "drtu", catalog = "rtubase")
-@JsonDeserialize(as = RtuObjectEntity.class)
-public class RtuObjectEntity extends ObjectEntity {
+@JsonDeserialize(as = RtuFacilityEntity.class)
+public class RtuFacilityEntity extends FacilityEntity {
 
     @Basic
     @Column(name = "name", length = 40)
