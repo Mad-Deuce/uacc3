@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
+import dms.filter.DeviceFilter;
 import dms.standing.data.service.sdev.SDevService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,26 @@ class DeviceMapperTest {
             assertThat(originalDto)
                     .usingRecursiveComparison()
                     .isEqualTo(mappedDto);
+        }
+    }
+
+    @Test
+    void dTOToFilter() throws IOException {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        try (InputStream filterIs = new ClassPathResource("device_dto.json").getInputStream();
+             InputStream dTOIs = new ClassPathResource("device_dto.json").getInputStream()
+        ) {
+            DeviceFilter originalFilter = jsonMapper.readValue(filterIs, DeviceFilter.class);
+            DeviceDTO originalDto = jsonMapper.readValue(dTOIs, DeviceDTO.class);
+
+            DeviceFilter mappedFilter = deviceMapper.dTOToFilter(originalDto);
+
+            assertEquals(originalFilter, mappedFilter);
+            assertThat(originalFilter)
+                    .usingRecursiveComparison()
+                    .isEqualTo(mappedFilter);
         }
     }
 }

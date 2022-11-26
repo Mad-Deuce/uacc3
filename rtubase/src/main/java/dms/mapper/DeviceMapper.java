@@ -2,6 +2,7 @@ package dms.mapper;
 
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
+import dms.filter.DeviceFilter;
 import dms.service.devobj.DevObjService;
 import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.standing.data.service.dobj.DObjService;
@@ -49,4 +50,6 @@ public abstract class DeviceMapper {
     @Mapping(target = "placeNumber", source = "location.placeNumber")
     @Mapping(target = "locationDetail", source = "location.detail")
     public abstract DeviceDTO entityToDTO (DeviceEntity entity);
+
+    public abstract DeviceFilter dTOToFilter (DeviceDTO deviceDTO);
 }

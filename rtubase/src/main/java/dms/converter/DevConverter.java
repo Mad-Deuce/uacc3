@@ -108,7 +108,7 @@ public class DevConverter {
         deviceFilter.setStatusComment(deviceDTO.getStatusComment());
         deviceFilter.setDetail(deviceDTO.getDetail());
 
-        deviceFilter.setObjectName(deviceDTO.getFacilityName());
+        deviceFilter.setFacilityName(deviceDTO.getFacilityName());
 
         deviceFilter.setDescription(deviceDTO.getDescription());
         deviceFilter.setRegion(deviceDTO.getRegion());

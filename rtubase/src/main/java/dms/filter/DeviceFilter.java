@@ -1,11 +1,15 @@
 package dms.filter;
 
+import dms.property.name.constant.DevicePropertyNameMapping;
 import lombok.Data;
 
 import java.sql.Date;
+import java.util.List;
+
 
 @Data
 public class DeviceFilter {
+
     private Long id;
 
     private Long typeId;
@@ -16,19 +20,22 @@ public class DeviceFilter {
 
     private String number;
     private String releaseYear;
+
     private Date testDate;
     private Date testDateMin;
     private Date testDateMax;
     private Date nextTestDate;
     private Date nextTestDateMin;
     private Date nextTestDateMax;
+
     private Integer replacementPeriod;
+    private String status;
     private String statusName;
     private String statusComment;
     private String detail;
 
-    private String objectId;
-    private String objectName;
+    private String facilityId;
+    private String facilityName;
 
     private Long locationId;
     private String description;
@@ -40,4 +47,6 @@ public class DeviceFilter {
     private String locateTypeComment;
     private String placeNumber;
     private String locationDetail;
+
+    private List<DevicePropertyNameMapping> activeProperties;
 }
