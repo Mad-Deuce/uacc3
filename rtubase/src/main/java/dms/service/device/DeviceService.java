@@ -1,4 +1,4 @@
-package dms.service.dev;
+package dms.service.device;
 
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 
-public interface DevService {
+public interface DeviceService {
 
     DeviceEntity findDevById(Long id);
 

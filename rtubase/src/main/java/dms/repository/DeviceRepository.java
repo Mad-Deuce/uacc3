@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
-public interface DevRepository extends JpaRepository<DeviceEntity, Long>, JpaSpecificationExecutor {
+public interface DeviceRepository extends JpaRepository<DeviceEntity, Long>, JpaSpecificationExecutor {
 
 
     Page<DeviceEntity> findAll(Specification specification, Pageable pageable);

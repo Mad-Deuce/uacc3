@@ -1,4 +1,4 @@
-package dms.service.dev;
+package dms.service.device;
 
 
 import dms.entity.DeviceEntity;
@@ -6,7 +6,7 @@ import dms.entity.DeviceLocationEntity;
 import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
 import dms.property.name.constant.DevicePropertyNameMapping;
-import dms.repository.DevRepository;
+import dms.repository.DeviceRepository;
 import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
@@ -36,21 +36,21 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service("DevService1")
-public class DevServiceImpl implements DevService {
+public class DeviceServiceImpl implements DeviceService {
 
     @PersistenceContext
     EntityManager em;
 
-    private final DevRepository devRepository;
+    private final DeviceRepository deviceRepository;
 
     @Autowired
-    public DevServiceImpl(DevRepository devRepository) {
-        this.devRepository = devRepository;
+    public DeviceServiceImpl(DeviceRepository deviceRepository) {
+        this.deviceRepository = deviceRepository;
     }
 
 
     public DeviceEntity findDevById(Long id) {
-        return devRepository.getReferenceById(id);
+        return deviceRepository.getReferenceById(id);
     }
 
     public Page<DeviceEntity> findDevsByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
@@ -119,22 +119,22 @@ public class DevServiceImpl implements DevService {
     }
 
     public Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DeviceFilter deviceFilter) {
-        return devRepository.findAll(getSpecification(deviceFilter), pageable);
+        return deviceRepository.findAll(getSpecification(deviceFilter), pageable);
     }
 
     private Specification<DeviceFilter> getSpecification(DeviceFilter deviceFilter) {
 
         return (root, criteriaQuery, criteriaBuilder) -> {
-            Join<DeviceEntity, DeviceTypeEntity> sDev = root.join("sDev");
-            Join<DeviceTypeEntity, DeviceTypeGroupEntity> grid = sDev.join("grid");
-            Join<DeviceEntity, DeviceLocationEntity> devObj = root.join("devObj");
-            Join<DeviceEntity, FacilityEntity> dObjRtu = root.join("dObjRtu");
+            Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
+            Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
+            Join<DeviceEntity, DeviceLocationEntity> location = root.join("location");
+            Join<DeviceEntity, FacilityEntity> facility = root.join("facility");
 
             Map<String, Join<?, ?>> joinsMap = new HashMap<>();
-            joinsMap.put("sDev", sDev);
-            joinsMap.put("grid", grid);
-            joinsMap.put("devObj", devObj);
-            joinsMap.put("dObjRtu", dObjRtu);
+            joinsMap.put("type", type);
+            joinsMap.put("group", group);
+            joinsMap.put("location", location);
+            joinsMap.put("facility", facility);
 
             criteriaQuery.distinct(false);
 
@@ -145,8 +145,9 @@ public class DevServiceImpl implements DevService {
             for (DevicePropertyNameMapping item : DevicePropertyNameMapping.values()) {
                 if (getProperty(deviceFilter, item) != null) {
 
-                    int splitSize = item.getEntityPropertyName().split("\\.").length;
+//                    int splitSize = item.getEntityPropertyName().split("\\.").length;
                     String[] splitArr = item.getEntityPropertyName().split("\\.");
+                    int splitSize = splitArr.length;
 
                     if (splitSize == 1) {
                         predicates.add(criteriaBuilder.like(
@@ -171,14 +172,14 @@ public class DevServiceImpl implements DevService {
     }
 
     public void deleteDevById(Long id) {
-        devRepository.deleteById(id);
+        deviceRepository.deleteById(id);
     }
 
     public void updateDev(Long id, DeviceEntity dev, List<DevicePropertyNameMapping> activeProperties) {
-        DeviceEntity targetDev = devRepository.findById(id).orElseThrow(
+        DeviceEntity targetDev = deviceRepository.findById(id).orElseThrow(
                 () -> new NoEntityException("Device with the id=" + id + " not found"));
         copyProperties(dev, targetDev, getProps(activeProperties));
-        devRepository.save(targetDev);
+        deviceRepository.save(targetDev);
     }
 
     private List<String> getProps(List<DevicePropertyNameMapping> activeProperties) {
@@ -190,7 +191,7 @@ public class DevServiceImpl implements DevService {
     public DeviceEntity createDev(DeviceEntity dev) {
         dev.setId(null);
         dev.setLocation(null);
-        return devRepository.saveAndFlush(dev);
+        return deviceRepository.saveAndFlush(dev);
     }
 
     private static void copyProperties(Object src, Object trg, Iterable<String> props) {

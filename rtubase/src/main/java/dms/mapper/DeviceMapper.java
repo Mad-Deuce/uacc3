@@ -9,6 +9,11 @@ import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.sdev.SDevService;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring",
         injectionStrategy = InjectionStrategy.FIELD)
@@ -50,5 +55,11 @@ public abstract class DeviceMapper {
     @Mapping(target = "placeNumber", source = "location.placeNumber")
     @Mapping(target = "locationDetail", source = "location.detail")
     public abstract DeviceDTO entityToDTO (DeviceEntity entity);
+
     public abstract DeviceFilter dTOToFilter (DeviceDTO deviceDTO);
+
+    public  Page<DeviceDTO> entityToDTOPage (Page<DeviceEntity> deviceEntityPage){
+        List<DeviceDTO> content = deviceEntityPage.getContent().stream().map(this::entityToDTO).collect(Collectors.toList());
+        return new PageImpl<>(content, deviceEntityPage.getPageable(), deviceEntityPage.getTotalElements());
+    }
 }
