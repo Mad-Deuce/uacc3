@@ -23,6 +23,7 @@ public abstract class DeviceMapper {
     @Autowired
     protected DObjService lineFacilityService;
 
+
     @Mapping(target = "type",
             expression = "java(deviceTypeService.findSDevByID(deviceDTO.getTypeId()).orElse(null))")
     @Mapping(target = "location",
@@ -35,21 +36,19 @@ public abstract class DeviceMapper {
     @Mapping(target = "typeName", source = "type.name")
     @Mapping(target = "typeGroupId", source = "type.group.id")
     @Mapping(target = "typeGroupName", source = "type.group.name")
-    @Mapping(target = "statusName", source = "status.name")
     @Mapping(target = "statusComment", source = "status.comm")
     @Mapping(target = "facilityId", source = "facility.id")
     @Mapping(target = "facilityName", source = "facility.name")
     @Mapping(target = "locationId", source = "location.id")
     @Mapping(target = "description", source = "location.description")
     @Mapping(target = "region", source = "location.region")
-    @Mapping(target = "regionTypeName", source = "location.regionType.name")
+    @Mapping(target = "regionType", source = "location.regionType.name")
     @Mapping(target = "regionTypeComment", source = "location.regionType.comm")
     @Mapping(target = "locate", source = "location.locate")
-    @Mapping(target = "locateTypeName", source = "location.locateType.name")
+    @Mapping(target = "locateType", source = "location.locateType.name")
     @Mapping(target = "locateTypeComment", source = "location.locateType.comm")
     @Mapping(target = "placeNumber", source = "location.placeNumber")
     @Mapping(target = "locationDetail", source = "location.detail")
     public abstract DeviceDTO entityToDTO (DeviceEntity entity);
-
     public abstract DeviceFilter dTOToFilter (DeviceDTO deviceDTO);
 }

@@ -30,7 +30,6 @@ public class DeviceFilter {
 
     private Integer replacementPeriod;
     private String status;
-    private String statusName;
     private String statusComment;
     private String detail;
 
@@ -40,10 +39,10 @@ public class DeviceFilter {
     private Long locationId;
     private String description;
     private String region;
-    private String regionTypeName;
+    private String regionType;
     private String regionTypeComment;
     private String locate;
-    private String locateTypeName;
+    private String locateType;
     private String locateTypeComment;
     private String placeNumber;
     private String locationDetail;

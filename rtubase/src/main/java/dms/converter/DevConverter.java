@@ -56,7 +56,7 @@ public class DevConverter {
         deviceDTO.setTestDate(deviceEntity.getTestDate());
         deviceDTO.setNextTestDate(deviceEntity.getNextTestDate());
         deviceDTO.setReplacementPeriod(deviceEntity.getReplacementPeriod());
-        deviceDTO.setStatusName(deviceEntity.getStatus().getName());
+//        deviceDTO.setStatusName(deviceEntity.getStatus().getName());
         deviceDTO.setStatusComment(deviceEntity.getStatus().getComm());
         deviceDTO.setDetail(deviceEntity.getDetail());
 
@@ -67,10 +67,10 @@ public class DevConverter {
             deviceDTO.setLocationId(deviceEntity.getLocation().getId());
             deviceDTO.setDescription(deviceEntity.getLocation().getDescription());
             deviceDTO.setRegion(deviceEntity.getLocation().getRegion());
-            deviceDTO.setRegionTypeName(deviceEntity.getLocation().getRegionType().getName());
+//            deviceDTO.setRegionTypeName(deviceEntity.getLocation().getRegionType().getName());
             deviceDTO.setRegionTypeComment(deviceEntity.getLocation().getRegionType().getComm());
             deviceDTO.setLocate(deviceEntity.getLocation().getLocate());
-            deviceDTO.setLocateTypeName(deviceEntity.getLocation().getLocateType().getName());
+//            deviceDTO.setLocateTypeName(deviceEntity.getLocation().getLocateType().getName());
             deviceDTO.setLocateTypeComment(deviceEntity.getLocation().getLocateType().getComm());
             deviceDTO.setPlaceNumber(deviceEntity.getLocation().getPlaceNumber());
             deviceDTO.setLocationDetail(deviceEntity.getLocation().getDetail());
@@ -104,7 +104,7 @@ public class DevConverter {
         deviceFilter.setNextTestDateMax(deviceDTO.getNextTestDateMax());
 
         deviceFilter.setReplacementPeriod(deviceDTO.getReplacementPeriod());
-        deviceFilter.setStatusName(deviceDTO.getStatusName());
+//        deviceFilter.setStatusName(deviceDTO.getStatusName());
         deviceFilter.setStatusComment(deviceDTO.getStatusComment());
         deviceFilter.setDetail(deviceDTO.getDetail());
 
@@ -112,10 +112,10 @@ public class DevConverter {
 
         deviceFilter.setDescription(deviceDTO.getDescription());
         deviceFilter.setRegion(deviceDTO.getRegion());
-        deviceFilter.setRegionTypeName(deviceDTO.getRegionTypeName());
+//        deviceFilter.setRegionTypeName(deviceDTO.getRegionTypeName());
         deviceFilter.setRegionTypeComment(deviceDTO.getRegionTypeComment());
         deviceFilter.setLocate(deviceDTO.getLocate());
-        deviceFilter.setLocateTypeName(deviceDTO.getLocateTypeName());
+//        deviceFilter.setLocateTypeName(deviceDTO.getLocateTypeName());
         deviceFilter.setLocateTypeComment(deviceDTO.getLocateTypeComment());
         deviceFilter.setPlaceNumber(deviceDTO.getPlaceNumber());
         deviceFilter.setLocationDetail(deviceDTO.getLocationDetail());
@@ -130,7 +130,7 @@ public class DevConverter {
         deviceEntity.setType(resolveSDev(deviceDTO.getTypeId()));
         deviceEntity.setNumber(deviceDTO.getNumber());
         deviceEntity.setReleaseYear(deviceDTO.getReleaseYear());
-        deviceEntity.setStatus(resolveStatus(deviceDTO.getStatusName()));
+//        deviceEntity.setStatus(resolveStatus(deviceDTO.getStatusName()));
         deviceEntity.setId(deviceDTO.getId());
         deviceEntity.setNextTestDate(deviceDTO.getNextTestDate());
         deviceEntity.setTestDate(deviceDTO.getTestDate());

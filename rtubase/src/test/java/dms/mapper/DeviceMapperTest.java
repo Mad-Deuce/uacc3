@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
-import dms.standing.data.service.sdev.SDevService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,9 +21,6 @@ class DeviceMapperTest {
 
     @Autowired
     private DeviceMapper deviceMapper;
-
-    @Autowired
-    protected SDevService deviceTypeService;
 
     @Test
     void dTOToEntity() throws IOException {

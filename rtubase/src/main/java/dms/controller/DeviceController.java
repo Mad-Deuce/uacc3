@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/devs")
-public class DevController {
+public class DeviceController {
 
     private final DevService devService;
     private final DevConverter devConverter;
 
     @Autowired
-    public DevController(@Qualifier("DevService1") DevService devService, DevConverter devConverter) {
+    public DeviceController(@Qualifier("DevService1") DevService devService, DevConverter devConverter) {
         this.devService = devService;
         this.devConverter = devConverter;
     }
@@ -29,7 +29,7 @@ public class DevController {
     @GetMapping(value = "/")
     public Page<DeviceDTO> findAll(Pageable pageable, DeviceDTO deviceDTO) {
         return devConverter.convertEntityToDto(devService
-                .findDevsBySpecification(pageable, devConverter.convertDtoToFilter(deviceDTO)));
+                   .findDevsBySpecification(pageable, devConverter.convertDtoToFilter(deviceDTO)));
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
