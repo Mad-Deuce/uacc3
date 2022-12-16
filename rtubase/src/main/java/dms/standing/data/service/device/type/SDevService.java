@@ -1,4 +1,4 @@
-package dms.standing.data.service.sdev;
+package dms.standing.data.service.device.type;
 
 import dms.standing.data.entity.DeviceTypeEntity;
 

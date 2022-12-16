@@ -2,7 +2,7 @@ package dms.service.device;
 
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
-import dms.property.name.constant.DevicePropertyNameMapping;
+import dms.mapper.ExplicitDeviceMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,7 +19,7 @@ public interface DeviceService {
 
     void deleteDevById(Long id);
 
-    void updateDev(Long id, DeviceEntity devModel, List<DevicePropertyNameMapping> activeProperties);
+    void updateDev(Long id, DeviceEntity devModel, List<ExplicitDeviceMatcher> activeProperties);
 
     DeviceEntity createDev(DeviceEntity devModel);
 }

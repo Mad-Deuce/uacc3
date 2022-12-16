@@ -16,6 +16,6 @@ public enum RegionType {
     ;
 
     private final String name;
-    private final String comm;
+    private final String comment;
     private final String valueC;
 }

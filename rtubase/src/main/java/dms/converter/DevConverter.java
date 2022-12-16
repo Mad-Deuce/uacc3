@@ -13,7 +13,7 @@ import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.entity.RtuFacilityEntity;
 import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.drtu.DRtuService;
-import dms.standing.data.service.sdev.SDevService;
+import dms.standing.data.service.device.type.SDevService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -57,7 +57,7 @@ public class DevConverter {
         deviceDTO.setNextTestDate(deviceEntity.getNextTestDate());
         deviceDTO.setReplacementPeriod(deviceEntity.getReplacementPeriod());
 //        deviceDTO.setStatusName(deviceEntity.getStatus().getName());
-        deviceDTO.setStatusComment(deviceEntity.getStatus().getComm());
+        deviceDTO.setStatusComment(deviceEntity.getStatus().getComment());
         deviceDTO.setDetail(deviceEntity.getDetail());
 
         deviceDTO.setFacilityId(deviceEntity.getFacility().getId());
@@ -68,10 +68,10 @@ public class DevConverter {
             deviceDTO.setDescription(deviceEntity.getLocation().getDescription());
             deviceDTO.setRegion(deviceEntity.getLocation().getRegion());
 //            deviceDTO.setRegionTypeName(deviceEntity.getLocation().getRegionType().getName());
-            deviceDTO.setRegionTypeComment(deviceEntity.getLocation().getRegionType().getComm());
+            deviceDTO.setRegionTypeComment(deviceEntity.getLocation().getRegionType().getComment());
             deviceDTO.setLocate(deviceEntity.getLocation().getLocate());
 //            deviceDTO.setLocateTypeName(deviceEntity.getLocation().getLocateType().getName());
-            deviceDTO.setLocateTypeComment(deviceEntity.getLocation().getLocateType().getComm());
+            deviceDTO.setLocateTypeComment(deviceEntity.getLocation().getLocateType().getComment());
             deviceDTO.setPlaceNumber(deviceEntity.getLocation().getPlaceNumber());
             deviceDTO.setLocationDetail(deviceEntity.getLocation().getDetail());
         }

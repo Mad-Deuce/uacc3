@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.box_download_insecure=true
+  config.vm.hostname = "ubuntu2204"
+  config.vm.define "ubuntu2204"
+  config.vm.network  "forwarded_port", guest: 5432, host: 5431, auto_correct: false
+#   config.vm.boot_timeout = 60
+#   config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.synced_folder  "D:/02-Projects/01-VM/SharedFolder", "/SharedFolder",
+  		create: true, automount: true
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.memory = "4096"
+    vb.customize ["modifyvm", :id, "--name", "ubuntu2204"]
+    vb.customize ["modifyvm", :id, "--vram", "18"]
+    vb.customize ["modifyvm", :id, "--usb", "on"]
+    vb.customize ["modifyvm", :id, "--usbehci", "off"]
+  end
+
+#   config.vm.provision "shell", path: "./sh/mc_installation.sh",
+#                                     :args => []
+
+  config.vm.provision :ansible_local do |v|
+      v.playbook = "./ansible/all_roles.yml"
+      v.inventory_path = './ansible/inventory'
+      v.limit = 'all'
+  end
+
+end

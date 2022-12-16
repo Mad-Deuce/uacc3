@@ -1,0 +1,28 @@
+---
+
+- name: "Install"
+  apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+  loop: ['php','libapache2-mod-php','php-curl','php-json','php-cgi','php-gd','php-zip','php-mbstring','php-xml','php-xmlrpc']
+  notify: restart apache
+
+- name: "UFW - Allow HTTP on port {{ http_port }}"
+  ufw:
+    rule: allow
+    port: "{{ http_port }}"
+    proto: tcp
+
+- name: "Copy test index.php"
+  template:
+    src: "files/index.php"
+    dest: "/var/www/{{ http_host }}/index.php"
+  notify: restart apache
+
+- name: "Config --short_open_tag--"
+  shell: sudo sed -i 's/short_open_tag = Off/short_open_tag = On/' /etc/php/{{ php_version }}/apache2/php.ini
+
+- name: "Config --display_errors--"
+  shell: sudo sed -i 's/display_errors = Off/display_errors = On/' /etc/php/{{ php_version }}/apache2/php.ini
+
+- name: "Config --error_reporting--"
+  shell: sudo sed -i 's/error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT/error_reporting = E_ALL/' /etc/php/{{ php_version }}/apache2/php.ini
+  notify: restart apache

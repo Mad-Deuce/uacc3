@@ -5,7 +5,7 @@ import dms.entity.DeviceEntity;
 import dms.entity.DeviceLocationEntity;
 import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
-import dms.property.name.constant.DevicePropertyNameMapping;
+import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
 import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
@@ -82,7 +82,7 @@ public class DeviceServiceImpl implements DeviceService {
     private String getQueryConditionsPart(DeviceFilter deviceFilter) throws NoSuchFieldException {
         StringBuilder queryConditionsPart = new StringBuilder();
 
-        for (DevicePropertyNameMapping item : DevicePropertyNameMapping.values()) {
+        for (ExplicitDeviceMatcher item : ExplicitDeviceMatcher.values()) {
             if (getProperty(deviceFilter, item) != null) {
                 Field field = DeviceEntity.class.getDeclaredField(item.getEntityPropertyName());
                 if (java.util.Date.class.isAssignableFrom(field.getType())) {
@@ -142,14 +142,12 @@ public class DeviceServiceImpl implements DeviceService {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            for (DevicePropertyNameMapping item : DevicePropertyNameMapping.values()) {
+            for (ExplicitDeviceMatcher item : ExplicitDeviceMatcher.values()) {
                 if (getProperty(deviceFilter, item) != null) {
 
-//                    int splitSize = item.getEntityPropertyName().split("\\.").length;
                     String[] splitArr = item.getEntityPropertyName().split("\\.");
-                    int splitSize = splitArr.length;
 
-                    if (splitSize == 1) {
+                    if (splitArr.length == 1) {
                         predicates.add(criteriaBuilder.like(
                                 root.get(splitArr[0]).as(String.class),
                                 "%" + getProperty(deviceFilter, item) + "%"));
@@ -167,7 +165,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @SneakyThrows
-    private String getProperty(DeviceFilter deviceFilter, DevicePropertyNameMapping item) {
+    private String getProperty(DeviceFilter deviceFilter, ExplicitDeviceMatcher item) {
         return BeanUtils.getProperty(deviceFilter, item.getFilterPropertyName());
     }
 
@@ -175,16 +173,16 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.deleteById(id);
     }
 
-    public void updateDev(Long id, DeviceEntity dev, List<DevicePropertyNameMapping> activeProperties) {
+    public void updateDev(Long id, DeviceEntity dev, List<ExplicitDeviceMatcher> activeProperties) {
         DeviceEntity targetDev = deviceRepository.findById(id).orElseThrow(
                 () -> new NoEntityException("Device with the id=" + id + " not found"));
         copyProperties(dev, targetDev, getProps(activeProperties));
         deviceRepository.save(targetDev);
     }
 
-    private List<String> getProps(List<DevicePropertyNameMapping> activeProperties) {
+    private List<String> getProps(List<ExplicitDeviceMatcher> activeProperties) {
         return activeProperties.stream()
-                .map(DevicePropertyNameMapping::getEntityPropertyName)
+                .map(ExplicitDeviceMatcher::getEntityPropertyName)
                 .collect(Collectors.toList());
     }
 

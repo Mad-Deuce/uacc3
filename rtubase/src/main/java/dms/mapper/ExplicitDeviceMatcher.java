@@ -1,11 +1,11 @@
-package dms.property.name.constant;
+package dms.mapper;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum DevicePropertyNameMapping {
+public enum ExplicitDeviceMatcher {
     ID("id","id","id"),
 
     TYPE_ID("typeId","typeId","type.id"),
@@ -27,20 +27,20 @@ public enum DevicePropertyNameMapping {
 
     REPLACEMENT_PERIOD("replacementPeriod","replacementPeriod","replacementPeriod"),
     STATUS("status","status","status"),
-    STATUS_COMMENT("statusComment","statusComment","status.comm"),
+    STATUS_COMMENT("statusComment","statusComment","status.comment"),
     DETAIL("detail","detail","detail"),
 
     OBJECT_ID("facilityId","facilityId","facility.id"),
-    OBJECT_NAME("facilityName","facilityName",""),
+    OBJECT_NAME("facilityName","facilityName","facility.getName"),
 
     LOCATION_ID("locationId","locationId","location.id"),
     DESCRIPTION("description","description","location.description"),
     REGION("region","region","location.region"),
     REGION_TYPE("regionType","regionType","location.regionType"),
-    REGION_TYPE_COMMENT("regionTypeComment","regionTypeComment","location.regionType.comm"),
+    REGION_TYPE_COMMENT("regionTypeComment","regionTypeComment","location.regionType.comment"),
     LOCATE("locate","locate","location.locate"),
     LOCATE_TYPE("locateType","locateType","location.locateType"),
-    LOCATE_TYPE_COMMENT("locateTypeComment","locateTypeComment","location.locateType.comm"),
+    LOCATE_TYPE_COMMENT("locateTypeComment","locateTypeComment","location.locateType.comment"),
     PLACE_NUMBER("placeNumber","placeNumber","location.placeNumber"),
     PLACE_DETAIL("locationDetail","locationDetail","location.detail"),
     ;

@@ -1,0 +1,15 @@
+---
+
+http_host: "test.server"
+http_conf: "test.server.conf"
+http_port: "80"
+http_ip: "192.168.1.111"
+
+php_version: "8.1"
+
+pg_version: "14"
+
+mysql_root_password: "mysql_root_password"
+app_user: "sammy"
+disable_default: true
+allow_world_readable_tmpfiles: true

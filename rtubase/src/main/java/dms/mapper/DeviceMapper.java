@@ -6,7 +6,7 @@ import dms.filter.DeviceFilter;
 import dms.service.devobj.DevObjService;
 import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.standing.data.service.dobj.DObjService;
-import dms.standing.data.service.sdev.SDevService;
+import dms.standing.data.service.device.type.SDevService;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,17 +41,17 @@ public abstract class DeviceMapper {
     @Mapping(target = "typeName", source = "type.name")
     @Mapping(target = "typeGroupId", source = "type.group.id")
     @Mapping(target = "typeGroupName", source = "type.group.name")
-    @Mapping(target = "statusComment", source = "status.comm")
+    @Mapping(target = "statusComment", source = "status.comment")
     @Mapping(target = "facilityId", source = "facility.id")
     @Mapping(target = "facilityName", source = "facility.name")
     @Mapping(target = "locationId", source = "location.id")
     @Mapping(target = "description", source = "location.description")
     @Mapping(target = "region", source = "location.region")
     @Mapping(target = "regionType", source = "location.regionType.name")
-    @Mapping(target = "regionTypeComment", source = "location.regionType.comm")
+    @Mapping(target = "regionTypeComment", source = "location.regionType.comment")
     @Mapping(target = "locate", source = "location.locate")
     @Mapping(target = "locateType", source = "location.locateType.name")
-    @Mapping(target = "locateTypeComment", source = "location.locateType.comm")
+    @Mapping(target = "locateTypeComment", source = "location.locateType.comment")
     @Mapping(target = "placeNumber", source = "location.placeNumber")
     @Mapping(target = "locationDetail", source = "location.detail")
     public abstract DeviceDTO entityToDTO (DeviceEntity entity);

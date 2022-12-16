@@ -1,7 +1,7 @@
 package dms.dto;
 
 
-import dms.property.name.constant.DevicePropertyNameMapping;
+import dms.mapper.ExplicitDeviceMatcher;
 import lombok.Data;
 
 import java.sql.Date;
@@ -48,6 +48,6 @@ public class DeviceDTO {
     private String placeNumber;
     private String locationDetail;
 
-    private List<DevicePropertyNameMapping> activeProperties;
+    private List<ExplicitDeviceMatcher> activeProperties;
 }
 
