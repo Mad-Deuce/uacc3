@@ -16,25 +16,21 @@
     src: "files/pg_hba.conf.j2"
     dest: "/etc/postgresql/{{ pg_version }}/main/pg_hba.conf"
 
-
-
 - name: "exec sql script"
   shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/postgres.sql"
 
-- name: Grant user postgres access to databases sales and logistics from ipv6 localhost ::1/128 using peer authentication
+- name: "Grant user postgres access to databases sales and logistics from ipv6 localhost ::1/128 using peer authentication"
   postgresql_pg_hba:
     dest: /etc/postgresql/14/main/pg_hba.conf
     contype: local
     users: postgres
     source:
-    databases: rtubase
+    databases: all
     method: trust
-    create: true
-
-
+    create: false
 
 - name: "restart postgresql"
   service: name=postgresql state=restarted
 
 - name: "restore db"
-  shell: sudo pg_restore -U postgres -w -d rtubase /vagrant/ansible/roles/postgresql/files/d20200602.backup
+  shell: sudo pg_restore -U postgres -w -d rtubase /vagrant/ansible/roles/postgresql/files/d20220131.backup

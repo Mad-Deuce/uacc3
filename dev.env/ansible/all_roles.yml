@@ -5,11 +5,7 @@
   gather_facts: false
   roles:
     - mc
-#    - apache
-#    - php
     - postgresql
-#    - ftp
-#    - laravel
   become: true
   become_method: sudo
   become_user: root
@@ -17,9 +13,6 @@
     - vars/default.yml
 
   handlers:
-#    - name: restart apache
-#      service: name=apache2 state=restarted
     - name: restart postgresql
       service: name=postgresql state=restarted
-#    - name: restart ftp
-#      service: name=vsftpd state=restarted
+
