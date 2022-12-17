@@ -4,8 +4,6 @@
   apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
   loop: ['postgresql','postgresql-contrib']
 
-
-
 - name: "Copy postgresql.conf (ansible version)"
   template:
     src: "files/postgresql.conf"
@@ -34,3 +32,14 @@
 
 - name: "restore db"
   shell: sudo pg_restore -U postgres -w -d rtubase /vagrant/ansible/roles/postgresql/files/d20220131.backup
+  ignore_errors: true
+
+- name: "Grant user postgres "
+  postgresql_pg_hba:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    contype: local
+    users: postgres
+    source:
+    databases: all
+    method: md5
+    create: false
