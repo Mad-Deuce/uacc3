@@ -15,6 +15,7 @@ import java.sql.Date;
 @Table(name = "s_dev", schema = "drtu", catalog = "rtubase")
 public class DeviceTypeEntity {
 
+
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC")
     private Long id;
