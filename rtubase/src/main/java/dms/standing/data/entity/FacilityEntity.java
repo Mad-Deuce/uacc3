@@ -17,8 +17,9 @@ import java.io.Serializable;
 @JsonDeserialize(as = RtuFacilityEntity.class)
 public abstract class FacilityEntity implements Serializable {
 
+
     @Id
-    @GeneratedValue
+//    @GeneratedValue
     private String id;
 
     @Column(columnDefinition = "NUMERIC(1,0)")

@@ -13,9 +13,9 @@ public interface DeviceService {
 
     DeviceEntity findDevById(Long id);
 
-    Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DeviceFilter deviceFilter);
+    Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, DeviceFilter deviceFilter);
 
-    Page<DeviceEntity> findDevsByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException;
+    Page<DeviceEntity> findDevicesByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException;
 
     void deleteDevById(Long id);
 

@@ -9,12 +9,8 @@ import dms.service.device.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -38,23 +34,15 @@ public class DeviceController {
     @GetMapping(value = "/by-spec")
     public Page<DeviceDTO> findDevicesBySpecification(Pageable pageable, DeviceDTO deviceDTO) {
         return deviceMapper.entityToDTOPage(deviceService
-                .findDevsBySpecification(pageable, deviceMapper.dTOToFilter(deviceDTO)));
-
-//        return convertEntityToDto(deviceService
-//                   .findDevsBySpecification(pageable, deviceMapper.dTOToFilter(deviceDTO)));
+                .findDevicesBySpecification(pageable, deviceMapper.dTOToFilter(deviceDTO)));
     }
-
-
-//    private Page<DeviceDTO> convertEntityToDto(Page<DeviceEntity> page) {
-//        List<DeviceDTO> content = page.getContent().stream().map(deviceMapper::entityToDTO).collect(Collectors.toList());
-//        return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
-//    }
 
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-query")
-    public Page<DeviceEntity> findAllByQuery(Pageable pageable, DeviceDTO deviceDTO) throws NoSuchFieldException {
-        return deviceService.findDevsByQuery(pageable, devConverter.convertDtoToFilter(deviceDTO));
+    public Page<DeviceDTO> findDevicesByQuery(Pageable pageable, DeviceDTO deviceDTO) throws NoSuchFieldException {
+        return deviceMapper.entityToDTOPage(deviceService
+                .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO)));
     }
 
     @CrossOrigin(origins = "http://localhost:4200")

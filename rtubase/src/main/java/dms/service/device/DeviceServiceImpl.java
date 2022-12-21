@@ -7,9 +7,9 @@ import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
-import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
+import dms.standing.data.entity.FacilityEntity;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
@@ -48,12 +48,11 @@ public class DeviceServiceImpl implements DeviceService {
         this.deviceRepository = deviceRepository;
     }
 
-
     public DeviceEntity findDevById(Long id) {
         return deviceRepository.getReferenceById(id);
     }
 
-    public Page<DeviceEntity> findDevsByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
+    public Page<DeviceEntity> findDevicesByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
 
         Long contentSize = (Long) em.createQuery(
                         "SELECT count (distinct d.id) " +
@@ -65,10 +64,10 @@ public class DeviceServiceImpl implements DeviceService {
         List<DeviceEntity> content = em.createQuery(
                         "SELECT d " +
                                 "FROM DeviceEntity d " +
-                                "JOIN FETCH d.sDev s " +
-                                "JOIN FETCH s.grid g " +
-                                "JOIN FETCH d.dObjRtu dor " +
-                                "JOIN FETCH d.location do " +
+                                "JOIN FETCH d.type t " +
+                                "JOIN FETCH t.group g " +
+                                "JOIN FETCH d.facility f " +
+                                "JOIN FETCH d.location l " +
                                 "WHERE 1=1 " +
                                 getQueryConditionsPart(deviceFilter) +
                                 " ORDER BY d.id ASC", DeviceEntity.class)
@@ -118,7 +117,7 @@ public class DeviceServiceImpl implements DeviceService {
         return queryConditionsPart.toString();
     }
 
-    public Page<DeviceEntity> findDevsBySpecification(Pageable pageable, DeviceFilter deviceFilter) {
+    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, DeviceFilter deviceFilter) {
         return deviceRepository.findAll(getSpecification(deviceFilter), pageable);
     }
 
