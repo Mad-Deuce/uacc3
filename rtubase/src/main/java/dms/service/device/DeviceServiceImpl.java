@@ -76,6 +76,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .getResultList();
 
         return new PageImpl<>(content, pageable, contentSize);
+
     }
 
     private String getQueryConditionsPart(DeviceFilter deviceFilter) throws NoSuchFieldException {
