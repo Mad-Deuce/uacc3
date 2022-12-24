@@ -67,7 +67,7 @@ public class DeviceServiceImpl implements DeviceService {
                                 "JOIN FETCH d.type t " +
                                 "JOIN FETCH t.group g " +
                                 "JOIN FETCH d.facility f " +
-                                "JOIN FETCH d.location l " +
+                                "LEFT JOIN FETCH d.location l " +
                                 "WHERE 1=1 " +
                                 getQueryConditionsPart(deviceFilter) +
                                 " ORDER BY d.id ASC", DeviceEntity.class)
@@ -84,7 +84,8 @@ public class DeviceServiceImpl implements DeviceService {
 
         for (ExplicitDeviceMatcher item : ExplicitDeviceMatcher.values()) {
             if (getProperty(deviceFilter, item) != null) {
-                Field field = DeviceEntity.class.getDeclaredField(item.getEntityPropertyName());
+                String[] splitProperty = item.getEntityPropertyName().split("\\.");
+                Field field = DeviceEntity.class.getDeclaredField(splitProperty[0]);
                 if (java.util.Date.class.isAssignableFrom(field.getType())) {
 
                     if (item.getFilterPropertyName().toLowerCase().contains("min")) {
