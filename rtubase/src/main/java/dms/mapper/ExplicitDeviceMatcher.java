@@ -16,6 +16,8 @@ public enum ExplicitDeviceMatcher {
 
     NUMBER("number","number","number"),
     RELEASE_YEAR("releaseYear","releaseYear","releaseYear"),
+    RELEASE_YEAR_MIN("releaseYearMin","releaseYearMin","releaseYear"),
+    RELEASE_YEAR_MAX("releaseYearMax","releaseYearMax","releaseYear"),
 
     TEST_DATE("testDate","testDate","testDate"),
     TEST_DATE_MIN("testDateMin","testDateMin","testDate"),
@@ -26,6 +28,8 @@ public enum ExplicitDeviceMatcher {
     NEXT_TEST_DATE_MAX("nextTestDateMax","nextTestDateMax","nextTestDate"),
 
     REPLACEMENT_PERIOD("replacementPeriod","replacementPeriod","replacementPeriod"),
+    REPLACEMENT_PERIOD_MIN("replacementPeriodMin","replacementPeriodMin","replacementPeriod"),
+    REPLACEMENT_PERIOD_MAX("replacementPeriodMax","replacementPeriodMax","replacementPeriod"),
     STATUS("status","status","status"),
     STATUS_COMMENT("statusComment","statusComment","status.comment"),
     DETAIL("detail","detail","detail"),

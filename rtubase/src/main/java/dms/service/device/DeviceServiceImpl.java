@@ -106,13 +106,51 @@ public class DeviceServiceImpl implements DeviceService {
                                 .append("'");
                     }
 
+                } else if (Number.class.isAssignableFrom(field.getType())) {
+
+                    if (item.getFilterPropertyName().toLowerCase().contains("min")) {
+                        queryConditionsPart
+                                .append(" AND d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" >= ")
+                                .append(getProperty(deviceFilter, item));
+                    }
+
+                    if (item.getFilterPropertyName().toLowerCase().contains("max")) {
+                        queryConditionsPart
+                                .append(" AND d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" <= ")
+                                .append(getProperty(deviceFilter, item));
+                    }
+
                 } else {
-                    queryConditionsPart
-                            .append(" AND CAST (d.")
-                            .append(item.getEntityPropertyName())
-                            .append(" as string) LIKE '%")
-                            .append(getProperty(deviceFilter, item))
-                            .append("%'");
+                    if (item.getFilterPropertyName().toLowerCase().contains("min")) {
+                        queryConditionsPart
+                                .append(" AND CAST (d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" as string) >= '")
+                                .append(getProperty(deviceFilter, item))
+                                .append("'");
+                    }
+
+                    else if (item.getFilterPropertyName().toLowerCase().contains("max")) {
+                        queryConditionsPart
+                                .append(" AND CAST (d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" as string) <= '")
+                                .append(getProperty(deviceFilter, item))
+                                .append("'");
+                    }
+
+                    else {
+                        queryConditionsPart
+                                .append(" AND CAST (d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" as string) LIKE '%")
+                                .append(getProperty(deviceFilter, item))
+                                .append("%'");
+                    }
                 }
             }
         }

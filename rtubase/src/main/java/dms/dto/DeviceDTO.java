@@ -21,6 +21,8 @@ public class DeviceDTO {
 
     private String number;
     private String releaseYear;
+    private String releaseYearMin;
+    private String releaseYearMax;
 
     private Date testDate;
     private Date testDateMin;
@@ -30,6 +32,8 @@ public class DeviceDTO {
     private Date nextTestDateMax;
 
     private Integer replacementPeriod;
+    private Integer replacementPeriodMin;
+    private Integer replacementPeriodMax;
     private String status;
     private String statusComment;
     private String detail;

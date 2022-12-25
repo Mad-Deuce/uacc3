@@ -6,6 +6,8 @@
   "typeGroupName": "Реле",
   "number": "00125",
   "releaseYear": "1990",
+  "releaseYearMin": null,
+  "releaseYearMax": null,
   "testDate": 946684800000,
   "testDateMin": null,
   "testDateMax": null,
