@@ -2,10 +2,8 @@ package dms;
 
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
@@ -16,9 +14,6 @@ class DeviceIT {
 
     @Value(value = "${local.server.port}")
     private int port;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     @Test
     void findDevicesByFilter() {
@@ -42,6 +37,12 @@ class DeviceIT {
                     .param("status", "11")
                     .param("facilityId", "1011023")
                     .param("facilityName", "Фен")
+                    .param("locationId", "10110230001100")
+                    .param("description", "К")
+                    .param("regionType", "NU")
+                    .param("locate", "М7")
+                    .param("locateType", "TR")
+                    .param("placeNumber", "К")
                 .when()
                     .get("/api/devices/by-query")
                 .then()
