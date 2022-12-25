@@ -66,7 +66,7 @@ public class DeviceServiceImpl implements DeviceService {
                                 "FROM DeviceEntity d " +
                                 "JOIN FETCH d.type t " +
                                 "JOIN FETCH t.group g " +
-                                "JOIN FETCH d.facility f " +
+                                "LEFT JOIN FETCH d.facility f " +
                                 "LEFT JOIN FETCH d.location l " +
                                 "WHERE 1=1 " +
                                 getQueryConditionsPart(deviceFilter) +

@@ -24,7 +24,7 @@ public abstract class FacilityEntity implements Serializable {
     @Column(columnDefinition = "NUMERIC(1,0)")
     private Integer kodRtu;
 
-    private String name;
+//    private String name;
 
     public abstract String getName();
 

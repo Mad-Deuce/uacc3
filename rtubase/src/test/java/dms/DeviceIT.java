@@ -41,7 +41,7 @@ class DeviceIT {
                     .param("replacementPeriodMax", "1000")
                     .param("status", "11")
                     .param("facilityId", "1011023")
-//                    .param("facilityName", "фен")
+                    .param("facilityName", "Фен")
                 .when()
                     .get("/api/devices/by-query")
                 .then()
