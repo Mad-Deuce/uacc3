@@ -19,11 +19,12 @@ public abstract class FacilityEntity implements Serializable {
 
 
     @Id
-//    @GeneratedValue
     private String id;
 
     @Column(columnDefinition = "NUMERIC(1,0)")
     private Integer kodRtu;
+
+    private String name;
 
     public abstract String getName();
 

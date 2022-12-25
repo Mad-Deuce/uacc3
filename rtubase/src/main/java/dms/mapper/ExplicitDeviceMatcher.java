@@ -35,7 +35,7 @@ public enum ExplicitDeviceMatcher {
     DETAIL("detail","detail","detail"),
 
     OBJECT_ID("facilityId","facilityId","facility.id"),
-    OBJECT_NAME("facilityName","facilityName","facility.getName"),
+    OBJECT_NAME("facilityName","facilityName","facility.name"),
 
     LOCATION_ID("locationId","locationId","location.id"),
     DESCRIPTION("description","description","location.description"),
