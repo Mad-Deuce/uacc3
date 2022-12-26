@@ -145,11 +145,11 @@ public class DeviceServiceImpl implements DeviceService {
 
                     else {
                         queryConditionsPart
-                                .append(" AND CAST (d.")
+                                .append(" AND lower(CAST (d.")
                                 .append(item.getEntityPropertyName())
-                                .append(" as string) LIKE '%")
+                                .append(" as string)) LIKE lower('%")
                                 .append(getProperty(deviceFilter, item))
-                                .append("%'");
+                                .append("%')");
                     }
                 }
             }

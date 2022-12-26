@@ -33,6 +33,8 @@ class DeviceMapperTest {
             DeviceEntity originalEntity = jsonMapper.readValue(entityIs, DeviceEntity.class);
             DeviceDTO originalDto = jsonMapper.readValue(dTOIs, DeviceDTO.class);
 
+
+
             DeviceEntity mappedEntity = deviceMapper.dTOToEntity(originalDto);
 
             assertEquals(originalEntity, mappedEntity);
