@@ -1,11 +1,17 @@
 package dms;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+import net.joshka.junit.json.params.JsonFileSource;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.json.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,7 +33,11 @@ class DeviceIT {
         StringBuilder parametersBuilder = new StringBuilder("?");
         fileContent.forEach((k, v) -> {
                     if (v != null) {
-                        parametersBuilder.append(k + "=" + v + "&");
+                        parametersBuilder
+                                .append(k)
+                                .append("=")
+                                .append(v)
+                                .append("&");
                     }
                 }
         );
@@ -44,5 +54,22 @@ class DeviceIT {
         System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
     }
 
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @JsonFileSource(resources = "/device_dto_for_filter.json")
+    void findDevicesByFilterAlt(JsonObject object) {
+        HashMap<String, String> paramsMap = new HashMap<>();
+        object.forEach((k, v) -> paramsMap.put(k, object.getString(k)));
+
+        Response response = given()
+                .queryParams(paramsMap)
+                .port(port)
+                .when()
+                .get("/api/devices/by-query")
+                .then()
+                .contentType(JSON)
+                .body("totalElements", greaterThan(0)).extract().response();
+
+        System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
+    }
 
 }
