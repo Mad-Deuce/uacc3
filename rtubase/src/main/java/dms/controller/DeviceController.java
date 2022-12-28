@@ -23,8 +23,7 @@ public class DeviceController {
 
     @Autowired
     public DeviceController(@Qualifier("DevService1") DeviceService deviceService,
-                            DevConverter devConverter,
-                            DeviceMapper deviceMapper) {
+                            DevConverter devConverter, DeviceMapper deviceMapper) {
         this.deviceService = deviceService;
         this.devConverter = devConverter;
         this.deviceMapper = deviceMapper;
@@ -45,10 +44,10 @@ public class DeviceController {
                 .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO)));
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/{id}")
-    public DeviceDTO findById(@PathVariable("id") Long id) {
-        return devConverter.convertEntityToDto(deviceService.findDevById(id));
+    public DeviceDTO findDeviceById(@PathVariable("id") Long id) {
+        return deviceMapper.entityToDTO(deviceService.findDeviceById(id));
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
@@ -68,12 +67,6 @@ public class DeviceController {
     @PostMapping(value = "/")
     public DeviceDTO create(@RequestBody DeviceDTO deviceDTO) {
         return devConverter.convertEntityToDto(deviceService.createDev(devConverter.convertDtoToEntity(deviceDTO)));
-    }
-
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/test-convert-for-filter")
-    public DeviceEntity testCFF(DeviceDTO deviceDTO) {
-        return devConverter.convertDtoToEntity(deviceDTO);
     }
 
 }

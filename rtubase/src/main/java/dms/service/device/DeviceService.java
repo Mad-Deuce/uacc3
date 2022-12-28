@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface DeviceService {
 
-    DeviceEntity findDevById(Long id);
+    DeviceEntity findDeviceById(Long id);
 
     Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, DeviceFilter deviceFilter);
 

@@ -48,8 +48,9 @@ public class DeviceServiceImpl implements DeviceService {
         this.deviceRepository = deviceRepository;
     }
 
-    public DeviceEntity findDevById(Long id) {
-        return deviceRepository.getReferenceById(id);
+    public DeviceEntity findDeviceById(Long id) {
+        return deviceRepository.findById(id).orElseThrow();
+//        return deviceRepository.getReferenceById(id);
     }
 
     public Page<DeviceEntity> findDevicesByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
