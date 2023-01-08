@@ -34,8 +34,13 @@ public enum ExplicitDeviceMatcher {
     STATUS_COMMENT("statusComment","statusComment","status.comment"),
     DETAIL("detail","detail","detail"),
 
-    OBJECT_ID("facilityId","facilityId","facility.id"),
-    OBJECT_NAME("facilityName","facilityName","facility.name"),
+    RAILWAY_ID("railwayId","railwayId","facility.subdivision.railway.id"),
+    RAILWAY_NAME("railwayName","railwayName","facility.subdivision.railway.name"),
+    SUBDIVISION_ID("subdivisionId","subdivisionId","facility.subdivision.id"),
+    SUBDIVISION_SHORT_NAME("subdivisionShortName","subdivisionShortName","facility.subdivision.shortName"),
+
+    FACILITY_ID("facilityId","facilityId","facility.id"),
+    FACILITY_NAME("facilityName","facilityName","facility.name"),
 
     LOCATION_ID("locationId","locationId","location.id"),
     DESCRIPTION("description","description","location.description"),

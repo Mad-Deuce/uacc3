@@ -42,6 +42,12 @@ public abstract class DeviceMapper {
     @Mapping(target = "typeGroupId", source = "type.group.id")
     @Mapping(target = "typeGroupName", source = "type.group.name")
     @Mapping(target = "statusComment", source = "status.comment")
+
+    @Mapping(target = "railwayId", source = "facility.subdivision.railway.id")
+    @Mapping(target = "railwayName", source = "facility.subdivision.railway.name")
+    @Mapping(target = "subdivisionId", source = "facility.subdivision.id")
+    @Mapping(target = "subdivisionShortName", source = "facility.subdivision.shortName")
+
     @Mapping(target = "facilityId", source = "facility.id")
     @Mapping(target = "facilityName", source = "facility.name")
     @Mapping(target = "locationId", source = "location.id")

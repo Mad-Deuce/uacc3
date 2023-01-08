@@ -31,4 +31,9 @@ public class RtuFacilityEntity extends FacilityEntity {
     public String getName() {
         return this.name;
     }
+
+    @Override
+    public SubdivisionEntity getSubdivision(){
+        return this.subdivision;
+    }
 }

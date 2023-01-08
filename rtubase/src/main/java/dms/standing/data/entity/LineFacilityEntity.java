@@ -51,5 +51,8 @@ public class LineFacilityEntity extends FacilityEntity {
         return this.name;
     }
 
-
+    @Override
+    public SubdivisionEntity getSubdivision(){
+        return this.subdivision;
+    }
 }

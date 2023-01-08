@@ -28,4 +28,5 @@ public abstract class FacilityEntity implements Serializable {
 
     public abstract String getName();
 
+    public abstract SubdivisionEntity getSubdivision();
 }

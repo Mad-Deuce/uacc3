@@ -37,6 +37,11 @@ public class DeviceFilter {
     private String statusComment;
     private String detail;
 
+    private String railwayId;
+    private String railwayName;
+    private String subdivisionId;
+    private String subdivisionShortName;
+
     private String facilityId;
     private String facilityName;
 
