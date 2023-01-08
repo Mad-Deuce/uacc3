@@ -18,7 +18,7 @@ import static org.apache.poi.ss.util.CellUtil.createCell;
 
 public class DeviceReportExporter {
 
-    private List<DeviceDTO> dataList;
+    private final List<DeviceDTO> dataList;
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private final CellStyle globalStyle;
@@ -44,7 +44,7 @@ public class DeviceReportExporter {
     private void setGlobalStyleDefault(){
         XSSFFont font = workbook.createFont();
         font.setBold(true);
-        font.setFontHeight(16);
+        font.setFontHeight(12);
         globalStyle.setFont(font);
     }
 
@@ -58,15 +58,25 @@ public class DeviceReportExporter {
     private void createBody(){
         int rowIdx = 2;
         for (DeviceDTO item : dataList) {
+            int columnIdx=0;
             Row row = sheet.createRow(rowIdx++);
 
-            row.createCell(0).setCellValue(item.getId());
-            row.createCell(1).setCellValue(item.getTypeName());
-            row.createCell(2).setCellValue(item.getNumber());
-            row.createCell(3).setCellValue(item.getReleaseYear());
-            row.createCell(4).setCellValue(item.getTestDate());
-            row.createCell(5).setCellValue(item.getNextTestDate());
-            row.createCell(6).setCellValue(item.getStatusComment());
+            row.createCell(columnIdx++).setCellValue(item.getId());
+            row.createCell(columnIdx++).setCellValue(item.getTypeName());
+            row.createCell(columnIdx++).setCellValue(item.getNumber());
+            row.createCell(columnIdx++).setCellValue(item.getReleaseYear());
+            row.createCell(columnIdx++).setCellValue(item.getTestDate());
+            row.createCell(columnIdx++).setCellValue(item.getNextTestDate());
+            row.createCell(columnIdx++).setCellValue(item.getFacilityName());
+            row.createCell(columnIdx++).setCellValue(item.getStatusComment());
+            row.createCell(columnIdx++).setCellValue(item.getDetail());
+            row.createCell(columnIdx++).setCellValue(item.getRegionTypeComment());
+            row.createCell(columnIdx++).setCellValue(item.getRegion());
+            row.createCell(columnIdx++).setCellValue(item.getLocateTypeComment());
+            row.createCell(columnIdx++).setCellValue(item.getLocate());
+            row.createCell(columnIdx++).setCellValue(item.getPlaceNumber());
+            row.createCell(columnIdx++).setCellValue(item.getDescription());
+            row.createCell(columnIdx++).setCellValue(item.getLocationDetail());
         }
     }
 
