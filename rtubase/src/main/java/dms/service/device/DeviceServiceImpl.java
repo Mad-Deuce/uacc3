@@ -50,7 +50,6 @@ public class DeviceServiceImpl implements DeviceService {
 
     public DeviceEntity findDeviceById(Long id) {
         return deviceRepository.findById(id).orElseThrow();
-//        return deviceRepository.getReferenceById(id);
     }
 
     public Page<DeviceEntity> findDevicesByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
