@@ -58,5 +58,11 @@ public class DeviceDTO {
     private String locationDetail;
 
     private List<ExplicitDeviceMatcher> activeProperties;
+
+    @Override
+    public String toString(){
+
+        return "здесь должны быть поля DTO которые не пустые (типа парметры  фильтра), но пока так";
+    }
 }
 

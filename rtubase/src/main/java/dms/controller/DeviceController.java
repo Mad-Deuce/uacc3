@@ -6,12 +6,14 @@ import dms.dto.DeviceDTO;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -69,8 +71,14 @@ public class DeviceController {
         List<DeviceDTO> devicesList = deviceMapper.entityToDTOPage(deviceService
                 .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO))).getContent();
 
-        DeviceReportExporter deviceReportExporter = new DeviceReportExporter(devicesList);
-        deviceReportExporter.exportToXlsx(response);
+        DeviceReportExporter deviceReportExporter = new DeviceReportExporter();
+        XSSFWorkbook workbook = deviceReportExporter.generateWorkbook(devicesList, currentDateTime, deviceDTO.toString());
+
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
+
     }
 
 
