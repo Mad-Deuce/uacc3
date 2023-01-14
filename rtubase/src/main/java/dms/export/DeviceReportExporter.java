@@ -7,6 +7,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.apache.poi.ss.usermodel.BorderStyle.MEDIUM;
@@ -18,7 +19,7 @@ import static org.apache.poi.ss.util.CellUtil.createCell;
 
 public class DeviceReportExporter {
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private int headerStartRow;
     private int bodyStartRow;
     private int footerStartRow;
@@ -30,13 +31,13 @@ public class DeviceReportExporter {
         this.footerStartRow = 0;
     }
 
-    public XSSFWorkbook generateWorkbook(List<DeviceDTO> devicesList, String currentDateTime, String filterInfo) {
 
-//        XSSFWorkbook workbook = new XSSFWorkbook();
+    public XSSFWorkbook generateWorkbook(List<DeviceDTO> devicesList, String currentDateTime, DeviceDTO filterInfo) throws IllegalAccessException {
+
         XSSFSheet sheet = workbook.createSheet("report");
 
-        this.fillingHeader(sheet, devicesList.size(), currentDateTime, filterInfo);
-        this.fillingBody(devicesList, sheet);
+        this.fillingHeader(sheet, devicesList.size(), currentDateTime, getStringFilterInfo(filterInfo));
+        this.fillingBodyByAnn(devicesList, sheet);
         this.fillingFooter(sheet);
         this.customizing(sheet);
 
@@ -65,7 +66,7 @@ public class DeviceReportExporter {
     }
 
     private void fillingHeader(XSSFSheet sheet, Integer dataSize, String currentDateTime, String filterInfo) {
-        fillingHeader(sheet, dataSize,currentDateTime,filterInfo, headerStartRow);
+        fillingHeader(sheet, dataSize, currentDateTime, filterInfo, headerStartRow);
     }
 
     private void fillingHeader(XSSFSheet sheet, Integer dataSize, String currentDateTime, String filterInfo, int startRow) {
@@ -77,6 +78,52 @@ public class DeviceReportExporter {
         createCell(sheet.createRow(headerStartRow++), 0, "кількість: " + dataSize.toString(), getHeaderStyle());
         createCell(sheet.createRow(headerStartRow++), 0, "", getHeaderStyle());
         bodyStartRow = headerStartRow;
+    }
+
+    private void fillingBodyByAnn(List<DeviceDTO> devicesList, XSSFSheet sheet) throws IllegalAccessException {
+        fillingBodyByAnn(devicesList, sheet, bodyStartRow);
+    }
+
+    private void fillingBodyByAnn(List<DeviceDTO> devicesList, XSSFSheet sheet, int startRow) throws IllegalAccessException {
+        boolean isExportInfoAnnPresent = false;
+
+//        Create TITLE Row
+        Row row = sheet.createRow(startRow++);
+
+        Class<?> clazz = devicesList.get(0).getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(ExportInfo.class)) {
+                createCell(row,
+                        field.getAnnotation(ExportInfo.class).position(),
+                        field.getAnnotation(ExportInfo.class).title(),
+                        getBodyTitleStyle()
+                );
+
+                isExportInfoAnnPresent = true;
+            }
+        }
+
+        if (!isExportInfoAnnPresent) this.fillingBody(devicesList, sheet);
+
+//        Create Data Rows
+        for (DeviceDTO item : devicesList) {
+
+            row = sheet.createRow(startRow++);
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+                if (field.isAnnotationPresent(ExportInfo.class)) {
+                    createCell(row,
+                            field.getAnnotation(ExportInfo.class).position(),
+                            field.get(item) != null ? field.get(item).toString() : "",
+                            getBodyStringStyle());
+
+                }
+            }
+        }
+        footerStartRow = startRow + 1;
+
     }
 
     private void fillingBody(List<DeviceDTO> devicesList, XSSFSheet sheet) {
@@ -220,5 +267,22 @@ public class DeviceReportExporter {
 
     private String nullToEmpty(String input) {
         return (input != null ? input : "");
+    }
+
+    private String getStringFilterInfo(DeviceDTO deviceDTO) throws IllegalAccessException {
+        StringBuilder result = new StringBuilder();
+        Field[] fields = deviceDTO.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.get(deviceDTO) != null) {
+                result.append("(")
+                        .append(field.getName())
+                        .append("==")
+                        .append(field.get(deviceDTO).toString())
+                        .append("); ");
+            }
+        }
+
+        return result.toString();
     }
 }

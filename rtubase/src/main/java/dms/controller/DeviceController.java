@@ -56,7 +56,7 @@ public class DeviceController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/exportToXl")
-    public void exportDevicesByQuery(Pageable pageable, DeviceDTO deviceDTO, HttpServletResponse response) throws NoSuchFieldException, IOException {
+    public void exportDevicesByQuery(Pageable pageable, DeviceDTO deviceDTO, HttpServletResponse response) throws NoSuchFieldException, IOException, IllegalAccessException {
 
 //        pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
@@ -72,7 +72,7 @@ public class DeviceController {
                 .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO))).getContent();
 
         DeviceReportExporter deviceReportExporter = new DeviceReportExporter();
-        XSSFWorkbook workbook = deviceReportExporter.generateWorkbook(devicesList, currentDateTime, deviceDTO.toString());
+        XSSFWorkbook workbook = deviceReportExporter.generateWorkbook(devicesList, currentDateTime, deviceDTO);
 
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);

@@ -1,6 +1,7 @@
 package dms.dto;
 
 
+import dms.export.ExportInfo;
 import dms.mapper.ExplicitDeviceMatcher;
 import lombok.Data;
 
@@ -14,19 +15,24 @@ public class DeviceDTO {
     private Long id;
 
     private Long typeId;
+    @ExportInfo(reportId = 1, position = 2, title = "Тип")
     private String typeName;
 
     private Integer typeGroupId;
     private String typeGroupName;
 
+    @ExportInfo(reportId = 1, position = 3, title = "Номер")
     private String number;
+    @ExportInfo(reportId = 1, position = 4, title = "Рік виготовлення")
     private String releaseYear;
     private String releaseYearMin;
     private String releaseYearMax;
 
+    @ExportInfo(reportId = 1, position = 5, title = "Дата перевірки")
     private Date testDate;
     private Date testDateMin;
     private Date testDateMax;
+    @ExportInfo(reportId = 1, position = 6, title = "Дата наступної перевірки")
     private Date nextTestDate;
     private Date nextTestDateMin;
     private Date nextTestDateMax;
@@ -35,34 +41,41 @@ public class DeviceDTO {
     private Integer replacementPeriodMin;
     private Integer replacementPeriodMax;
     private String status;
+    @ExportInfo(reportId = 1, position = 8, title = "Статус")
     private String statusComment;
+    @ExportInfo(reportId = 1, position = 9, title = "Коментар")
     private String detail;
 
     private String railwayId;
+    @ExportInfo(reportId = 1, position = 0, title = "Залізниця")
     private String railwayName;
     private String subdivisionId;
+    @ExportInfo(reportId = 1, position = 1, title = "Підрозділ")
     private String subdivisionShortName;
 
     private String facilityId;
+    @ExportInfo(reportId = 1, position = 7, title = "Об'єкт")
     private String facilityName;
 
     private Long locationId;
+    @ExportInfo(reportId = 1, position = 15, title = "Найменування по схемі")
     private String description;
+    @ExportInfo(reportId = 1, position = 11, title = "Розташування")
     private String region;
     private String regionType;
+    @ExportInfo(reportId = 1, position = 10, title = "Категорія розташування")
     private String regionTypeComment;
+    @ExportInfo(reportId = 1, position = 13, title = "Розташування 2")
     private String locate;
     private String locateType;
+    @ExportInfo(reportId = 1, position = 12, title = "Категорія розташування 2")
     private String locateTypeComment;
+    @ExportInfo(reportId = 1, position = 14, title = "Місце")
     private String placeNumber;
+    @ExportInfo(reportId = 1, position = 16, title = "Коментар до місця")
     private String locationDetail;
 
     private List<ExplicitDeviceMatcher> activeProperties;
 
-    @Override
-    public String toString(){
-
-        return "здесь должны быть поля DTO которые не пустые (типа парметры  фильтра), но пока так";
-    }
 }
 
