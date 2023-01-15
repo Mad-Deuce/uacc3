@@ -55,7 +55,7 @@ public class DeviceController {
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/exportToXl")
+    @GetMapping(value = "/exportToXls")
     public void exportDevicesByQuery(Pageable pageable, DeviceDTO deviceDTO, HttpServletResponse response) throws NoSuchFieldException, IOException, IllegalAccessException {
 
 //        pageable = PageRequest.of(0, Integer.MAX_VALUE);

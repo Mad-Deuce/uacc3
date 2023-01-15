@@ -18,6 +18,12 @@
   "status": "PS11",
   "statusComment": "На линии",
   "detail": "some_detail",
+
+  "railwayId":"1" ,
+  "railwayName":"Донецька" ,
+  "subdivisionId":"101" ,
+  "subdivisionShortName": "ШЧ-1",
+
   "facilityId": "1011001",
   "facilityName": "ст. Близнецы",
   "locationId": 10110010000003,
