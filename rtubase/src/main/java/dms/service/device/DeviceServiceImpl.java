@@ -7,6 +7,7 @@ import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
+import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
 import dms.standing.data.entity.FacilityEntity;
@@ -231,9 +232,10 @@ public class DeviceServiceImpl implements DeviceService {
     public DeviceEntity createDevice(DeviceEntity deviceEntity) {
 
         deviceValidator.onCreateEntityValidation(deviceEntity);
-
         deviceEntity.setId(null);
+        deviceEntity.setStatus(Status.PS31);
         deviceEntity.setLocation(null);
+
         return deviceRepository.saveAndFlush(deviceEntity);
     }
 

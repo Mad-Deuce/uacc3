@@ -15,6 +15,8 @@ public class TestController {
         ValidationDTO info = new ValidationDTO();
         info.addErrorInfo("type",
                 "wrong type ID");
+        info.addErrorInfo("gdfg",
+                "rrwer dfgsd ff");
 
         return ResponseEntity.unprocessableEntity()
                 .contentType(MediaType.APPLICATION_JSON)

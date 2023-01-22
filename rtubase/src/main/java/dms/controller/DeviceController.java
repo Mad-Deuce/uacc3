@@ -103,6 +103,7 @@ public class DeviceController {
         deviceService.updateDevice(id, deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
     }
 
+
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/")
     @Validated(OnDeviceCreate.class)
