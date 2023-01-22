@@ -23,7 +23,7 @@ public class DeviceEntity implements Serializable {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_obj", referencedColumnName = "id", columnDefinition = "NUMERIC(14,0)")
-    private DeviceLocationEntity location;
+    private LocationEntity location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "devid", referencedColumnName = "id")

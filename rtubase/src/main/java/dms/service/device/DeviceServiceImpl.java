@@ -2,7 +2,7 @@ package dms.service.device;
 
 
 import dms.entity.DeviceEntity;
-import dms.entity.DeviceLocationEntity;
+import dms.entity.LocationEntity;
 import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
 import dms.mapper.ExplicitDeviceMatcher;
@@ -10,6 +10,7 @@ import dms.repository.DeviceRepository;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
 import dms.standing.data.entity.FacilityEntity;
+import dms.validation.DeviceValidator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
@@ -41,10 +42,12 @@ public class DeviceServiceImpl implements DeviceService {
     @PersistenceContext
     EntityManager em;
 
+    private final DeviceValidator deviceValidator;
     private final DeviceRepository deviceRepository;
 
     @Autowired
-    public DeviceServiceImpl(DeviceRepository deviceRepository) {
+    public DeviceServiceImpl(DeviceValidator deviceValidator, DeviceRepository deviceRepository) {
+        this.deviceValidator = deviceValidator;
         this.deviceRepository = deviceRepository;
     }
 
@@ -166,7 +169,7 @@ public class DeviceServiceImpl implements DeviceService {
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
             Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
-            Join<DeviceEntity, DeviceLocationEntity> location = root.join("location");
+            Join<DeviceEntity, LocationEntity> location = root.join("location");
             Join<DeviceEntity, FacilityEntity> facility = root.join("facility");
 
             Map<String, Join<?, ?>> joinsMap = new HashMap<>();
@@ -208,11 +211,11 @@ public class DeviceServiceImpl implements DeviceService {
         return BeanUtils.getProperty(deviceFilter, item.getFilterPropertyName());
     }
 
-    public void deleteDevById(Long id) {
+    public void deleteDeviceById(Long id) {
         deviceRepository.deleteById(id);
     }
 
-    public void updateDev(Long id, DeviceEntity dev, List<ExplicitDeviceMatcher> activeProperties) {
+    public void updateDevice(Long id, DeviceEntity dev, List<ExplicitDeviceMatcher> activeProperties) {
         DeviceEntity targetDev = deviceRepository.findById(id).orElseThrow(
                 () -> new NoEntityException("Device with the id=" + id + " not found"));
         copyProperties(dev, targetDev, getProps(activeProperties));
@@ -225,10 +228,13 @@ public class DeviceServiceImpl implements DeviceService {
                 .collect(Collectors.toList());
     }
 
-    public DeviceEntity createDev(DeviceEntity dev) {
-        dev.setId(null);
-        dev.setLocation(null);
-        return deviceRepository.saveAndFlush(dev);
+    public DeviceEntity createDevice(DeviceEntity deviceEntity) {
+
+        deviceValidator.onCreateEntityValidation(deviceEntity);
+
+        deviceEntity.setId(null);
+        deviceEntity.setLocation(null);
+        return deviceRepository.saveAndFlush(deviceEntity);
     }
 
     private static void copyProperties(Object src, Object trg, Iterable<String> props) {

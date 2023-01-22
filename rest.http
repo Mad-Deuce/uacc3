@@ -34,7 +34,7 @@ Authorization: Basic postgres postgres
 Accept: application/json
 
 ###
-DELETE http://localhost:8080/api/devs/97451
+DELETE http://localhost:8080/api/devices/97451
 
 ###
 GET http://localhost:8080/api/devs/send/

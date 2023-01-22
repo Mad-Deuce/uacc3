@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "dev_obj", schema = "drtu", catalog = "rtubase")
-public class DeviceLocationEntity {
+public class LocationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC")

@@ -14,6 +14,8 @@ import java.util.List;
 public interface DeviceRepository extends JpaRepository<DeviceEntity, Long>, JpaSpecificationExecutor {
 
 
+
+
     Page<DeviceEntity> findAll(Specification specification, Pageable pageable);
 
     Page<DeviceEntity> findAllByStatus(Status status, Pageable pageable);

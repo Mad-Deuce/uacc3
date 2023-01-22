@@ -1,20 +1,22 @@
 package dms.controller;
 
 
-import dms.converter.DevConverter;
 import dms.dto.DeviceDTO;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
+import dms.validation.group.OnDeviceCreate;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -24,18 +26,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/devices")
+@Validated
 public class DeviceController {
 
     private final DeviceService deviceService;
-    private final DevConverter devConverter;
     private final DeviceMapper deviceMapper;
 
 
     @Autowired
     public DeviceController(@Qualifier("DevService1") DeviceService deviceService,
-                            DevConverter devConverter, DeviceMapper deviceMapper) {
+                             DeviceMapper deviceMapper) {
         this.deviceService = deviceService;
-        this.devConverter = devConverter;
         this.deviceMapper = deviceMapper;
     }
 
@@ -45,7 +46,6 @@ public class DeviceController {
         return deviceMapper.entityToDTOPage(deviceService
                 .findDevicesBySpecification(pageable, deviceMapper.dTOToFilter(deviceDTO)));
     }
-
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-query")
@@ -68,6 +68,7 @@ public class DeviceController {
         String headerValue = "attachment; filename=rep_devices" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
+
         List<DeviceDTO> devicesList = deviceMapper.entityToDTOPage(deviceService
                 .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO))).getContent();
 
@@ -81,30 +82,32 @@ public class DeviceController {
 
     }
 
-
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/{id}")
     public DeviceDTO findDeviceById(@PathVariable("id") Long id) {
         return deviceMapper.entityToDTO(deviceService.findDeviceById(id));
     }
 
+
+
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
     @DeleteMapping(value = "/{id}")
-    public void deleteById(@PathVariable("id") Long id) {
-        deviceService.deleteDevById(id);
+    public void deleteDeviceById(@PathVariable("id") Long id) {
+        deviceService.deleteDeviceById(id);
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/{id}")
-    public void updateById(@PathVariable("id") Long id,
+    public void updateDeviceById(@PathVariable("id") Long id,
                            @RequestBody DeviceDTO deviceDTO) {
-        deviceService.updateDev(id, devConverter.convertDtoToEntity(deviceDTO), deviceDTO.getActiveProperties());
+        deviceService.updateDevice(id, deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/")
-    public DeviceDTO create(@RequestBody DeviceDTO deviceDTO) {
-        return devConverter.convertEntityToDto(deviceService.createDev(devConverter.convertDtoToEntity(deviceDTO)));
+    @Validated(OnDeviceCreate.class)
+    public DeviceDTO createDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
+        return deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
     }
 
 }

@@ -3,8 +3,10 @@ package dms.dto;
 
 import dms.export.ExportInfo;
 import dms.mapper.ExplicitDeviceMatcher;
+import dms.validation.group.OnDeviceCreate;
 import lombok.Data;
 
+import javax.validation.constraints.*;
 import java.sql.Date;
 import java.util.List;
 
@@ -14,6 +16,7 @@ public class DeviceDTO {
 
     private Long id;
 
+    @Min(groups = OnDeviceCreate.class, value = 10000000)
     private Long typeId;
     @ExportInfo(reportId = 1, position = 2, title = "Тип")
     private String typeName;
@@ -21,8 +24,10 @@ public class DeviceDTO {
     private Integer typeGroupId;
     private String typeGroupName;
 
+    @NotBlank(groups = OnDeviceCreate.class)
     @ExportInfo(reportId = 1, position = 3, title = "Номер")
     private String number;
+    @Size(groups = OnDeviceCreate.class, min=4, max = 4)
     @ExportInfo(reportId = 1, position = 4, title = "Рік виготовлення")
     private String releaseYear;
     private String releaseYearMin;
@@ -53,6 +58,7 @@ public class DeviceDTO {
     @ExportInfo(reportId = 1, position = 1, title = "Підрозділ")
     private String subdivisionShortName;
 
+    @Size(groups = OnDeviceCreate.class, min=4, max = 4)
     private String facilityId;
     @ExportInfo(reportId = 1, position = 7, title = "Об'єкт")
     private String facilityName;

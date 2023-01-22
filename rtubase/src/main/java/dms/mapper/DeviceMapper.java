@@ -3,7 +3,7 @@ package dms.mapper;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
-import dms.service.devobj.DevObjService;
+import dms.service.location.LocationService;
 import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.device.type.SDevService;
@@ -24,7 +24,7 @@ public abstract class DeviceMapper {
     @Autowired
     protected DeviceTypeGroupService deviceTypeGroupService;
     @Autowired
-    protected DevObjService locationService;
+    protected LocationService locationService;
     @Autowired
     protected DObjService lineFacilityService;
 
