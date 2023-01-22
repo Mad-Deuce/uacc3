@@ -8,17 +8,17 @@ import java.util.List;
 
 @Getter
 public class ValidationDTO {
-    private List<Error> errors;
+    private List<ErrorInfo> errors;
 
     public ValidationDTO() {
-        errors = new ArrayList<>();
+        errors = new ArrayList<ErrorInfo>();
     }
 
-    private record Error(String name, String message) {
+    private record ErrorInfo(String fieldName, String message) {
     }
 
-    public void add(String name, String message) {
-        errors.add(new Error(name, message));
+    public void addErrorInfo(String fieldName, String message) {
+        errors.add(new ErrorInfo(fieldName, message));
     }
 
 }

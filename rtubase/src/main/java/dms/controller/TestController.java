@@ -13,7 +13,7 @@ public class TestController {
     public ResponseEntity<?> testMethod() {
 
         ValidationDTO info = new ValidationDTO();
-        info.add("type",
+        info.addErrorInfo("type",
                 "wrong type ID");
 
         return ResponseEntity.unprocessableEntity()
