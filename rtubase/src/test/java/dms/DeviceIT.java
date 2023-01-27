@@ -40,8 +40,33 @@ class DeviceIT {
         System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
     }
 
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @JsonFileSource(resources = "/device_dto_for_create.json")
+    void createDevice(JsonObject object) {
+        HashMap<String, String> paramsMap = new HashMap<>();
+        object.forEach((k,v)->
+                        paramsMap.put(k, v.toString())
+                );
+
+//        object.forEach((k, v) ->
+//                paramsMap.put(k, object.getString(k))
+//        );
+
+        Response response = given()
+                .basePath("/api/devices/")
+                .queryParams(paramsMap)
+                .port(port)
+                .when()
+                .post()
+                .then()
+                .contentType(JSON)
+                .body("totalElements", greaterThan(0)).extract().response();
+
+        System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
+    }
+
     @Test
-    void findDeviceById(){
+    void findDeviceById() {
         Response response = given()
                 .basePath("/api/devices/{id}")
                 .pathParam("id", 1011000003)

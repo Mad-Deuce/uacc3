@@ -14,7 +14,7 @@ import java.io.Serializable;
 @ToString(of = {"kodRtu"})
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@JsonDeserialize(as = RtuFacilityEntity.class)
+@JsonDeserialize(as = RtdFacilityEntity.class)
 public abstract class FacilityEntity implements Serializable {
 
 

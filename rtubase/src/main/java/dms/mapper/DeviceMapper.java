@@ -4,10 +4,13 @@ import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
 import dms.service.location.LocationService;
-import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
-import dms.standing.data.service.dobj.DObjService;
 import dms.standing.data.service.device.type.SDevService;
-import org.mapstruct.*;
+import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
+import dms.standing.data.service.facility.LineFacilityService;
+import dms.standing.data.service.facility.RtdFacilityService;
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,15 +29,21 @@ public abstract class DeviceMapper {
     @Autowired
     protected LocationService locationService;
     @Autowired
-    protected DObjService lineFacilityService;
-
+    protected LineFacilityService lineFacilityService;
+    @Autowired
+    protected RtdFacilityService rtdFacilityService;
 
     @Mapping(target = "type",
             expression = "java(deviceTypeService.findSDevByID(deviceDTO.getTypeId()).orElse(null))")
     @Mapping(target = "location",
             expression = "java(locationService.findDevObjById(deviceDTO.getLocationId()).orElse(null))")
+//    @Mapping(target = "facility",
+//            expression = "java(lineFacilityService.findById(deviceDTO.getFacilityId()).orElse(null))")
     @Mapping(target = "facility",
-            expression = "java(lineFacilityService.findById(deviceDTO.getFacilityId()).orElse(null))")
+            expression = "java(rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null))")
+//    @Mapping(target = "facility",
+//            expression = "java(lineFacilityService.findById(deviceDTO.getFacilityId())" +
+//                    ".orElse(rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null)))")
     public abstract DeviceEntity dTOToEntity(DeviceDTO deviceDTO);
 
     @Mapping(target = "typeId", source = "type.id")
@@ -60,11 +69,11 @@ public abstract class DeviceMapper {
     @Mapping(target = "locateTypeComment", source = "location.locateType.comment")
     @Mapping(target = "placeNumber", source = "location.placeNumber")
     @Mapping(target = "locationDetail", source = "location.detail")
-    public abstract DeviceDTO entityToDTO (DeviceEntity entity);
+    public abstract DeviceDTO entityToDTO(DeviceEntity entity);
 
-    public abstract DeviceFilter dTOToFilter (DeviceDTO deviceDTO);
+    public abstract DeviceFilter dTOToFilter(DeviceDTO deviceDTO);
 
-    public  Page<DeviceDTO> entityToDTOPage (Page<DeviceEntity> deviceEntityPage){
+    public Page<DeviceDTO> entityToDTOPage(Page<DeviceEntity> deviceEntityPage) {
         List<DeviceDTO> content = deviceEntityPage.getContent().stream().map(this::entityToDTO).collect(Collectors.toList());
         return new PageImpl<>(content, deviceEntityPage.getPageable(), deviceEntityPage.getTotalElements());
     }

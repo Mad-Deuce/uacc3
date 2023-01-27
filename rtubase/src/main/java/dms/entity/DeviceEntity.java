@@ -45,7 +45,8 @@ public class DeviceEntity implements Serializable {
     @Column(name = "d_create")
     private Date createDate;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "seq_devid", schema = "drtu", sequenceName = "seq_devid", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_devid")
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "NUMERIC(10,0)")
     @Setter
