@@ -1,6 +1,5 @@
 package dms.controller;
 
-import dms.validation.dto.ValidationDTO;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,14 +11,9 @@ public class TestController {
     @GetMapping(value = "/")
     public ResponseEntity<?> testMethod() {
 
-        ValidationDTO info = new ValidationDTO();
-        info.addErrorInfo("type",
-                "wrong type ID");
-        info.addErrorInfo("gdfg",
-                "rrwer dfgsd ff");
 
         return ResponseEntity.unprocessableEntity()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(info);
+                .body("info");
     }
 }

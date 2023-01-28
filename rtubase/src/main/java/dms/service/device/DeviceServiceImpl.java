@@ -3,6 +3,7 @@ package dms.service.device;
 
 import dms.entity.DeviceEntity;
 import dms.entity.LocationEntity;
+import dms.exception.DeviceValidationException;
 import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
 import dms.mapper.ExplicitDeviceMatcher;
@@ -12,6 +13,7 @@ import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
 import dms.standing.data.entity.FacilityEntity;
 import dms.validation.DeviceValidator;
+import dms.validation.dto.ValidationDTO;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
@@ -29,6 +31,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import java.lang.reflect.Field;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -136,18 +139,14 @@ public class DeviceServiceImpl implements DeviceService {
                                 .append(" as string) >= '")
                                 .append(getProperty(deviceFilter, item))
                                 .append("'");
-                    }
-
-                    else if (item.getFilterPropertyName().toLowerCase().contains("max")) {
+                    } else if (item.getFilterPropertyName().toLowerCase().contains("max")) {
                         queryConditionsPart
                                 .append(" AND CAST (d.")
                                 .append(item.getEntityPropertyName())
                                 .append(" as string) <= '")
                                 .append(getProperty(deviceFilter, item))
                                 .append("'");
-                    }
-
-                    else {
+                    } else {
                         queryConditionsPart
                                 .append(" AND lower(CAST (d.")
                                 .append(item.getEntityPropertyName())
@@ -230,11 +229,16 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     public DeviceEntity createDevice(DeviceEntity deviceEntity) {
-
-        deviceValidator.onCreateEntityValidation(deviceEntity);
+        List<ValidationDTO> errors = deviceValidator.onCreateEntityValidation(deviceEntity);
+        if (!errors.isEmpty()) {
+            throw new DeviceValidationException("Device Validation Has Errors", errors);
+        }
         deviceEntity.setId(null);
         deviceEntity.setStatus(Status.PS31);
         deviceEntity.setLocation(null);
+        Date tDate = deviceEntity.getTestDate();
+             tDate = Date.valueOf(tDate.toLocalDate().plusMonths(deviceEntity.getReplacementPeriod()));
+        deviceEntity.setNextTestDate(tDate);
 
         return deviceRepository.saveAndFlush(deviceEntity);
     }

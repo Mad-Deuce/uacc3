@@ -2,6 +2,7 @@ package dms.controller;
 
 
 import dms.dto.DeviceDTO;
+import dms.exception.DeviceValidationException;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +38,7 @@ public class DeviceController {
 
     @Autowired
     public DeviceController(@Qualifier("DevService1") DeviceService deviceService,
-                             DeviceMapper deviceMapper) {
+                            DeviceMapper deviceMapper) {
         this.deviceService = deviceService;
         this.deviceMapper = deviceMapper;
     }
@@ -89,7 +92,6 @@ public class DeviceController {
     }
 
 
-
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
     @DeleteMapping(value = "/{id}")
     public void deleteDeviceById(@PathVariable("id") Long id) {
@@ -99,7 +101,7 @@ public class DeviceController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/{id}")
     public void updateDeviceById(@PathVariable("id") Long id,
-                           @RequestBody DeviceDTO deviceDTO) {
+                                 @RequestBody DeviceDTO deviceDTO) {
         deviceService.updateDevice(id, deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
     }
 
@@ -107,8 +109,19 @@ public class DeviceController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/")
     @Validated(OnDeviceCreate.class)
-    public DeviceDTO createDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
-        return deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
+    public ResponseEntity<?> createDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
+        DeviceDTO dto;
+        try {
+            dto = deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
+        } catch (DeviceValidationException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e)
+                    ;
+        }
+        return ResponseEntity.unprocessableEntity()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(dto);
     }
 
 }

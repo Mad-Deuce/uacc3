@@ -1,17 +1,19 @@
 package dms.validation;
 
 import dms.entity.DeviceEntity;
-import dms.exception.WrongDataException;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.repository.DeviceTypeRepository;
 import dms.standing.data.repository.RtdFacilityRepository;
+import dms.validation.dto.ValidationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 @Component
 public class DeviceValidator {
@@ -29,61 +31,113 @@ public class DeviceValidator {
         this.rtdFacilityRepository = rtdFacilityRepository;
     }
 
-    public void onCreateEntityValidation(DeviceEntity deviceEntity) {
-        validateType(deviceEntity.getType());
-        validateNumber(deviceEntity.getNumber());
-        validateYear(deviceEntity.getReleaseYear());
-        validateTestDate(deviceEntity.getTestDate());
-        validateFacility(deviceEntity);
-        validateDuplicateExistByQuery(deviceEntity);
+    public List<ValidationDTO> onCreateEntityValidation(DeviceEntity deviceEntity) {
+        List<ValidationDTO> errors = new ArrayList<>();
+
+        validateType(deviceEntity.getType(), errors);
+        validateNumber(deviceEntity.getNumber(), errors);
+        validateYear(deviceEntity.getReleaseYear(), errors);
+        validateTestDate(deviceEntity, errors);
+        validatePeriod(deviceEntity.getReplacementPeriod(), errors);
+        validateFacility(deviceEntity, errors);
+        validateDuplicateExistByQuery(deviceEntity, errors);
+
+        return errors;
     }
 
 
-    private void validateType(DeviceTypeEntity deviceTypeEntity) {
-        if (deviceTypeEntity == null) throw new WrongDataException("Device Type Is Null");
-        if (deviceTypeRepository.existsById(deviceTypeEntity.getId())) {
-            System.out.println("type is correct");
+    private void validateType(DeviceTypeEntity deviceTypeEntity, List<ValidationDTO> errors) {
+        if (deviceTypeEntity == null) {
+            errors.add(new ValidationDTO("typeId:type",
+                    "Device Type Is Null"));
         } else {
-            throw new WrongDataException("Device Type Is Wrong: " +
-                    " - type Id: " + deviceTypeEntity.getId())
-                    ;
+            if (deviceTypeRepository.existsById(deviceTypeEntity.getId())) {
+                System.out.println("type is correct");
+            } else {
+                errors.add(new ValidationDTO("typeId:type",
+                        "Device Type Is Wrong: " +
+                                " - type Id: " + deviceTypeEntity.getId()));
+            }
         }
+
+
     }
 
-    private void validateNumber(String number) {
-        if (number.matches("[0-9]+")) {
+    private void validateNumber(String number, List<ValidationDTO> errors) {
+        if (number.matches("\\d+")) {
             System.out.println("number is correct");
         } else {
-            throw new WrongDataException("Device Number Is Wrong (not digital):  " +
-                    " - number: " + number);
+            errors.add(new ValidationDTO("number:number",
+                    "Device Number Is Wrong (not digital):  " +
+                            " - number: " + number));
         }
     }
 
-    private void validateYear(String year) {
+    private void validateYear(String year, List<ValidationDTO> errors) {
         if (year.matches("\\d\\d\\d\\d")
                 && Integer.parseInt(year) > 1950
                 && Integer.parseInt(year) <= Calendar.getInstance().get(Calendar.YEAR)) {
             System.out.println("Year is correct");
         } else {
-            throw new WrongDataException("Device Release Year Is Wrong: " +
-                    " - number: " + year);
+            errors.add(new ValidationDTO("releaseYear:releaseYear",
+                    "releaseYear Is Wrong (must be from 1950 to current year): " +
+                            " - releaseYear: " + year));
         }
     }
 
-    private void validateFacility(DeviceEntity deviceEntity) {
+    private void validateFacility(DeviceEntity deviceEntity, List<ValidationDTO> errors) {
         if (rtdFacilityRepository.existsById(deviceEntity.getFacility().getId())) {
             System.out.println("facility is correct");
         } else {
-            throw new WrongDataException("Facility Is Wrong: " +
-                    " - facility Id: " + deviceEntity.getFacility().getId());
+            errors.add(new ValidationDTO("facilityId:facility",
+                    "facility Is Wrong: " +
+                            " - facility ID: " + deviceEntity.getFacility().getId()));
         }
     }
 
-    private void validateTestDate(Date testDate) {
+    private void validateTestDate(DeviceEntity deviceEntity, List<ValidationDTO> errors) {
+        Date testDate = deviceEntity.getTestDate();
+        Date nextTestDate = deviceEntity.getNextTestDate();
+        if (testDate.compareTo(new Date(0L)) >= 0) {
+            System.out.println("test date is correct");
+        } else {
+            errors.add(new ValidationDTO("testDate:testDate",
+                            "testDate Is very Old: " +
+                                    " - testDate: " + deviceEntity.getTestDate().toString() + "; " +
+                                    " - etDate: " + new Date(0L)
+                    )
+            );
+        }
 
+        if (testDate.compareTo(new Date(System.currentTimeMillis())) <= 0) {
+            System.out.println("test date is correct");
+        } else {
+            errors.add(new ValidationDTO("testDate:testDate",
+                    "testDate Is Wrong: " +
+                            " - testDate: " + deviceEntity.getTestDate().toString()));
+        }
+
+        if (testDate.before(nextTestDate)) {
+            System.out.println("test date is correct");
+        } else {
+            errors.add(new ValidationDTO("testDate:testDate",
+                    "testDate > nextTestDate: " +
+                            " - testDate : " + deviceEntity.getTestDate().toString() + "; " +
+                            " - nextTestDate : " + deviceEntity.getNextTestDate().toString()));
+        }
     }
 
-    private void validateDuplicateExistByQuery(DeviceEntity deviceEntity) {
+    private void validatePeriod(Integer period, List<ValidationDTO> errors) {
+        if (period > 0 && period <= 900) {
+            System.out.println("ReplacementPeriod is correct");
+        } else {
+            errors.add(new ValidationDTO("replacementPeriod:replacementPeriod",
+                    "replacementPeriod Is Wrong (must be from 1 to 900): " +
+                            " - replacementPeriod: " + period));
+        }
+    }
+
+    private void validateDuplicateExistByQuery(DeviceEntity deviceEntity, List<ValidationDTO> errors) {
         Long size = (Long) em.createQuery(
                         "SELECT count (d) " +
                                 " FROM DeviceEntity d " +
@@ -98,11 +152,13 @@ public class DeviceValidator {
                 .getSingleResult();
 
         if (size > 0) {
-            throw new WrongDataException("Duplicate Is Found with parameter: " +
-                    " - type: " + deviceEntity.getType().getName() +
-                    " - number: " + deviceEntity.getNumber() +
-                    " - release year: " + deviceEntity.getReleaseYear())
-                    ;
+
+            errors.add(new ValidationDTO("id:id",
+                    "Duplicate Is Found with parameter: " +
+                            " - type: " + deviceEntity.getType().getName() + "; " +
+                            " - number: " + deviceEntity.getNumber() + "; " +
+                            " - release year: " + deviceEntity.getReleaseYear()));
+
         }
     }
 }
