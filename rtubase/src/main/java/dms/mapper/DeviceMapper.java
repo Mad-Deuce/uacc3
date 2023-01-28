@@ -4,6 +4,7 @@ import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
 import dms.service.location.LocationService;
+import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.service.device.type.SDevService;
 import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.standing.data.service.facility.LineFacilityService;
@@ -39,12 +40,18 @@ public abstract class DeviceMapper {
             expression = "java(locationService.findDevObjById(deviceDTO.getLocationId()).orElse(null))")
 //    @Mapping(target = "facility",
 //            expression = "java(lineFacilityService.findById(deviceDTO.getFacilityId()).orElse(null))")
-    @Mapping(target = "facility",
-            expression = "java(rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null))")
 //    @Mapping(target = "facility",
-//            expression = "java(lineFacilityService.findById(deviceDTO.getFacilityId())" +
-//                    ".orElse(rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null)))")
+//            expression = "java(rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null))")
+//    @Mapping(target = "facility", expression = "java(lineFacilityService.findById(deviceDTO.getFacilityId())",
+//                    defaultExpression = "java(rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null)))")
+    @Mapping(target = "facility", source = "deviceDTO")
     public abstract DeviceEntity dTOToEntity(DeviceDTO deviceDTO);
+
+    FacilityEntity mapFacility(DeviceDTO deviceDTO){
+        FacilityEntity rtdFacilityEntity = rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null);
+        FacilityEntity lineFacilityEntity = lineFacilityService.findById(deviceDTO.getFacilityId()).orElse(null);
+        return (rtdFacilityEntity!=null ? rtdFacilityEntity: lineFacilityEntity);
+    }
 
     @Mapping(target = "typeId", source = "type.id")
     @Mapping(target = "typeName", source = "type.name")
