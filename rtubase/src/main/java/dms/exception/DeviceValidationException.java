@@ -1,7 +1,7 @@
 package dms.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import dms.validation.dto.ValidationDTO;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -10,16 +10,21 @@ import java.util.List;
 @Getter
 public class DeviceValidationException extends RuntimeException {
 
-    private final List<ValidationDTO> errors;
+    private final List<Error> errors;
 
-    public DeviceValidationException(String message) {
-        super(message);
+    public DeviceValidationException(){
         errors = new ArrayList<>();
     }
 
-    public DeviceValidationException(String message, List<ValidationDTO> errorsInfo) {
-        super(message);
-        this.errors = errorsInfo;
+    @AllArgsConstructor
+    @Getter
+    private static class Error {
+        private String fieldName;
+        private String message;
+    }
+
+    public void addError(String fieldName, String message){
+        errors.add(new Error(fieldName, message));
     }
 
     @JsonIgnore
