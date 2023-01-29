@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 @RestController
@@ -43,6 +44,7 @@ public class DeviceController {
         this.deviceMapper = deviceMapper;
     }
 
+    @Deprecated
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-spec")
     public Page<DeviceDTO> findDevicesBySpecification(Pageable pageable, DeviceDTO deviceDTO) {
@@ -50,6 +52,7 @@ public class DeviceController {
                 .findDevicesBySpecification(pageable, deviceMapper.dTOToFilter(deviceDTO)));
     }
 
+    @Deprecated
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-query")
     public Page<DeviceDTO> findDevicesByQuery(Pageable pageable, DeviceDTO deviceDTO) throws NoSuchFieldException {
@@ -107,8 +110,21 @@ public class DeviceController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/{id}")
-    public DeviceDTO findDeviceById(@PathVariable("id") Long id) {
-        return deviceMapper.entityToDTO(deviceService.findDeviceById(id));
+    public ResponseEntity<?> findDeviceById(@PathVariable("id") Long id) {
+
+        DeviceDTO device;
+        try {
+            device = deviceMapper.entityToDTO(deviceService.findDeviceById(id));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e)
+                    ;
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(device);
     }
 
 
