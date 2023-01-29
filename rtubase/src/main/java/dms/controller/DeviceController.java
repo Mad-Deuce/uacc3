@@ -119,7 +119,8 @@ public class DeviceController {
                     .body(e)
                     ;
         }
-        return ResponseEntity.unprocessableEntity()
+        return ResponseEntity
+                .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(dto);
     }

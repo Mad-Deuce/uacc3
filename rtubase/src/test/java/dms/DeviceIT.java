@@ -2,6 +2,7 @@ package dms;
 
 import io.restassured.response.Response;
 import net.joshka.junit.json.params.JsonFileSource;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,10 +62,29 @@ class DeviceIT {
                 .post()
                 .then()
                 .contentType(JSON)
-                .body("errors", notNullValue()).extract().response();
-//                .extract().response();
+                .extract().response();
 
         System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals("10100101", response.jsonPath().getString("typeId"));
+
+         response = given()
+                .basePath("/api/devices/")
+                .port(port)
+                .contentType(JSON)
+                .body(paramsMap)
+                .when()
+                .post()
+                .then()
+                .contentType(JSON)
+                .extract().response();
+
+        System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
+
+        Assertions.assertEquals(422, response.statusCode());
+        Assertions.assertEquals("[id:id]", response.jsonPath().getString("errors.fieldName"));
+
     }
 
     @Test
