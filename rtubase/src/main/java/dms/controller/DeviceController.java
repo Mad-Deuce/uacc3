@@ -58,6 +58,26 @@ public class DeviceController {
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/by-filter")
+    public ResponseEntity<?> findDevicesByFilter(Pageable pageable, DeviceDTO deviceDTO) {
+
+        Page<DeviceDTO> devices;
+        try {
+            devices = deviceMapper.entityToDTOPage(deviceService
+                    .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO)));
+        } catch (NoSuchFieldException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e)
+                    ;
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(devices);
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/exportToXls")
     public void exportDevicesByQuery(Pageable pageable, DeviceDTO deviceDTO, HttpServletResponse response) throws NoSuchFieldException, IOException, IllegalAccessException {
 

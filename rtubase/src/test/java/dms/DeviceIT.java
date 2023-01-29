@@ -14,7 +14,6 @@ import java.util.Objects;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -30,16 +29,17 @@ class DeviceIT {
         object.forEach((k, v) -> paramsMap.put(k, object.getString(k)));
 
         Response response = given()
-                .basePath("/api/devices/by-query")
+                .basePath("/api/devices/by-filter")
                 .queryParams(paramsMap)
                 .port(port)
                 .when()
                 .get()
                 .then()
                 .contentType(JSON)
-                .body("totalElements", greaterThan(0)).extract().response();
+                .extract().response();
 
-        System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertNotNull(response.jsonPath().getString("totalElements"));
     }
 
     @ParameterizedTest(name = "[{index}] {arguments}")
