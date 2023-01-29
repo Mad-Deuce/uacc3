@@ -14,6 +14,7 @@ import java.util.List;
 @Data
 public class DeviceDTO {
 
+    @Null(groups = OnDeviceCreate.class)
     private Long id;
 
     @Min(groups = OnDeviceCreate.class, value = 10000000)

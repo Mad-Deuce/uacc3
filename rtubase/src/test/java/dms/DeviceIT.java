@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.json.JsonObject;
 import java.util.HashMap;
+import java.util.Objects;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
@@ -44,23 +45,24 @@ class DeviceIT {
     @JsonFileSource(resources = "/device_dto_for_create.json")
     void createDevice(JsonObject object) {
         HashMap<String, String> paramsMap = new HashMap<>();
-        object.forEach((k,v)->
-                        paramsMap.put(k, v.toString())
-                );
-
-//        object.forEach((k, v) ->
-//                paramsMap.put(k, object.getString(k))
-//        );
+        object.forEach((k, v) -> {
+                    if (v != null && !Objects.equals(v.toString(), "null")) {
+                        paramsMap.put(k, object.getString(k));
+                    }
+                }
+        );
 
         Response response = given()
                 .basePath("/api/devices/")
-                .queryParams(paramsMap)
                 .port(port)
+                .contentType(JSON)
+                .body(paramsMap)
                 .when()
                 .post()
                 .then()
                 .contentType(JSON)
-                .body("totalElements", greaterThan(0)).extract().response();
+                .body("errors", notNullValue()).extract().response();
+//                .extract().response();
 
         System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
     }

@@ -12,14 +12,13 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8080/api/devs/
+POST http://localhost:8080/api/devices/
 Authorization: Basic postgres postgres
 Accept: application/json
 Content-Type: application/json
 
 {
-  "id": null,
-  "num": "2000"
+  "number": "2000"
 }
 
 
