@@ -14,7 +14,6 @@ import java.util.Objects;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
-import static org.hamcrest.Matchers.notNullValue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DeviceIT {
@@ -69,7 +68,7 @@ class DeviceIT {
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertEquals("10100101", response.jsonPath().getString("typeId"));
 
-         response = given()
+        response = given()
                 .basePath("/api/devices/")
                 .port(port)
                 .contentType(JSON)
@@ -97,9 +96,10 @@ class DeviceIT {
                 .get()
                 .then()
                 .contentType(JSON)
-                .body(notNullValue()).extract().response();
+                .extract().response();
 
-        System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals("1011000003", response.jsonPath().getString("id"));
     }
 
 }
