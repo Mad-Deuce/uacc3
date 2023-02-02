@@ -10,6 +10,7 @@ import dms.validation.group.OnDeviceCreate;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -130,17 +132,39 @@ public class DeviceController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
     @DeleteMapping(value = "/{id}")
-    public void deleteDeviceById(@PathVariable("id") Long id) {
-        deviceService.deleteDeviceById(id);
+    public ResponseEntity<?> deleteDeviceById(@PathVariable("id") @NotNull Long id) {
+
+        try {
+            deviceService.deleteDeviceById(id);
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e.getMessage());
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .build();
+
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/{id}")
-    public void updateDeviceById(@PathVariable("id") Long id,
-                                 @RequestBody DeviceDTO deviceDTO) {
-        deviceService.updateDevice(id, deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
-    }
+    public ResponseEntity<?> updateDeviceById(@RequestBody DeviceDTO deviceDTO) {
 
+        try {
+            deviceService.updateDevice(deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
+        } catch (DeviceValidationException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e);
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(null);
+
+    }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/")
@@ -152,8 +176,7 @@ public class DeviceController {
         } catch (DeviceValidationException e) {
             return ResponseEntity.unprocessableEntity()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(e)
-                    ;
+                    .body(e);
         }
         return ResponseEntity
                 .ok()

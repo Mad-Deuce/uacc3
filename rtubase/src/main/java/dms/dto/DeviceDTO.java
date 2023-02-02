@@ -9,6 +9,7 @@ import lombok.Data;
 import javax.validation.constraints.*;
 import java.sql.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 @Data
@@ -84,5 +85,17 @@ public class DeviceDTO {
 
     private List<ExplicitDeviceMatcher> activeProperties;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeviceDTO dto = (DeviceDTO) o;
+        return typeId.equals(dto.typeId) && number.equals(dto.number) && releaseYear.equals(dto.releaseYear) && testDate.equals(dto.testDate) && nextTestDate.equals(dto.nextTestDate) && replacementPeriod.equals(dto.replacementPeriod) && status.equals(dto.status) && Objects.equals(detail, dto.detail) && facilityId.equals(dto.facilityId) && Objects.equals(locationId, dto.locationId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(typeId, number, releaseYear, testDate, nextTestDate, replacementPeriod, status, detail, facilityId, locationId);
+    }
 }
 

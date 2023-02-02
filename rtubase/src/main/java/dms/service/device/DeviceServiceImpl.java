@@ -30,7 +30,10 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import java.lang.reflect.Field;
 import java.sql.Date;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -210,17 +213,12 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.deleteById(id);
     }
 
-    public void updateDevice(Long id, DeviceEntity dev, List<ExplicitDeviceMatcher> activeProperties) {
-        DeviceEntity targetDev = deviceRepository.findById(id).orElseThrow(
-                () -> new NoEntityException("Device with the id=" + id + " not found"));
-        copyProperties(dev, targetDev, getProps(activeProperties));
-        deviceRepository.save(targetDev);
-    }
+    public void updateDevice(DeviceEntity deviceEntity, List<ExplicitDeviceMatcher> activeProperties) {
 
-    private List<String> getProps(List<ExplicitDeviceMatcher> activeProperties) {
-        return activeProperties.stream()
-                .map(ExplicitDeviceMatcher::getEntityPropertyName)
-                .collect(Collectors.toList());
+        DeviceEntity targetDev = deviceRepository.findById(deviceEntity.getId()).orElseThrow(
+                () -> new NoEntityException("Device with the id=" + deviceEntity.getId() + " not found"));
+        copyProperties(deviceEntity, targetDev, getProps(activeProperties));
+        deviceRepository.save(targetDev);
     }
 
     public DeviceEntity createDevice(DeviceEntity deviceEntity) {
@@ -229,7 +227,7 @@ public class DeviceServiceImpl implements DeviceService {
         deviceEntity.setStatus(Status.PS31);
         deviceEntity.setLocation(null);
         Date tDate = deviceEntity.getTestDate();
-             tDate = Date.valueOf(tDate.toLocalDate().plusMonths(deviceEntity.getReplacementPeriod()));
+        tDate = Date.valueOf(tDate.toLocalDate().plusMonths(deviceEntity.getReplacementPeriod()));
         deviceEntity.setNextTestDate(tDate);
 
         return deviceRepository.saveAndFlush(deviceEntity);
@@ -241,5 +239,11 @@ public class DeviceServiceImpl implements DeviceService {
         BeanWrapper trgWrap = PropertyAccessorFactory.forBeanPropertyAccess(trg);
 
         props.forEach(p -> trgWrap.setPropertyValue(p, srcWrap.getPropertyValue(p)));
+    }
+
+    private List<String> getProps(List<ExplicitDeviceMatcher> activeProperties) {
+        return activeProperties.stream()
+                .map(ExplicitDeviceMatcher::getEntityPropertyName)
+                .collect(Collectors.toList());
     }
 }
