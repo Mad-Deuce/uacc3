@@ -4,7 +4,10 @@ package dms;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dms.dto.DeviceDTO;
+import dms.entity.DeviceEntity;
+import dms.mapper.DeviceMapper;
 import dms.repository.DeviceRepository;
+import dms.standing.data.dock.val.Status;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 import org.junit.jupiter.api.Assertions;
@@ -31,11 +34,15 @@ import static io.restassured.http.ContentType.JSON;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DeviceIT {
 
+
     @Value(value = "${local.server.port}")
     private int port;
 
     @Autowired
     private DeviceRepository deviceRepository;
+
+    @Autowired
+    private DeviceMapper deviceMapper;
 
     @ParameterizedTest(name = "[{index}] {arguments}")
     @MethodSource
@@ -317,7 +324,7 @@ class DeviceIT {
 
     @ParameterizedTest(name = "[{index}] {arguments}")
     @MethodSource
-    void createDeviceAlt(DeviceDTO deviceDTO) {
+    void createDevice(DeviceDTO deviceDTO) {
 
         Response response = given()
                 .basePath("/api/devices/")
@@ -350,7 +357,7 @@ class DeviceIT {
         deviceRepository.deleteById(result.getId());
     }
 
-    private static Stream<Arguments> createDeviceAlt() throws IOException {
+    private static Stream<Arguments> createDevice() throws IOException {
         JsonNode jsonNode = new ObjectMapper()
                 .readTree(new File("src/test/resources/device_dto_for_create.json"));
         DeviceDTO deviceDTO = new ObjectMapper()
@@ -360,4 +367,41 @@ class DeviceIT {
                 Arguments.of(deviceDTO)
         );
     }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @MethodSource
+    void deleteDevice(DeviceDTO deviceDTO) {
+
+        DeviceEntity deviceEntity = deviceMapper.dTOToEntity(deviceDTO);
+        deviceEntity.setId(null);
+        deviceEntity.setStatus(Status.PS31);
+        deviceEntity.setLocation(null);
+        Long id = deviceRepository.saveAndFlush(deviceEntity).getId();
+        Assertions.assertTrue(deviceRepository.existsById(id));
+
+        Response response = given()
+                .basePath("/api/devices/")
+                .port(port)
+                .when()
+                .delete(id.toString())
+                .then()
+                .contentType(JSON)
+                .extract().response();
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertFalse(deviceRepository.existsById(id));
+    }
+
+    private static Stream<Arguments> deleteDevice() throws IOException {
+        JsonNode jsonNode = new ObjectMapper()
+                .readTree(new File("src/test/resources/device_dto_for_create.json"));
+        DeviceDTO deviceDTO = new ObjectMapper()
+                .treeToValue(jsonNode, DeviceDTO.class);
+
+        return Stream.of(
+                Arguments.of(deviceDTO)
+        );
+    }
+
+
 }
