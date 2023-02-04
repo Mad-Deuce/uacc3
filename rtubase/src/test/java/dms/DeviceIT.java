@@ -4,8 +4,6 @@ package dms;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dms.dto.DeviceDTO;
-import dms.mapper.DeviceMapper;
-import dms.repository.DeviceRepository;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 import net.joshka.junit.json.params.JsonFileSource;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -34,13 +31,6 @@ class DeviceIT {
     @Value(value = "${local.server.port}")
     private int port;
 
-    @Autowired
-    private DeviceRepository deviceRepository;
-
-    @Autowired
-    private DeviceMapper deviceMapper;
-
-
     @ParameterizedTest(name = "[{index}] {arguments}")
     @MethodSource
     void findDevicesByFilter(HashMap<String, ?> filter, DeviceDTO expectedResult) {
@@ -53,14 +43,11 @@ class DeviceIT {
                 .get()
                 .then().log().all()
                 .extract().response();
-
         ResponseBody<?> body = response.body();
-
         DeviceDTO result = body.jsonPath().getList("content", DeviceDTO.class).get(0);
 
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertEquals(expectedResult, result);
-        Assertions.assertTrue(true);
     }
 
     private static Stream<Arguments> findDevicesByFilter() throws IOException {
