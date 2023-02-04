@@ -296,6 +296,25 @@ class DeviceIT {
     }
 
     @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(longs = {1011000003})
+    void findDeviceById(Long value) {
+        Response response = given()
+                .basePath("/api/devices/{id}")
+                .pathParam("id", value)
+                .port(port)
+                .when()
+                .get()
+                .then()
+                .contentType(JSON)
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        DeviceDTO result = body.jsonPath().getObject("", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals(value, result.getId());
+    }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
     @JsonFileSource(resources = "/device_dto_for_create.json")
     void createDevice(JsonObject object) {
         HashMap<String, String> paramsMap = new HashMap<>();
@@ -340,20 +359,6 @@ class DeviceIT {
 
     }
 
-    @Test
-    void findDeviceById() {
-        Response response = given()
-                .basePath("/api/devices/{id}")
-                .pathParam("id", 1011000003)
-                .port(port)
-                .when()
-                .get()
-                .then()
-                .contentType(JSON)
-                .extract().response();
 
-        Assertions.assertEquals(200, response.statusCode());
-        Assertions.assertEquals("1011000003", response.jsonPath().getString("id"));
-    }
 
 }
