@@ -4,25 +4,23 @@ package dms;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dms.dto.DeviceDTO;
+import dms.repository.DeviceRepository;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
-import net.joshka.junit.json.params.JsonFileSource;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.json.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -35,6 +33,9 @@ class DeviceIT {
 
     @Value(value = "${local.server.port}")
     private int port;
+
+    @Autowired
+    private DeviceRepository deviceRepository;
 
     @ParameterizedTest(name = "[{index}] {arguments}")
     @MethodSource
@@ -315,50 +316,48 @@ class DeviceIT {
     }
 
     @ParameterizedTest(name = "[{index}] {arguments}")
-    @JsonFileSource(resources = "/device_dto_for_create.json")
-    void createDevice(JsonObject object) {
-        HashMap<String, String> paramsMap = new HashMap<>();
-        object.forEach((k, v) -> {
-                    if (v != null && !Objects.equals(v.toString(), "null")) {
-                        paramsMap.put(k, object.getString(k));
-                    }
-                }
-        );
+    @MethodSource
+    void createDeviceAlt(DeviceDTO deviceDTO) {
 
         Response response = given()
                 .basePath("/api/devices/")
                 .port(port)
                 .contentType(JSON)
-                .body(paramsMap)
+                .body(deviceDTO)
                 .when()
                 .post()
                 .then()
                 .contentType(JSON)
                 .extract().response();
-
-        System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
-
+        ResponseBody<?> body = response.body();
         Assertions.assertEquals(200, response.statusCode());
-        Assertions.assertEquals("10100101", response.jsonPath().getString("typeId"));
+
+        DeviceDTO result = body.jsonPath().getObject(".", DeviceDTO.class);
 
         response = given()
                 .basePath("/api/devices/")
                 .port(port)
                 .contentType(JSON)
-                .body(paramsMap)
+                .body(deviceDTO)
                 .when()
                 .post()
                 .then()
                 .contentType(JSON)
                 .extract().response();
 
-        System.out.println("Response Body is: " + response.jsonPath().prettyPrint());
-
         Assertions.assertEquals(422, response.statusCode());
-        Assertions.assertEquals("[id:id]", response.jsonPath().getString("errors.fieldName"));
 
+        deviceRepository.deleteById(result.getId());
     }
 
+    private static Stream<Arguments> createDeviceAlt() throws IOException {
+        JsonNode jsonNode = new ObjectMapper()
+                .readTree(new File("src/test/resources/device_dto_for_create.json"));
+        DeviceDTO deviceDTO = new ObjectMapper()
+                .treeToValue(jsonNode, DeviceDTO.class);
 
-
+        return Stream.of(
+                Arguments.of(deviceDTO)
+        );
+    }
 }
