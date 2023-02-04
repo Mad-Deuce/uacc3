@@ -100,13 +100,18 @@ public class DeviceServiceImpl implements DeviceService {
                                 .append(" as date) >= '")
                                 .append(getProperty(deviceFilter, item))
                                 .append("'");
-                    }
-
-                    if (item.getFilterPropertyName().toLowerCase().contains("max")) {
+                    } else if (item.getFilterPropertyName().toLowerCase().contains("max")) {
                         queryConditionsPart
                                 .append(" AND CAST (d.")
                                 .append(item.getEntityPropertyName())
                                 .append(" as date) <= '")
+                                .append(getProperty(deviceFilter, item))
+                                .append("'");
+                    } else {
+                        queryConditionsPart
+                                .append(" AND CAST (d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" as date) = '")
                                 .append(getProperty(deviceFilter, item))
                                 .append("'");
                     }
@@ -119,14 +124,19 @@ public class DeviceServiceImpl implements DeviceService {
                                 .append(item.getEntityPropertyName())
                                 .append(" >= ")
                                 .append(getProperty(deviceFilter, item));
-                    }
-
-                    if (item.getFilterPropertyName().toLowerCase().contains("max")) {
+                    } else if (item.getFilterPropertyName().toLowerCase().contains("max")) {
                         queryConditionsPart
                                 .append(" AND d.")
                                 .append(item.getEntityPropertyName())
                                 .append(" <= ")
                                 .append(getProperty(deviceFilter, item));
+                    } else {
+                        queryConditionsPart
+                                .append(" AND lower(CAST (d.")
+                                .append(item.getEntityPropertyName())
+                                .append(" as string)) LIKE lower('%")
+                                .append(getProperty(deviceFilter, item))
+                                .append("%')");
                     }
 
                 } else {

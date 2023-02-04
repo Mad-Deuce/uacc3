@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -19,7 +20,10 @@ import javax.json.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -35,7 +39,7 @@ class DeviceIT {
     @MethodSource
     void findDevicesByFilter(HashMap<String, ?> filter, DeviceDTO expectedResult) {
 
-        Response response  =  given()
+        Response response = given()
                 .basePath("/api/devices/by-filter")
                 .queryParams(filter)
                 .port(port)
@@ -66,6 +70,35 @@ class DeviceIT {
                 Arguments.of(filter3, expectedResult)
         );
     }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(strings = {"транс"})
+    void findDevicesByFilterString(String value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("typeGroupName", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        Pattern pattern = Pattern.compile(".*" + value + ".*");
+
+        result.forEach(item -> {
+                    Matcher matcher = pattern.matcher(item.getTypeGroupName().toLowerCase());
+                    Assertions.assertTrue(matcher.matches());
+                }
+        );
+
+    }
+
 
     @ParameterizedTest(name = "[{index}] {arguments}")
     @JsonFileSource(resources = "/device_dto_for_create.json")
