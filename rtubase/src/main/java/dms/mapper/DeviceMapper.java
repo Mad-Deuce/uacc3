@@ -9,13 +9,12 @@ import dms.standing.data.service.device.type.SDevService;
 import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.standing.data.service.facility.LineFacilityService;
 import dms.standing.data.service.facility.RtdFacilityService;
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,12 +37,6 @@ public abstract class DeviceMapper {
             expression = "java(deviceTypeService.findSDevByID(deviceDTO.getTypeId()).orElse(null))")
     @Mapping(target = "location",
             expression = "java(locationService.findDevObjById(deviceDTO.getLocationId()).orElse(null))")
-//    @Mapping(target = "facility",
-//            expression = "java(lineFacilityService.findById(deviceDTO.getFacilityId()).orElse(null))")
-//    @Mapping(target = "facility",
-//            expression = "java(rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null))")
-//    @Mapping(target = "facility", expression = "java(lineFacilityService.findById(deviceDTO.getFacilityId())",
-//                    defaultExpression = "java(rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null)))")
     @Mapping(target = "facility", source = "deviceDTO")
     public abstract DeviceEntity dTOToEntity(DeviceDTO deviceDTO);
 
@@ -79,6 +72,7 @@ public abstract class DeviceMapper {
     public abstract DeviceDTO entityToDTO(DeviceEntity entity);
 
     public abstract DeviceFilter dTOToFilter(DeviceDTO deviceDTO);
+
 
     public Page<DeviceDTO> entityToDTOPage(Page<DeviceEntity> deviceEntityPage) {
         List<DeviceDTO> content = deviceEntityPage.getContent().stream().map(this::entityToDTO).collect(Collectors.toList());

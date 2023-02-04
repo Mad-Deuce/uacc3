@@ -1,5 +1,23 @@
 {
-  "filter": {
+  "filter1": {
+  },
+  "filter2": {
+    "replacementPeriodMax": "1000",
+    "status": "11",
+    "railwayId": "1",
+    "railwayName": "Донецька",
+    "subdivisionId": "101",
+    "subdivisionShortName": "ШЧ-1",
+    "facilityId": "1011023",
+    "facilityName": "фен",
+    "locationId": "10110230001100",
+    "description": "К",
+    "regionType": "NU",
+    "locate": "М7",
+    "locateType": "TR",
+    "placeNumber": "К"
+  },
+  "filter3": {
     "typeId": "10708310",
     "typeName": "СТ",
     "typeGroupId": "7",
