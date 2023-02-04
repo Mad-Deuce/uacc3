@@ -73,7 +73,7 @@ class DeviceIT {
 
     @ParameterizedTest(name = "[{index}] {arguments}")
     @ValueSource(strings = {"транс"})
-    void findDevicesByFilterString(String value) {
+    void findDevicesByFilterLikeString(String value) {
 
         Response response = given()
                 .basePath("/api/devices/by-filter")
@@ -93,6 +93,55 @@ class DeviceIT {
 
         result.forEach(item -> {
                     Matcher matcher = pattern.matcher(item.getTypeGroupName().toLowerCase());
+                    Assertions.assertTrue(matcher.matches());
+                }
+        );
+
+    }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(strings = {"2017-12-22"})
+    void findDevicesByFilterDate(String value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("testDate", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        result.forEach(item -> Assertions.assertEquals(item.getTestDate().toString(), value));
+    }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(longs = {1111})
+    void findDevicesByFilterLikeLong(Long value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("id", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        Pattern pattern = Pattern.compile(".*" + value.toString() + ".*");
+
+        result.forEach(item -> {
+                    Matcher matcher = pattern.matcher(item.getId().toString().toLowerCase());
                     Assertions.assertTrue(matcher.matches());
                 }
         );
