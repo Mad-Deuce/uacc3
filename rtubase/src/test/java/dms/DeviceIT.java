@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.json.JsonObject;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -100,6 +101,56 @@ class DeviceIT {
     }
 
     @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(strings = {"1987"})
+    void findDevicesByFilterMinString(String value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("releaseYearMin", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        result.forEach(item ->
+                Assertions.assertTrue(Integer.parseInt(item.getReleaseYear()) >= Integer.parseInt(value))
+        );
+
+
+    }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(strings = {"1980"})
+    void findDevicesByFilterMaxString(String value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("releaseYearMax", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        result.forEach(item ->
+                Assertions.assertTrue(Integer.parseInt(item.getReleaseYear()) <= Integer.parseInt(value))
+        );
+
+
+    }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
     @ValueSource(strings = {"2017-12-22"})
     void findDevicesByFilterDate(String value) {
 
@@ -118,6 +169,54 @@ class DeviceIT {
         Assertions.assertTrue(result.size() > 0);
 
         result.forEach(item -> Assertions.assertEquals(item.getTestDate().toString(), value));
+    }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(strings = {"2025-12-22"})
+    void findDevicesByFilterMaxDate(String value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("nextTestDateMax", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        result.forEach(item ->
+                Assertions.assertTrue(item.getNextTestDate()
+                        .compareTo(Date.valueOf(value)) <= 0)
+        );
+    }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(strings = {"2025-12-22"})
+    void findDevicesByFilterMinDate(String value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("nextTestDateMin", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        result.forEach(item ->
+                Assertions.assertTrue(item.getNextTestDate()
+                        .compareTo(Date.valueOf(value)) >= 0)
+        );
     }
 
     @ParameterizedTest(name = "[{index}] {arguments}")
@@ -148,6 +247,53 @@ class DeviceIT {
 
     }
 
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(ints = {36})
+    void findDevicesByFilterMaxInteger(int value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("replacementPeriodMax", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        result.forEach(item ->
+                Assertions.assertTrue(item.getReplacementPeriod() <= value)
+        );
+
+    }
+
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ValueSource(ints = {60})
+    void findDevicesByFilterMinInteger(int value) {
+
+        Response response = given()
+                .basePath("/api/devices/by-filter")
+                .queryParam("replacementPeriodMin", value)
+                .port(port)
+                .when()
+                .get()
+                .then().log().all()
+                .extract().response();
+        ResponseBody<?> body = response.body();
+        List<DeviceDTO> result = body.jsonPath().getList("content", DeviceDTO.class);
+
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertTrue(result.size() > 0);
+
+        result.forEach(item ->
+                Assertions.assertTrue(item.getReplacementPeriod() >= value)
+        );
+
+    }
 
     @ParameterizedTest(name = "[{index}] {arguments}")
     @JsonFileSource(resources = "/device_dto_for_create.json")
