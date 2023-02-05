@@ -223,9 +223,9 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.deleteById(id);
     }
 
-    public void updateDevice(DeviceEntity deviceEntity, List<ExplicitDeviceMatcher> activeProperties) {
+    public void updateDevice(Long id,  DeviceEntity deviceEntity, List<ExplicitDeviceMatcher> activeProperties) {
 
-        DeviceEntity targetDev = deviceRepository.findById(deviceEntity.getId()).orElseThrow(
+        DeviceEntity targetDev = deviceRepository.findById(id).orElseThrow(
                 () -> new NoEntityException("Device with the id=" + deviceEntity.getId() + " not found"));
         copyProperties(deviceEntity, targetDev, getProps(activeProperties));
         deviceRepository.save(targetDev);

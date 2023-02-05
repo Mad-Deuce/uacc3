@@ -2,6 +2,7 @@ package dms.controller;
 
 
 import dms.dto.DeviceDTO;
+import dms.entity.DeviceEntity;
 import dms.exception.DeviceValidationException;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
@@ -151,11 +152,11 @@ public class DeviceController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/{id}")
-    public ResponseEntity<?> updateDeviceById(@RequestBody DeviceDTO deviceDTO) {
+    public ResponseEntity<?> updateDeviceById(@PathVariable("id") Long id, @RequestBody DeviceDTO deviceDTO) {
 
         try {
-            deviceService.updateDevice(deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
-        } catch (DeviceValidationException e) {
+            deviceService.updateDevice(id, deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
+        } catch (RuntimeException e) {
             return ResponseEntity.unprocessableEntity()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(e);

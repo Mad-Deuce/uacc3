@@ -19,6 +19,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public Optional<LocationEntity> findDevObjById(Long id) {
+        if (id==null) return Optional.empty();
         return locationRepository.findById(id);
     }
 

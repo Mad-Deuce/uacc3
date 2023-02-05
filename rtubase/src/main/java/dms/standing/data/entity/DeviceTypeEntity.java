@@ -1,6 +1,7 @@
 package dms.standing.data.entity;
 
 import lombok.*;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.sql.Date;
 @ToString(of = {"group", "name"})
 @NoArgsConstructor
 @Entity
+@Proxy(lazy=false)
 @Table(name = "s_dev", schema = "drtu", catalog = "rtubase")
 public class DeviceTypeEntity {
 

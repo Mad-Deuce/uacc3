@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.mapper.DeviceMapper;
+import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
 import dms.standing.data.dock.val.Status;
 import io.restassured.response.Response;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -326,6 +328,7 @@ class DeviceIT {
     @MethodSource
     void createDevice(DeviceDTO deviceDTO) {
 
+
         Response response = given()
                 .basePath("/api/devices/")
                 .port(port)
@@ -403,5 +406,51 @@ class DeviceIT {
         );
     }
 
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @MethodSource
+    void updateDevice(DeviceDTO deviceDTO, String newNumber, ExplicitDeviceMatcher activeParameter) {
 
+        DeviceEntity deviceEntity = deviceMapper.dTOToEntity(deviceDTO);
+        deviceEntity.setId(null);
+        deviceEntity.setStatus(Status.PS31);
+        deviceEntity.setLocation(null);
+        DeviceEntity beforeUpdateEntity = deviceRepository.saveAndFlush(deviceEntity);
+        Long id = beforeUpdateEntity.getId();
+        Assertions.assertTrue(deviceRepository.existsById(id));
+
+        DeviceDTO beforeUpdateDTO =deviceMapper.entityToDTO(beforeUpdateEntity);
+        beforeUpdateDTO.setNumber(newNumber);
+
+        beforeUpdateDTO.setActiveProperties(new ArrayList<>());
+        beforeUpdateDTO.getActiveProperties().add(activeParameter);
+
+        Response response = given()
+                .basePath("/api/devices/")
+                .port(port)
+                .contentType(JSON)
+                .body(beforeUpdateDTO)
+                .when()
+                .put(id.toString())
+                .then()
+                .contentType(JSON)
+                .extract().response();
+
+        Assertions.assertEquals(200, response.statusCode());
+
+        DeviceDTO afterUpdateDTO = deviceMapper.entityToDTO(deviceRepository.findById(id).orElse(null));
+
+        Assertions.assertEquals(newNumber, afterUpdateDTO.getNumber());
+        deviceRepository.deleteById(id);
+    }
+
+    private static Stream<Arguments> updateDevice() throws IOException {
+        JsonNode jsonNode = new ObjectMapper()
+                .readTree(new File("src/test/resources/device_dto_for_create.json"));
+        DeviceDTO deviceDTO = new ObjectMapper()
+                .treeToValue(jsonNode, DeviceDTO.class);
+
+        return Stream.of(
+                Arguments.of(deviceDTO, "1000001", ExplicitDeviceMatcher.NUMBER)
+        );
+    }
 }

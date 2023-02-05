@@ -19,7 +19,7 @@ public interface DeviceService {
 
     void deleteDeviceById(Long id);
 
-    void updateDevice(DeviceEntity devModel, List<ExplicitDeviceMatcher> activeProperties);
+    void updateDevice(Long id, DeviceEntity deviceEntity, List<ExplicitDeviceMatcher> activeProperties);
 
     DeviceEntity createDevice(DeviceEntity devModel);
 }

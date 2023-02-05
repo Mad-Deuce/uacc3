@@ -6,6 +6,7 @@ import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
 import lombok.*;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.io.Serializable;
