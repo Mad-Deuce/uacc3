@@ -74,16 +74,17 @@ class DeviceIT {
         HashMap<?, ?> filter1 = new ObjectMapper().convertValue(jsonNode.get("filter1"), HashMap.class);
         HashMap<?, ?> filter2 = new ObjectMapper().convertValue(jsonNode.get("filter2"), HashMap.class);
         HashMap<?, ?> filter3 = new ObjectMapper().convertValue(jsonNode.get("filter3"), HashMap.class);
-
+        HashMap<?, ?> filter4 = new ObjectMapper().convertValue(jsonNode.get("filter4"), HashMap.class);
         return Stream.of(
                 Arguments.of(filter1, expectedResult),
                 Arguments.of(filter2, expectedResult),
-                Arguments.of(filter3, expectedResult)
+                Arguments.of(filter3, expectedResult),
+                Arguments.of(filter4, expectedResult)
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
-    @ValueSource(strings = {"транс"})
+    @ParameterizedTest(name = "[{index}] filter: typeGroupName LIKE `{arguments}`")
+    @ValueSource(strings = {"рел"})
     void findDevicesByFilterLikeString(String value) {
 
         Response response = given()
@@ -110,7 +111,7 @@ class DeviceIT {
 
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ParameterizedTest(name = "[{index}] filter: releaseYear >= `{arguments}`")
     @ValueSource(strings = {"1987"})
     void findDevicesByFilterMinString(String value) {
 
@@ -135,8 +136,8 @@ class DeviceIT {
 
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
-    @ValueSource(strings = {"1980"})
+    @ParameterizedTest(name = "[{index}] filter: releaseYear <= `{arguments}`")
+    @ValueSource(strings = {"1986"})
     void findDevicesByFilterMaxString(String value) {
 
         Response response = given()
@@ -160,7 +161,7 @@ class DeviceIT {
 
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ParameterizedTest(name = "[{index}] filter: testDate = `{arguments}`")
     @ValueSource(strings = {"2017-12-22"})
     void findDevicesByFilterDate(String value) {
 
@@ -178,10 +179,11 @@ class DeviceIT {
         Assertions.assertEquals(200, response.statusCode());
         Assertions.assertTrue(result.size() > 0);
 
-        result.forEach(item -> Assertions.assertEquals(item.getTestDate().toString(), value));
+        result.forEach(item ->
+                Assertions.assertEquals(item.getTestDate().toString(), value));
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ParameterizedTest(name = "[{index}] filter: nextTestDate <= `{arguments}`")
     @ValueSource(strings = {"2025-12-22"})
     void findDevicesByFilterMaxDate(String value) {
 
@@ -200,12 +202,11 @@ class DeviceIT {
         Assertions.assertTrue(result.size() > 0);
 
         result.forEach(item ->
-                Assertions.assertTrue(item.getNextTestDate()
-                        .compareTo(Date.valueOf(value)) <= 0)
+                Assertions.assertTrue(item.getNextTestDate().compareTo(Date.valueOf(value)) <= 0)
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ParameterizedTest(name = "[{index}] filter: nextTestDate >= `{arguments}`")
     @ValueSource(strings = {"2025-12-22"})
     void findDevicesByFilterMinDate(String value) {
 
@@ -229,8 +230,8 @@ class DeviceIT {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
-    @ValueSource(longs = {1111})
+    @ParameterizedTest(name = "[{index}] filter: id LIKE `{arguments}`")
+    @ValueSource(longs = {2})
     void findDevicesByFilterLikeLong(Long value) {
 
         Response response = given()
@@ -257,8 +258,8 @@ class DeviceIT {
 
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
-    @ValueSource(ints = {36})
+    @ParameterizedTest(name = "[{index}] filter: replacementPeriod <= `{arguments}`")
+    @ValueSource(ints = {120})
     void findDevicesByFilterMaxInteger(int value) {
 
         Response response = given()
@@ -281,8 +282,8 @@ class DeviceIT {
 
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
-    @ValueSource(ints = {60})
+    @ParameterizedTest(name = "[{index}] filter: replacementPeriod >= `{arguments}`")
+    @ValueSource(ints = {120})
     void findDevicesByFilterMinInteger(int value) {
 
         Response response = given()
@@ -305,8 +306,8 @@ class DeviceIT {
 
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
-    @ValueSource(longs = {1011000003})
+    @ParameterizedTest(name = "[{index}] id = {arguments}")
+    @ValueSource(longs = {100002})
     void findDeviceById(Long value) {
         Response response = given()
                 .basePath("/api/devices/{id}")
@@ -324,10 +325,9 @@ class DeviceIT {
         Assertions.assertEquals(value, result.getId());
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ParameterizedTest(name = "[{index}] DTO = {arguments}")
     @MethodSource
     void createDevice(DeviceDTO deviceDTO) {
-
 
         Response response = given()
                 .basePath("/api/devices/")
@@ -371,7 +371,7 @@ class DeviceIT {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ParameterizedTest(name = "[{index}] DTO = {arguments}")
     @MethodSource
     void deleteDevice(DeviceDTO deviceDTO) {
 
@@ -406,7 +406,7 @@ class DeviceIT {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] {arguments}")
+    @ParameterizedTest(name = "[{index}] DTO = {arguments}")
     @MethodSource
     void updateDevice(DeviceDTO deviceDTO, String newNumber, ExplicitDeviceMatcher activeParameter) {
 
@@ -418,7 +418,7 @@ class DeviceIT {
         Long id = beforeUpdateEntity.getId();
         Assertions.assertTrue(deviceRepository.existsById(id));
 
-        DeviceDTO beforeUpdateDTO =deviceMapper.entityToDTO(beforeUpdateEntity);
+        DeviceDTO beforeUpdateDTO = deviceMapper.entityToDTO(beforeUpdateEntity);
         beforeUpdateDTO.setNumber(newNumber);
 
         beforeUpdateDTO.setActiveProperties(new ArrayList<>());

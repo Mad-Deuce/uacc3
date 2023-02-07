@@ -2,6 +2,14 @@
   "filter1": {
     "id": "1011004615"
   },
+  "filter4": {
+    "replacementPeriodMax": "1000",
+    "status": "11",
+    "railwayId": "1",
+    "railwayName": "Донецька",
+    "subdivisionId": "101"
+  },
+
   "filter2": {
     "replacementPeriodMax": "1000",
     "status": "11",

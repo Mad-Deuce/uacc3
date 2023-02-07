@@ -71,7 +71,8 @@ public class DeviceController {
         try {
             devices = deviceMapper.entityToDTOPage(deviceService
                     .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO)));
-        } catch (NoSuchFieldException e) {
+//        } catch (NoSuchFieldException e) {
+        } catch (RuntimeException | NoSuchFieldException e) {
             return ResponseEntity.unprocessableEntity()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(e)
