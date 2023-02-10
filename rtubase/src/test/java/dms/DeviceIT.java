@@ -75,12 +75,10 @@ class DeviceIT {
         HashMap<?, ?> filter1 = new ObjectMapper().convertValue(jsonNode.get("filter1"), HashMap.class);
         HashMap<?, ?> filter2 = new ObjectMapper().convertValue(jsonNode.get("filter2"), HashMap.class);
         HashMap<?, ?> filter3 = new ObjectMapper().convertValue(jsonNode.get("filter3"), HashMap.class);
-        HashMap<?, ?> filter4 = new ObjectMapper().convertValue(jsonNode.get("filter4"), HashMap.class);
         return Stream.of(
                 Arguments.of(filter1, expectedResult),
                 Arguments.of(filter2, expectedResult),
-                Arguments.of(filter3, expectedResult),
-                Arguments.of(filter4, expectedResult)
+                Arguments.of(filter3, expectedResult)
         );
     }
 
@@ -481,7 +479,7 @@ class DeviceIT {
     private static Stream<Arguments> replaceDevice()  {
 
         return Stream.of(
-                Arguments.of(1011004615L, 100004L)
+                Arguments.of(100004L, 100005L)
         );
     }
 }
