@@ -3,6 +3,7 @@ package dms.service.device;
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
 import dms.mapper.ExplicitDeviceMatcher;
+import dms.standing.data.dock.val.ReplacementType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,4 +23,6 @@ public interface DeviceService {
     void updateDevice(Long id, DeviceEntity deviceEntity, List<ExplicitDeviceMatcher> activeProperties);
 
     DeviceEntity createDevice(DeviceEntity devModel);
+
+    void replaceDevice(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
 }

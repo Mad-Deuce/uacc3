@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.poi.ss.util.CellUtil.createCell;
 
 public class UserExcelExporter {
     private final XSSFWorkbook workbook;

@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum ReplacementType {
     OTK("OTK", "По отказу прибора", ""),
     ZAM("ZAM", "По сроку проверки", ""),
+    NEW("NEW", "Модернізація", ""),
     ;
 
     private final String name;

@@ -3,10 +3,12 @@ package dms.service.device;
 
 import dms.entity.DeviceEntity;
 import dms.entity.LocationEntity;
+import dms.exception.DeviceValidationException;
 import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
+import dms.standing.data.dock.val.ReplacementType;
 import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
@@ -53,10 +55,12 @@ public class DeviceServiceImpl implements DeviceService {
         this.deviceRepository = deviceRepository;
     }
 
+    @Override
     public DeviceEntity findDeviceById(Long id) {
         return deviceRepository.findById(id).orElseThrow();
     }
 
+    @Override
     public Page<DeviceEntity> findDevicesByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
 
         Long contentSize = (Long) em.createQuery(
@@ -168,6 +172,7 @@ public class DeviceServiceImpl implements DeviceService {
         return queryConditionsPart.toString();
     }
 
+    @Override
     public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, DeviceFilter deviceFilter) {
         return deviceRepository.findAll(getSpecification(deviceFilter), pageable);
     }
@@ -219,10 +224,12 @@ public class DeviceServiceImpl implements DeviceService {
         return BeanUtils.getProperty(deviceFilter, item.getFilterPropertyName());
     }
 
+    @Override
     public void deleteDeviceById(Long id) {
         deviceRepository.deleteById(id);
     }
 
+    @Override
     public void updateDevice(Long id,  DeviceEntity deviceEntity, List<ExplicitDeviceMatcher> activeProperties) {
 
         DeviceEntity targetDev = deviceRepository.findById(id).orElseThrow(
@@ -231,6 +238,7 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.save(targetDev);
     }
 
+    @Override
     public DeviceEntity createDevice(DeviceEntity deviceEntity) {
         deviceValidator.onCreateEntityValidation(deviceEntity);
         deviceEntity.setId(null);
@@ -241,6 +249,37 @@ public class DeviceServiceImpl implements DeviceService {
         deviceEntity.setNextTestDate(tDate);
 
         return deviceRepository.saveAndFlush(deviceEntity);
+    }
+
+    @Override
+    public void replaceDevice(Long oldId, Long newId, ReplacementType replacementType) {
+        if (replacementType.equals(ReplacementType.NEW)){
+            DeviceValidationException exception = new DeviceValidationException();
+            exception.addError("replacementType", "replacementType not Correct (must be OTK or ZAM)");
+            throw exception;
+        }
+
+        DeviceEntity oldDeviceEntity = deviceRepository.findById(oldId).orElseThrow(DeviceValidationException::new);
+        DeviceEntity newDeviceEntity = deviceRepository.findById(newId).orElseThrow(DeviceValidationException::new);
+
+        deviceValidator.onReplaceEntityValidation(oldDeviceEntity, newDeviceEntity);
+
+        newDeviceEntity.setStatus(oldDeviceEntity.getStatus());
+        oldDeviceEntity.setStatus(Status.PS31);
+
+        FacilityEntity newDeviceFacility = newDeviceEntity.getFacility();
+        newDeviceEntity.setFacility(oldDeviceEntity.getFacility());
+        oldDeviceEntity.setFacility(newDeviceFacility);
+
+        newDeviceEntity.setLocation(oldDeviceEntity.getLocation());
+        oldDeviceEntity.setLocation(null);
+
+        newDeviceEntity.setDetail(replacementType.getComment());
+        oldDeviceEntity.setDetail(replacementType.getComment());
+
+        deviceRepository.save(newDeviceEntity);
+        deviceRepository.save(oldDeviceEntity);
+        deviceRepository.flush();
     }
 
     private static void copyProperties(Object src, Object trg, Iterable<String> props) {

@@ -30,6 +30,10 @@ public enum ExplicitDeviceMatcher {
     REPLACEMENT_PERIOD("replacementPeriod","replacementPeriod","replacementPeriod"),
     REPLACEMENT_PERIOD_MIN("replacementPeriodMin","replacementPeriodMin","replacementPeriod"),
     REPLACEMENT_PERIOD_MAX("replacementPeriodMax","replacementPeriodMax","replacementPeriod"),
+
+//    REPLACEMENT_TYPE("replacementType","replacementType","status"),
+//    REPLACEMENT_TYPE_COMMENT("replacementTypeComment","replacementTypeComment","status.comment"),
+
     STATUS("status","status","status"),
     STATUS_COMMENT("statusComment","statusComment","status.comment"),
     DETAIL("detail","detail","detail"),

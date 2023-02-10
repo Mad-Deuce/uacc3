@@ -2,12 +2,12 @@ package dms.controller;
 
 
 import dms.dto.DeviceDTO;
-import dms.entity.DeviceEntity;
 import dms.exception.DeviceValidationException;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
 import dms.validation.group.OnDeviceCreate;
+import dms.validation.group.OnDevicesReplace;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,7 +71,6 @@ public class DeviceController {
         try {
             devices = deviceMapper.entityToDTOPage(deviceService
                     .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO)));
-//        } catch (NoSuchFieldException e) {
         } catch (RuntimeException | NoSuchFieldException e) {
             return ResponseEntity.unprocessableEntity()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -132,7 +131,6 @@ public class DeviceController {
                 .body(device);
     }
 
-
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteDeviceById(@PathVariable("id") @NotNull Long id) {
@@ -149,6 +147,24 @@ public class DeviceController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .build();
 
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
+    @PostMapping(value = "/")
+    @Validated(OnDeviceCreate.class)
+    public ResponseEntity<?> createDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
+        DeviceDTO dto;
+        try {
+            dto = deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
+        } catch (DeviceValidationException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e);
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(dto);
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
@@ -169,14 +185,14 @@ public class DeviceController {
 
     }
 
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
-    @PostMapping(value = "/")
-    @Validated(OnDeviceCreate.class)
-    public ResponseEntity<?> createDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
-        DeviceDTO dto;
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
+    @PutMapping(value = "/replace/{id}")
+    @Validated(OnDevicesReplace.class)
+    public ResponseEntity<?> replaceDeviceById(@PathVariable("id") Long oldDeviceId,@Valid @RequestBody DeviceDTO newDeviceDTO) {
+
         try {
-            dto = deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
-        } catch (DeviceValidationException e) {
+            deviceService.replaceDevice(oldDeviceId, newDeviceDTO.getId(), newDeviceDTO.getReplacementType());
+        } catch (RuntimeException e) {
             return ResponseEntity.unprocessableEntity()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(e);
@@ -184,7 +200,8 @@ public class DeviceController {
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(dto);
+                .body(null);
+
     }
 
 }
