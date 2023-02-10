@@ -18,7 +18,7 @@ import java.util.Objects;
 public class DeviceDTO {
 
     @Null(groups = OnDeviceCreate.class)
-    @NotBlank(groups = OnDevicesReplace.class)
+//    @NotBlank(groups = OnDevicesReplace.class)
     private Long id;
 
     @Min(groups = OnDeviceCreate.class, value = 10000000)

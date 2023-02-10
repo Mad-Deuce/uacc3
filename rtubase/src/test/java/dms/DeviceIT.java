@@ -8,6 +8,7 @@ import dms.entity.DeviceEntity;
 import dms.mapper.DeviceMapper;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
+import dms.standing.data.dock.val.ReplacementType;
 import dms.standing.data.dock.val.Status;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
@@ -451,6 +452,36 @@ class DeviceIT {
 
         return Stream.of(
                 Arguments.of(deviceDTO, "1000001", ExplicitDeviceMatcher.NUMBER)
+        );
+    }
+
+    @ParameterizedTest(name = "[{index}] DTO = {arguments}")
+    @MethodSource
+    void replaceDevice(Long oldDeviceId, Long newDeviceId) {
+
+        DeviceDTO newDeviceDTO = new DeviceDTO();
+        newDeviceDTO.setId(newDeviceId);
+        newDeviceDTO.setReplacementType(ReplacementType.ZAM);
+
+        Response response = given()
+                .basePath("/api/devices/")
+                .port(port)
+                .contentType(JSON)
+                .body(newDeviceDTO)
+                .when()
+                .put("replace/" + oldDeviceId.toString())
+                .then()
+                .contentType(JSON)
+                .extract().response();
+
+        Assertions.assertEquals(200, response.statusCode());
+
+    }
+
+    private static Stream<Arguments> replaceDevice()  {
+
+        return Stream.of(
+                Arguments.of(1011004615L, 100004L)
         );
     }
 }
