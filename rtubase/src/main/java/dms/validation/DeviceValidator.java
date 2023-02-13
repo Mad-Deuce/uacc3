@@ -1,9 +1,12 @@
 package dms.validation;
 
 import dms.entity.DeviceEntity;
+import dms.entity.LocationEntity;
 import dms.exception.DeviceValidationException;
 import dms.repository.LocationRepository;
 import dms.standing.data.dock.val.Status;
+import dms.standing.data.entity.DeviceTypeEntity;
+import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.repository.DeviceTypeRepository;
 import dms.standing.data.repository.LineFacilityRepository;
 import dms.standing.data.repository.RtdFacilityRepository;
@@ -37,16 +40,28 @@ public class DeviceValidator {
         this.locationRepository = locationRepository;
     }
 
-    public void onCreateEntityValidation(DeviceEntity deviceEntity) {
+
+    /**
+     * @param deviceEntity тип прибора есть в справочнике;
+     *                     номер прибора состоит только из цифр;
+     *                     год выпуска прибора - 4-х значное число от 1950 до текущего года;
+     *                     дата проверки - год проверки больше или равен году выпуска;
+     *                     - не слишком старая т.е. больше 01.01.1970;
+     *                     - не в будущем т.е. меньше или равна текущей дате;
+     *                     периодичность замены - число от 1 до 900;
+     *                     РТД к которому приписывается прибор есть в справочнике;
+     *                     в базе нет дубликата - прибора с такими же: тип, номер, год выпуска;
+     */
+    public void onCreateValidation(DeviceEntity deviceEntity) {
 
         DeviceValidationException exception = new DeviceValidationException();
 
-        isTypeExist(deviceEntity, exception);
+        isTypeExist(deviceEntity.getType(), exception);
         isNumberCorrect(deviceEntity, exception);
         isYearCorrect(deviceEntity, exception);
         isTestDateCorrect(deviceEntity, exception);
         isReplacementPeriodCorrect(deviceEntity, exception);
-        isRtdFacilityExist(deviceEntity, exception);
+        isRtdFacilityExist(deviceEntity.getFacility(), exception);
 
         isDuplicateExists(deviceEntity, exception);
 
@@ -55,65 +70,245 @@ public class DeviceValidator {
         }
     }
 
-    public void onReplaceEntityValidation(DeviceEntity oldDeviceEntity, DeviceEntity newDeviceEntity) {
+    /**
+     * @param oldDeviceEntity тип старого прибора совместим с типом нового;
+     *                        Линейный Объект, к которому приписан старый прибор есть в справочнике;
+     *                        РТД, к которому приписан новый прибор и Объект, к которому приписан старый прибор
+     *                        приписаны к одному ШЧ - совместимы;
+     *                        статус старого прибора - 11 (Линия) или 21 (АВЗ станций) или 32 (АВЗ РТД)
+     *                        расположение старого прибора существует в базе;
+     *                        Объект (если Линейный), к которому приписан старый прибор, соответствует Объекту,
+     *                        к которому приписано расположение;
+     * @param newDeviceEntity тип нового прибора есть в справочнике;
+     *                        номер нового прибора состоит только из цифр;
+     *                        год выпуска нового прибора - 4-х значное число от 1950 до текущего года;
+     *                        РТД, к которому приписан новый прибор есть в справочнике;
+     *                        РТД, к которому приписан новый прибор и Объект, к которому приписан старый прибор
+     *                        приписаны к одному ШЧ - совместимы;
+     *                        периодичность замены нового прибора - число от 1 до 900;
+     *                        дата проверки нового прибора - год проверки больше или равен году выпуска;
+     *                        - не слишком старая т.е. больше 01.01.1970;
+     *                        - не в будущем т.е. меньше или равна текущей дате;
+     *                        дата следующей проверки нового прибора - больше даты проверки нового прибора;
+     *                        - равна дата проверки + периодичность;
+     *                        дата следующей проверки нового прибора как минимум на 1 месяц больше текущей даты;
+     *                        статус нового прибора - 31 (ОБФ);
+     */
+    public void onReplaceValidation(DeviceEntity oldDeviceEntity, DeviceEntity newDeviceEntity) {
         DeviceValidationException exception = new DeviceValidationException();
 
-        isTypeExist(newDeviceEntity, exception);
-        isTypesMatch(oldDeviceEntity, newDeviceEntity, exception);
+        isTypeExist(newDeviceEntity.getType(), exception);
+        isTypesCompatible(oldDeviceEntity.getType(), newDeviceEntity.getType(), exception);
 
         isNumberCorrect(newDeviceEntity, exception);
 
         isYearCorrect(newDeviceEntity, exception);
 
-        isRtdFacilityExist(newDeviceEntity, exception);
-        isLineFacilityExist(oldDeviceEntity, exception);
-        isFacilityMatch(oldDeviceEntity, newDeviceEntity, exception);
+        isRtdFacilityExist(newDeviceEntity.getFacility(), exception);
+        if (oldDeviceEntity.getStatus().equals(Status.PS11) || oldDeviceEntity.getStatus().equals(Status.PS21)) {
+            isLineFacilityExist(oldDeviceEntity.getFacility(), exception);
+        } else if (oldDeviceEntity.getStatus().equals(Status.PS32)) {
+            isRtdFacilityExist(oldDeviceEntity.getFacility(), exception);
+        }
+
+        isFacilitiesCompatible(oldDeviceEntity.getFacility(), newDeviceEntity.getFacility(), exception);
 
         isReplacementPeriodCorrect(newDeviceEntity, exception);
         isTestDateCorrect(newDeviceEntity, exception);
         isNextTestDateMatchTestDay(newDeviceEntity, exception);
-        isNextTestDateValid(newDeviceEntity, exception);
+        isNextTestDateValid(newDeviceEntity.getNextTestDate(), exception);
 
         isStatus31(newDeviceEntity, exception);
-        isStatus1121(oldDeviceEntity, exception);
+        isStatus112132(oldDeviceEntity, exception);
 
-        isLocationExist(oldDeviceEntity, exception);
-        isLocationMatch(oldDeviceEntity, exception);
+//        todo: а если меняется прибор в АВЗ станции - Location = null
+        if (oldDeviceEntity.getStatus().equals(Status.PS11)) {
+            isLocationExist(oldDeviceEntity.getLocation(), exception);
+            isLocationMatch(oldDeviceEntity, exception);
+        }
 
         if (!exception.getErrors().isEmpty()) {
             throw exception;
         }
     }
 
-    private void isTypeExist(DeviceEntity deviceEntity, DeviceValidationException exception) {
-        if (deviceEntity.getType() == null) {
+    /**
+     * @param deviceEntity   тип прибора есть в справочнике;
+     *                       номер прибора состоит только из цифр;
+     *                       год выпуска прибора - 4-х значное число от 1950 до текущего года;
+     *                       РТД, к которому приписан прибор есть в справочнике;
+     *                       периодичность замены прибора - число от 1 до 900;
+     *                       дата проверки прибора - год проверки больше или равен году выпуска;
+     *                       - не слишком старая т.е. больше 01.01.1970;
+     *                       - не в будущем т.е. меньше или равна текущей дате;
+     *                       дата следующей проверки прибора - больше даты проверки  прибора;
+     *                       - равна дата проверки + периодичность;
+     *                       дата следующей проверки нового прибора как минимум на 1 месяц больше текущей даты;
+     *                       статус нового прибора - 31 (ОБФ);
+     * @param locationEntity расположение на котором будет новый прибор существует в базе;
+     *                       расположение на котором будет новый прибор не занято;
+     * @param facilityEntity Объект (Линейный), к которому будет приписан прибор есть в справочнике;
+     *                       РТД, к которому приписан прибор и Объект, к которому будет приписан прибор
+     *                       приписаны к одному ШЧ - совместимы;
+     *                       !!!!!!!!!!!!!!!   ЧТО ЕЩЕ необходимо проверить?????????
+     */
+    public void onSetDeviceToLineValidation(DeviceEntity deviceEntity,
+                                            FacilityEntity facilityEntity,
+                                            LocationEntity locationEntity) {
+
+        DeviceValidationException exception = new DeviceValidationException();
+
+        isTypeExist(deviceEntity.getType(), exception);
+        isNumberCorrect(deviceEntity, exception);
+        isYearCorrect(deviceEntity, exception);
+        isRtdFacilityExist(deviceEntity.getFacility(), exception);
+
+        isReplacementPeriodCorrect(deviceEntity, exception);
+        isTestDateCorrect(deviceEntity, exception);
+        isNextTestDateMatchTestDay(deviceEntity, exception);
+        isNextTestDateValid(deviceEntity.getNextTestDate(), exception);
+
+        isStatus31(deviceEntity, exception);
+
+        isLocationExist(locationEntity, exception);
+        isLocationEmpty(locationEntity, exception);
+
+        isLineFacilityExist(facilityEntity, exception);
+        isFacilitiesCompatible(facilityEntity, deviceEntity.getFacility(), exception);
+
+        if (!exception.getErrors().isEmpty()) {
+            throw exception;
+        }
+    }
+
+    /**
+     * @param deviceEntity   тип прибора есть в справочнике;
+     *                       номер прибора состоит только из цифр;
+     *                       год выпуска прибора - 4-х значное число от 1950 до текущего года;
+     *                       РТД, к которому приписан прибор есть в справочнике;
+     *                       периодичность замены прибора - число от 1 до 900;
+     *                       дата проверки прибора - год проверки больше или равен году выпуска;
+     *                       - не слишком старая т.е. больше 01.01.1970;
+     *                       - не в будущем т.е. меньше или равна текущей дате;
+     *                       дата следующей проверки прибора - больше даты проверки  прибора;
+     *                       - равна дата проверки + периодичность;
+     *                       дата следующей проверки нового прибора как минимум на 1 месяц больше текущей даты;
+     *                       статус прибора - 31 (ОБФ);
+     * @param facilityEntity Объект (АВЗ РТД), к которому будет приписан прибор есть в справочнике;
+     *                       РТД, к которому приписан прибор и Объект, к которому будет приписан прибор
+     *                       приписаны к одному ШЧ - совместимы;
+     *                       !!!!!!!!!!!!!!!   ЧТО ЕЩЕ необходимо проверить?????????
+     */
+    public void onSetDeviceToAvzRtdValidation(DeviceEntity deviceEntity, FacilityEntity facilityEntity) {
+        DeviceValidationException exception = new DeviceValidationException();
+
+        isTypeExist(deviceEntity.getType(), exception);
+        isNumberCorrect(deviceEntity, exception);
+        isRtdFacilityExist(deviceEntity.getFacility(), exception);
+
+        isReplacementPeriodCorrect(deviceEntity, exception);
+        isTestDateCorrect(deviceEntity, exception);
+        isNextTestDateMatchTestDay(deviceEntity, exception);
+        isNextTestDateValid(deviceEntity.getNextTestDate(), exception);
+
+        isStatus31(deviceEntity, exception);
+
+        isRtdFacilityExist(facilityEntity, exception);
+        isFacilitiesCompatible(facilityEntity, deviceEntity.getFacility(), exception);
+
+        if (!exception.getErrors().isEmpty()) {
+            throw exception;
+        }
+    }
+
+    /**
+     * @param deviceEntity   тип прибора есть в справочнике;
+     *                       номер прибора состоит только из цифр;
+     *                       год выпуска прибора - 4-х значное число от 1950 до текущего года;
+     *                       РТД, к которому приписан прибор есть в справочнике;
+     *                       периодичность замены прибора - число от 1 до 900;
+     *                       дата проверки прибора - год проверки больше или равен году выпуска;
+     *                       - не слишком старая т.е. больше 01.01.1970;
+     *                       - не в будущем т.е. меньше или равна текущей дате;
+     *                       дата следующей проверки прибора - больше даты проверки  прибора;
+     *                       - равна дата проверки + периодичность;
+     *                       дата следующей проверки нового прибора как минимум на 1 месяц больше текущей даты;
+     *                       статус прибора - 31 (ОБФ);
+     * @param facilityEntity Объект (Линия), к которому будет приписан прибор есть в справочнике;
+     *                       РТД, к которому приписан прибор и Объект, к которому будет приписан прибор
+     *                       приписаны к одному ШЧ - совместимы;
+     *                       !!!!!!!!!!!!!!!   ЧТО ЕЩЕ необходимо проверить?????????
+     */
+    public void onSetDeviceToAvzLineValidation(DeviceEntity deviceEntity, FacilityEntity facilityEntity) {
+        DeviceValidationException exception = new DeviceValidationException();
+
+        isTypeExist(deviceEntity.getType(), exception);
+        isNumberCorrect(deviceEntity, exception);
+        isRtdFacilityExist(deviceEntity.getFacility(), exception);
+
+        isReplacementPeriodCorrect(deviceEntity, exception);
+        isTestDateCorrect(deviceEntity, exception);
+        isNextTestDateMatchTestDay(deviceEntity, exception);
+        isNextTestDateValid(deviceEntity.getNextTestDate(), exception);
+
+        isStatus31(deviceEntity, exception);
+
+        isLineFacilityExist(facilityEntity, exception);
+        isFacilitiesCompatible(facilityEntity, deviceEntity.getFacility(), exception);
+
+        if (!exception.getErrors().isEmpty()) {
+            throw exception;
+        }
+    }
+
+    private void isLocationEmpty(LocationEntity locationEntity, DeviceValidationException exception) {
+        DeviceEntity deviceEntity = (DeviceEntity) em.createQuery(
+                        "SELECT d " +
+                                " FROM DeviceEntity d " +
+                                " WHERE 1=1 " +
+                                " AND d.location =:locationParam"
+                )
+                .setParameter("locationParam", locationEntity)
+                .getSingleResult();
+
+        if (deviceEntity != null) {
+            exception.addError("location:location",
+                    "In Location already assembled Device: " +
+                            " - Location Id: " + locationEntity.getId() + "; " +
+                            " - Device Id: " + deviceEntity.getId() + "; "
+            );
+        }
+    }
+
+    private void isTypeExist(DeviceTypeEntity deviceTypeEntity, DeviceValidationException exception) {
+        if (deviceTypeEntity == null) {
             exception.addError("typeId:type",
                     "Device Type Is Null");
         } else {
-            if (deviceTypeRepository.existsById(deviceEntity.getType().getId())) {
+            if (deviceTypeRepository.existsById(deviceTypeEntity.getId())) {
                 System.out.println("type is correct");
             } else {
                 exception.addError("typeId:type",
                         "Device Type Is Wrong: " +
-                                " - type Id: " + deviceEntity.getType().getId());
+                                " - type Id: " + deviceTypeEntity.getId());
             }
         }
     }
 
 
-    private void isTypesMatch(DeviceEntity oldDeviceEntity, DeviceEntity newDeviceEntity,
-                              DeviceValidationException exception) {
-        if (newDeviceEntity.getType() == null) {
+    private void isTypesCompatible(DeviceTypeEntity oldDeviceTypeEntity, DeviceTypeEntity newDeviceTypeEntity,
+                                   DeviceValidationException exception) {
+        if (newDeviceTypeEntity == null) {
             exception.addError("typeId:type",
                     "Device Type Is Null");
         } else {
-            if (newDeviceEntity.getType().equals(oldDeviceEntity.getType())) {
+            if (newDeviceTypeEntity.equals(oldDeviceTypeEntity)) {
 //                todo: check types match
                 System.out.println("type is correct");
             } else {
                 exception.addError("typeId:type",
                         "Device Type Is Wrong: " +
-                                " - type Id: " + newDeviceEntity.getType().getId());
+                                " - type Id: " + newDeviceTypeEntity.getId());
             }
         }
     }
@@ -140,49 +335,67 @@ public class DeviceValidator {
         }
     }
 
-    private void isRtdFacilityExist(DeviceEntity deviceEntity, DeviceValidationException exception) {
-        if (deviceEntity.getFacility() == null) {
+    private void isRtdFacilityExist(FacilityEntity rtdFacilityEntity, DeviceValidationException exception) {
+        if (rtdFacilityEntity == null) {
             exception.addError("facilityId:facility",
                     "Facility Is Null");
         } else {
-            if (rtdFacilityRepository.existsById(deviceEntity.getFacility().getId())) {
+            if (rtdFacilityRepository.existsById(rtdFacilityEntity.getId())) {
                 System.out.println("facility is correct");
             } else {
                 exception.addError("facilityId:facility",
                         "facility Is Wrong: " +
-                                " - facility ID: " + deviceEntity.getFacility().getId());
+                                " - facility ID: " + rtdFacilityEntity.getId());
             }
         }
     }
 
-    private void isLineFacilityExist(DeviceEntity deviceEntity, DeviceValidationException exception) {
-        if (deviceEntity.getFacility() == null) {
+    private void isLineFacilityExist(FacilityEntity facilityEntity, DeviceValidationException exception) {
+        if (facilityEntity == null) {
             exception.addError("facilityId:facility",
                     "Facility Is Null");
         } else {
-            if (lineFacilityRepository.existsById(deviceEntity.getFacility().getId())) {
+            if (lineFacilityRepository.existsById(facilityEntity.getId())) {
                 System.out.println("facility is correct");
             } else {
                 exception.addError("facilityId:facility",
                         "facility Is Wrong: " +
-                                " - facility ID: " + deviceEntity.getFacility().getId());
+                                " - facility ID: " + facilityEntity.getId());
             }
         }
     }
 
-    private void isFacilityMatch(DeviceEntity oldDeviceEntity, DeviceEntity newDeviceEntity,
-                                 DeviceValidationException exception) {
-        if (newDeviceEntity.getFacility() == null) {
+    private void isFacilitiesCompatible(FacilityEntity oldDeviceFacilityEntity, FacilityEntity newDeviceFacilityEntity,
+                                        DeviceValidationException exception) {
+        if (newDeviceFacilityEntity == null) {
             exception.addError("facilityId:facility",
                     "Facility Is Null");
         } else {
-            if (newDeviceEntity.getFacility().getSubdivision().equals(oldDeviceEntity.getFacility().getSubdivision())) {
+            if (newDeviceFacilityEntity.getSubdivision().equals(oldDeviceFacilityEntity.getSubdivision())) {
                 System.out.println("facility is correct");
             } else {
                 exception.addError("facilityId:facility",
                         "Facilities Not Match (new Device must be from RTD which servicing Line Object): " +
-                                " -new Device facility ID: " + newDeviceEntity.getFacility().getId() +
-                                " -old Device facility ID: " + oldDeviceEntity.getFacility().getId()
+                                " -new Device facility ID: " + newDeviceFacilityEntity.getId() +
+                                " -old Device facility ID: " + oldDeviceFacilityEntity.getId()
+                );
+            }
+        }
+    }
+
+    private void isFacilitiesEquals(FacilityEntity deviceFacilityEntity, FacilityEntity locationFacilityEntity,
+                                    DeviceValidationException exception) {
+        if (deviceFacilityEntity == null) {
+            exception.addError("facilityId:facility",
+                    "Facility Is Null");
+        } else {
+            if (deviceFacilityEntity.equals(locationFacilityEntity)) {
+                System.out.println("facility is correct");
+            } else {
+                exception.addError("facilityId:facility",
+                        "Facilities Not Match (new Device must be from RTD which servicing Line Object): " +
+                                " - Device facility ID: " + deviceFacilityEntity.getId() +
+                                " - Location facility ID: " + locationFacilityEntity.getId()
                 );
             }
         }
@@ -244,18 +457,16 @@ public class DeviceValidator {
         }
     }
 
-    private void isNextTestDateValid(DeviceEntity deviceEntity, DeviceValidationException exception) {
+    private void isNextTestDateValid(Date nextTestDate, DeviceValidationException exception) {
         Date nowDate = new Date(System.currentTimeMillis());
-        Date nextTestDate = deviceEntity.getNextTestDate();
         Date expectedNextTestDate = Date.valueOf(nowDate.toLocalDate().plusMonths(1));
-
 
         if (nextTestDate.compareTo(expectedNextTestDate) > 0) {
             System.out.println("test date is correct");
         } else {
             exception.addError("testDate:testDate",
                     "nextTestDate terms Ends within a month: " +
-                            " - nextTestDate: " + deviceEntity.getTestDate().toString());
+                            " - nextTestDate: " + nextTestDate);
         }
 
     }
@@ -282,29 +493,31 @@ public class DeviceValidator {
         }
     }
 
-    private void isStatus1121(DeviceEntity deviceEntity, DeviceValidationException exception) {
-        if (deviceEntity.getStatus().equals(Status.PS11) || deviceEntity.getStatus().equals(Status.PS21)) {
+    private void isStatus112132(DeviceEntity deviceEntity, DeviceValidationException exception) {
+        if (deviceEntity.getStatus().equals(Status.PS11) ||
+                deviceEntity.getStatus().equals(Status.PS21) ||
+                deviceEntity.getStatus().equals(Status.PS32)) {
             System.out.println("Status is: " + deviceEntity.getStatus().getName() +
                     "--" + deviceEntity.getStatus().getComment());
         } else {
             exception.addError("status:status",
-                    "Status Is Wrong (must be 11 or 21): " +
+                    "Status Is Wrong (must be 11 or 21 or 32): " +
                             " - Status: " + deviceEntity.getStatus().getName() +
                             "--" + deviceEntity.getStatus().getComment());
         }
     }
 
-    private void isLocationExist(DeviceEntity deviceEntity, DeviceValidationException exception) {
-        if (deviceEntity.getLocation() == null) {
+    private void isLocationExist(LocationEntity locationEntity, DeviceValidationException exception) {
+        if (locationEntity == null) {
             exception.addError("locationId:location",
                     "Location Is Null");
         } else {
-            if (locationRepository.existsById(deviceEntity.getLocation().getId())) {
+            if (locationRepository.existsById(locationEntity.getId())) {
                 System.out.println("Location is correct");
             } else {
                 exception.addError("locationId:location",
                         "Location Is Wrong: " +
-                                " - facility ID: " + deviceEntity.getLocation().getId());
+                                " - facility ID: " + locationEntity.getId());
             }
         }
     }

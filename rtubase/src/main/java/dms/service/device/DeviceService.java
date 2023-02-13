@@ -25,4 +25,16 @@ public interface DeviceService {
     DeviceEntity createDevice(DeviceEntity devModel);
 
     void replaceDevice(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
+
+    void replaceDeviceToAvzLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
+
+    void replaceDeviceToAvzRtd(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
+
+    void replaceDeviceToLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
+
+    void setDeviceToLine(Long deviceId, Long locationId);
+
+    void setDeviceToAvzLine(Long deviceId, String facilityId);
+
+    void setDeviceToAvzRtd(Long deviceId, String facilityId);
 }
