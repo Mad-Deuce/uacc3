@@ -9,7 +9,9 @@ import dms.standing.data.service.device.type.SDevService;
 import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.standing.data.service.facility.LineFacilityService;
 import dms.standing.data.service.facility.RtdFacilityService;
-import org.mapstruct.*;
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -39,10 +41,11 @@ public abstract class DeviceMapper {
     @Mapping(target = "facility", source = "deviceDTO")
     public abstract DeviceEntity dTOToEntity(DeviceDTO deviceDTO);
 
-    FacilityEntity mapFacility(DeviceDTO deviceDTO){
+    FacilityEntity mapFacility(DeviceDTO deviceDTO) {
+        if (deviceDTO.getFacilityId() == null) return null;
         FacilityEntity rtdFacilityEntity = rtdFacilityService.findById(deviceDTO.getFacilityId()).orElse(null);
         FacilityEntity lineFacilityEntity = lineFacilityService.findById(deviceDTO.getFacilityId()).orElse(null);
-        return (rtdFacilityEntity!=null ? rtdFacilityEntity: lineFacilityEntity);
+        return (rtdFacilityEntity != null ? rtdFacilityEntity : lineFacilityEntity);
     }
 
     @Mapping(target = "typeId", source = "type.id")

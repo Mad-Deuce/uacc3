@@ -19,6 +19,7 @@ public class SDevServiceImpl implements SDevService {
 
     @Override
     public Optional<DeviceTypeEntity> findSDevByID(Long id) {
+        if (id==null) return Optional.empty();
         return deviceTypeRepository.findById(id);
     }
 }
