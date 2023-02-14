@@ -279,50 +279,27 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public void replaceDevice(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
-        if (replacementType.equals(ReplacementType.NEW)) {
-            DeviceValidationException exception = new DeviceValidationException();
-            exception.addError("replacementType", "replacementType not Correct (must be OTK or ZAM)");
-            throw exception;
+    public void replaceDevice(Long oldDeviceId, Long newDeviceId, String status, ReplacementType replacementType) {
+
+        if (status.equals(Status.PS21.getName())) {
+            replaceDeviceToAvzLine(oldDeviceId, newDeviceId, replacementType);
         }
 
-        DeviceEntity oldDeviceEntity = deviceRepository.findById(oldDeviceId).orElseThrow(DeviceValidationException::new);
-        DeviceEntity newDeviceEntity = deviceRepository.findById(newDeviceId).orElseThrow(DeviceValidationException::new);
+        if (status.equals(Status.PS32.getName())) {
+            replaceDeviceToAvzRtd(oldDeviceId, newDeviceId, replacementType);
+        }
 
-        deviceValidator.onReplaceValidation(oldDeviceEntity, newDeviceEntity);
-
-        newDeviceEntity.setStatus(oldDeviceEntity.getStatus());
-        oldDeviceEntity.setStatus(Status.PS31);
-
-        FacilityEntity newDeviceFacility = newDeviceEntity.getFacility();
-        newDeviceEntity.setFacility(oldDeviceEntity.getFacility());
-        oldDeviceEntity.setFacility(newDeviceFacility);
-
-        newDeviceEntity.setLocation(newDeviceEntity.getStatus().equals(Status.PS21)
-                ? null
-                : oldDeviceEntity.getLocation());
-        oldDeviceEntity.setLocation(null);
-
-        newDeviceEntity.setDetail(replacementType.getComment());
-        oldDeviceEntity.setDetail(replacementType.getComment());
-
-        deviceRepository.save(newDeviceEntity);
-        deviceRepository.save(oldDeviceEntity);
-        deviceRepository.flush();
+        if (status.equals(Status.PS11.getName())) {
+            replaceDeviceToLine(oldDeviceId, newDeviceId, replacementType);
+        }
     }
 
-    @Override
-    public void replaceDeviceToAvzLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
-        if (replacementType.equals(ReplacementType.NEW)) {
-            DeviceValidationException exception = new DeviceValidationException();
-            exception.addError("replacementType", "replacementType not Correct (must be OTK or ZAM)");
-            throw exception;
-        }
+    private void replaceDeviceToAvzLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
 
         DeviceEntity oldDeviceEntity = deviceRepository.findById(oldDeviceId).orElseThrow(DeviceValidationException::new);
         DeviceEntity newDeviceEntity = deviceRepository.findById(newDeviceId).orElseThrow(DeviceValidationException::new);
 
-        deviceValidator.onReplaceValidation(oldDeviceEntity, newDeviceEntity);
+        deviceValidator.onReplaceToAvzLineValidation(oldDeviceEntity, newDeviceEntity, replacementType);
 
         newDeviceEntity.setStatus(Status.PS21);
         oldDeviceEntity.setStatus(Status.PS31);
@@ -342,18 +319,12 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.flush();
     }
 
-    @Override
-    public void replaceDeviceToAvzRtd(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
-        if (replacementType.equals(ReplacementType.NEW)) {
-            DeviceValidationException exception = new DeviceValidationException();
-            exception.addError("replacementType", "replacementType not Correct (must be OTK or ZAM)");
-            throw exception;
-        }
+    private void replaceDeviceToAvzRtd(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
 
         DeviceEntity oldDeviceEntity = deviceRepository.findById(oldDeviceId).orElseThrow(DeviceValidationException::new);
         DeviceEntity newDeviceEntity = deviceRepository.findById(newDeviceId).orElseThrow(DeviceValidationException::new);
 
-        deviceValidator.onReplaceValidation(oldDeviceEntity, newDeviceEntity);
+        deviceValidator.onReplaceToAvzRtdValidation(oldDeviceEntity, newDeviceEntity, replacementType);
 
         newDeviceEntity.setStatus(Status.PS32);
         oldDeviceEntity.setStatus(Status.PS31);
@@ -373,18 +344,12 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.flush();
     }
 
-    @Override
-    public void replaceDeviceToLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
-        if (replacementType.equals(ReplacementType.NEW)) {
-            DeviceValidationException exception = new DeviceValidationException();
-            exception.addError("replacementType", "replacementType not Correct (must be OTK or ZAM)");
-            throw exception;
-        }
+    private void replaceDeviceToLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
 
         DeviceEntity oldDeviceEntity = deviceRepository.findById(oldDeviceId).orElseThrow(DeviceValidationException::new);
         DeviceEntity newDeviceEntity = deviceRepository.findById(newDeviceId).orElseThrow(DeviceValidationException::new);
 
-        deviceValidator.onReplaceValidation(oldDeviceEntity, newDeviceEntity);
+        deviceValidator.onReplaceToLineValidation(oldDeviceEntity, newDeviceEntity, replacementType);
 
         newDeviceEntity.setStatus(Status.PS11);
         oldDeviceEntity.setStatus(Status.PS31);
@@ -405,7 +370,21 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public void setDeviceToLine(Long deviceId, Long locationId) {
+    public void setDeviceTo(Long deviceId, String status, String facilityId, Long locationId) {
+        if (status.equals(Status.PS21.getName())) {
+            setDeviceToAvzLine(deviceId, facilityId);
+        }
+
+        if (status.equals(Status.PS32.getName())) {
+            setDeviceToAvzRtd(deviceId, facilityId);
+        }
+
+        if (status.equals(Status.PS11.getName())) {
+            setDeviceToLine(deviceId, locationId);
+        }
+    }
+
+    private void setDeviceToLine(Long deviceId, Long locationId) {
 
         DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
                 .orElseThrow(DeviceValidationException::new);
@@ -426,8 +405,7 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.flush();
     }
 
-    @Override
-    public void setDeviceToAvzLine(Long deviceId, String facilityId) {
+    private void setDeviceToAvzLine(Long deviceId, String facilityId) {
 
         DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
                 .orElseThrow(DeviceValidationException::new);
@@ -445,8 +423,7 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.flush();
     }
 
-    @Override
-    public void setDeviceToAvzRtd(Long deviceId, String facilityId) {
+    private void setDeviceToAvzRtd(Long deviceId, String facilityId) {
 
         DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
                 .orElseThrow(DeviceValidationException::new);
@@ -460,6 +437,25 @@ public class DeviceServiceImpl implements DeviceService {
         deviceEntity.setLocation(null);
         deviceEntity.setFacility(facilityEntity);
         deviceEntity.setDetail(ReplacementType.NEW.getComment());
+
+        deviceRepository.save(deviceEntity);
+        deviceRepository.flush();
+    }
+
+    @Override
+    public void unsetDevice(Long deviceId, String facilityId){
+        DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
+                .orElseThrow(DeviceValidationException::new);
+        FacilityEntity facilityEntity = lineFacilityRepository.findById(facilityId)
+                .orElseThrow(DeviceValidationException::new);
+
+        deviceValidator.onUnsetDeviceValidation(deviceEntity, facilityEntity);
+
+        deviceEntity.setStatus(Status.PS31);
+
+        deviceEntity.setLocation(null);
+        deviceEntity.setFacility(facilityEntity);
+        deviceEntity.setDetail(ReplacementType.DIS.getComment());
 
         deviceRepository.save(deviceEntity);
         deviceRepository.flush();

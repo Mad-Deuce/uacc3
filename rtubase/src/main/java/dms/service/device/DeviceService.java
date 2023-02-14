@@ -4,6 +4,7 @@ import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.standing.data.dock.val.ReplacementType;
+import dms.standing.data.dock.val.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,17 +25,9 @@ public interface DeviceService {
 
     DeviceEntity createDevice(DeviceEntity devModel);
 
-    void replaceDevice(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
+    void replaceDevice(Long oldDeviceId, Long newDeviceId, String status, ReplacementType replacementType);
 
-    void replaceDeviceToAvzLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
+    void setDeviceTo(Long deviceId, String status, String facilityId, Long locationId);
 
-    void replaceDeviceToAvzRtd(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
-
-    void replaceDeviceToLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType);
-
-    void setDeviceToLine(Long deviceId, Long locationId);
-
-    void setDeviceToAvzLine(Long deviceId, String facilityId);
-
-    void setDeviceToAvzRtd(Long deviceId, String facilityId);
+    void unsetDevice(Long deviceId, String facilityId);
 }

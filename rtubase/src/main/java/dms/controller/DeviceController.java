@@ -7,6 +7,8 @@ import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
 import dms.validation.group.OnDeviceCreate;
+import dms.validation.group.OnDeviceSet;
+import dms.validation.group.OnDeviceUnset;
 import dms.validation.group.OnDevicesReplace;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,7 +193,7 @@ public class DeviceController {
     public ResponseEntity<?> replaceDeviceById(@PathVariable("id") Long oldDeviceId, @Valid @RequestBody DeviceDTO newDeviceDTO) {
 
         try {
-            deviceService.replaceDevice(oldDeviceId, newDeviceDTO.getId(), newDeviceDTO.getReplacementType());
+            deviceService.replaceDevice(oldDeviceId, newDeviceDTO.getId(), newDeviceDTO.getStatus(), newDeviceDTO.getReplacementType());
         } catch (RuntimeException e) {
             return ResponseEntity.unprocessableEntity()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -204,4 +206,41 @@ public class DeviceController {
 
     }
 
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
+    @PutMapping(value = "/set/{id}")
+    @Validated(OnDeviceSet.class)
+    public ResponseEntity<?> setDeviceById(@PathVariable("id") Long deviceId, @Valid @RequestBody DeviceDTO deviceDTO) {
+
+        try {
+            deviceService.setDeviceTo(deviceId, deviceDTO.getStatus(), deviceDTO.getFacilityId(), deviceDTO.getLocationId());
+        } catch (RuntimeException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e);
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(null);
+
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
+    @PutMapping(value = "/unset/{id}")
+    @Validated(OnDeviceUnset.class)
+    public ResponseEntity<?> unsetDeviceById(@PathVariable("id") Long deviceId, @Valid @RequestBody DeviceDTO deviceDTO) {
+
+        try {
+            deviceService.unsetDevice(deviceId, deviceDTO.getFacilityId());
+        } catch (RuntimeException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e);
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(null);
+
+    }
 }

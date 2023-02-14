@@ -1,3 +1,13 @@
+delete from drtu.dev;
+delete from drtu.dev_obj;
+delete from drtu.s_dev;
+delete from drtu.s_devgrp;
+delete from drtu.d_rtu;
+delete from drtu.d_obj;
+delete from drtu.d_dist;
+delete from drtu.d_rail;
+
+
 insert into drtu.dev (id_obj, devid, num, myear, ps, d_create, id, d_nkip, d_tkip, t_zam, obj_code,
                       ok_send, opcl, tid_pr, tid_rg, scode, detail)
 values (null, 10708310, '00000001', '1987', 31, null, 100001, '2023-12-22', '2017-12-22', 60, '1011',
