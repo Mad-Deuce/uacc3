@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
@@ -36,16 +35,12 @@ class DeviceUpdateIT {
     @Autowired
     private DeviceRepository deviceRepository;
 
-//    @Autowired
-//    private DeviceMapper deviceMapper;
-
     @ParameterizedTest(name = "[{index}] DTO = {arguments}")
     @MethodSource
     void updateDevice(Long id, DeviceDTO deviceDTO) {
 
         Assertions.assertTrue(deviceRepository.existsById(id));
-        DeviceEntity beforeUpdateEntity = deviceRepository.findById(id).orElse(null);
-        assert beforeUpdateEntity != null;
+        DeviceEntity beforeUpdateEntity = deviceRepository.findById(id).orElseThrow(null);
         Assertions.assertEquals("00000001", beforeUpdateEntity.getNumber());
 
         Response response = given()
@@ -65,7 +60,7 @@ class DeviceUpdateIT {
         Assertions.assertEquals(deviceDTO.getNumber(), afterUpdateEntity.getNumber());
     }
 
-    private static Stream<Arguments> updateDevice() throws IOException {
+    private static Stream<Arguments> updateDevice() {
         DeviceDTO deviceDTO = new DeviceDTO();
         deviceDTO.setNumber("00000002");
         deviceDTO.setActiveProperties(new ArrayList<>());

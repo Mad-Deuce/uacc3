@@ -1,3 +1,5 @@
+-- noinspection SqlWithoutWhereForFile
+
 delete from drtu.dev;
 delete from drtu.dev_obj;
 delete from drtu.s_dev;

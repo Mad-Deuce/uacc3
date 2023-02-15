@@ -190,7 +190,8 @@ public class DeviceController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/replace/{id}")
     @Validated(OnDevicesReplace.class)
-    public ResponseEntity<?> replaceDeviceById(@PathVariable("id") Long oldDeviceId, @Valid @RequestBody DeviceDTO newDeviceDTO) {
+    public ResponseEntity<?> replaceDeviceById(@PathVariable("id") Long oldDeviceId,
+                                               @Valid @RequestBody DeviceDTO newDeviceDTO) {
 
         try {
             deviceService.replaceDevice(oldDeviceId, newDeviceDTO.getId(), newDeviceDTO.getStatus(), newDeviceDTO.getReplacementType());
