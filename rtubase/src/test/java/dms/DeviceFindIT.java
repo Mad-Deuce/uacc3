@@ -28,11 +28,11 @@ import java.util.stream.Stream;
 import static io.restassured.RestAssured.given;
 
 @SqlGroup({
-        @Sql(scripts = "/sql/schema.sql"),
-        @Sql(scripts = "/sql/DevicesFindByFilterIT.sql")
+        @Sql(scripts = "/sql/schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(scripts = "/sql/DeviceFindIT.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class DevicesFindByFilterIT {
+class DeviceFindIT {
 
 
     @Value(value = "${local.server.port}")
@@ -59,7 +59,7 @@ class DevicesFindByFilterIT {
 
     private static Stream<Arguments> findDevicesByFilter() throws IOException {
         JsonNode jsonNode = new ObjectMapper()
-                .readTree(new File("src/test/resources/json/DevicesFindByFilterIT.json"));
+                .readTree(new File("src/test/resources/json/DeviceFindIT.json"));
         DeviceDTO expectedResult = new ObjectMapper()
                 .treeToValue(jsonNode.get("expectedResult"), DeviceDTO.class);
 
