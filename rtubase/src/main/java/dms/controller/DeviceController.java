@@ -217,7 +217,7 @@ public class DeviceController {
         } catch (RuntimeException e) {
             return ResponseEntity.unprocessableEntity()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(e);
+                    .body(e.getMessage());
         }
         return ResponseEntity
                 .ok()

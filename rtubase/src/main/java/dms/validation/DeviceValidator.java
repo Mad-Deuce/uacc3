@@ -3,6 +3,7 @@ package dms.validation;
 import dms.entity.DeviceEntity;
 import dms.entity.LocationEntity;
 import dms.exception.DeviceValidationException;
+import dms.repository.DeviceRepository;
 import dms.repository.LocationRepository;
 import dms.standing.data.dock.val.ReplacementType;
 import dms.standing.data.dock.val.Status;
@@ -18,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.sql.Date;
 import java.util.Calendar;
+import java.util.List;
 
 @Component
 public class DeviceValidator {
@@ -25,16 +27,19 @@ public class DeviceValidator {
     @PersistenceContext
     EntityManager em;
 
+    private final DeviceRepository deviceRepository;
     private final DeviceTypeRepository deviceTypeRepository;
     private final RtdFacilityRepository rtdFacilityRepository;
     private final LineFacilityRepository lineFacilityRepository;
     private final LocationRepository locationRepository;
 
     @Autowired
-    public DeviceValidator(DeviceTypeRepository deviceTypeRepository,
+    public DeviceValidator(DeviceRepository deviceRepository,
+                           DeviceTypeRepository deviceTypeRepository,
                            RtdFacilityRepository rtdFacilityRepository,
                            LineFacilityRepository lineFacilityRepository,
                            LocationRepository locationRepository) {
+        this.deviceRepository = deviceRepository;
         this.deviceTypeRepository = deviceTypeRepository;
         this.rtdFacilityRepository = rtdFacilityRepository;
         this.lineFacilityRepository = lineFacilityRepository;
@@ -417,20 +422,13 @@ public class DeviceValidator {
     }
 
     private void isLocationEmpty(LocationEntity locationEntity, DeviceValidationException exception) {
-        DeviceEntity deviceEntity = (DeviceEntity) em.createQuery(
-                        "SELECT d " +
-                                " FROM DeviceEntity d " +
-                                " WHERE 1=1 " +
-                                " AND d.location =:locationParam"
-                )
-                .setParameter("locationParam", locationEntity)
-                .getSingleResult();
+        List<DeviceEntity> deviceEntityList = deviceRepository.findAllByLocation(locationEntity);
 
-        if (deviceEntity != null) {
+        if (deviceEntityList.size() > 0) {
             exception.addError("location:location",
                     "In Location already assembled Device: " +
                             " - Location Id: " + locationEntity.getId() + "; " +
-                            " - Device Id: " + deviceEntity.getId() + "; "
+                            " - Device Id: " + deviceEntityList.get(0).getId() + "; "
             );
         }
     }

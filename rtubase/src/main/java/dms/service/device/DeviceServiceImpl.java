@@ -409,7 +409,7 @@ public class DeviceServiceImpl implements DeviceService {
 
         DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
                 .orElseThrow(DeviceValidationException::new);
-        FacilityEntity facilityEntity = rtdFacilityRepository.findById(facilityId).orElseThrow();
+        FacilityEntity facilityEntity = lineFacilityRepository.findById(facilityId).orElseThrow();
 
         deviceValidator.onSetDeviceToAvzLineValidation(deviceEntity, facilityEntity);
 

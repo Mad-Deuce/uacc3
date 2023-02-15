@@ -1,5 +1,6 @@
 package dms.repository;
 
+import dms.entity.LocationEntity;
 import dms.standing.data.dock.val.Status;
 import dms.entity.DeviceEntity;
 import org.springframework.data.domain.Page;
@@ -23,4 +24,6 @@ public interface DeviceRepository extends JpaRepository<DeviceEntity, Long>, Jpa
     List<DeviceEntity> findAllByStatus(Status status);
 
     List<DeviceEntity> findAllById(Long id);
+
+    List<DeviceEntity> findAllByLocation(LocationEntity location);
 }
