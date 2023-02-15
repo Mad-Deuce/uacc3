@@ -446,7 +446,7 @@ public class DeviceServiceImpl implements DeviceService {
     public void unsetDevice(Long deviceId, String facilityId){
         DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
                 .orElseThrow(DeviceValidationException::new);
-        FacilityEntity facilityEntity = lineFacilityRepository.findById(facilityId)
+        FacilityEntity facilityEntity = rtdFacilityRepository.findById(facilityId)
                 .orElseThrow(DeviceValidationException::new);
 
         deviceValidator.onUnsetDeviceValidation(deviceEntity, facilityEntity);
