@@ -1,4 +1,4 @@
-package dms;
+package dms.IT.Device;
 
 
 
@@ -24,8 +24,8 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 
 @SqlGroup({
-        @Sql(scripts = "/sql/schema.sql"),
-        @Sql(scripts = "/sql/DeviceReplaceIT.sql")
+        @Sql(scripts = "/IT/Device/sql/schema.sql"),
+        @Sql(scripts = "/IT/Device/sql/DeviceReplaceIT.sql")
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DeviceReplaceIT {

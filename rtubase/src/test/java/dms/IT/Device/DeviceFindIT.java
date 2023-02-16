@@ -1,4 +1,4 @@
-package dms;
+package dms.IT.Device;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,8 +28,8 @@ import java.util.stream.Stream;
 import static io.restassured.RestAssured.given;
 
 @SqlGroup({
-        @Sql(scripts = "/sql/schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-        @Sql(scripts = "/sql/DeviceFindIT.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+        @Sql(scripts = "/IT/Device/sql/schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(scripts = "/IT/Device/sql/DeviceFindIT.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DeviceFindIT {
@@ -59,7 +59,7 @@ class DeviceFindIT {
 
     private static Stream<Arguments> findDevicesByFilter() throws IOException {
         JsonNode jsonNode = new ObjectMapper()
-                .readTree(new File("src/test/resources/json/DeviceFindIT.json"));
+                .readTree(new File("src/test/resources/IT/Device/json/DeviceFindIT.json"));
         DeviceDTO expectedResult = new ObjectMapper()
                 .treeToValue(jsonNode.get("expectedResult"), DeviceDTO.class);
 

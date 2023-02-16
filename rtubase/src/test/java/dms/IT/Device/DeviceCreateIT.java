@@ -1,4 +1,4 @@
-package dms;
+package dms.IT.Device;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,8 +26,8 @@ import static io.restassured.http.ContentType.JSON;
 
 
 @SqlGroup({
-        @Sql(scripts = "/sql/schema.sql"),
-        @Sql(scripts = "/sql/DeviceCreateIT.sql")
+        @Sql(scripts = "/IT/Device/sql/schema.sql"),
+        @Sql(scripts = "/IT/Device/sql/DeviceCreateIT.sql")
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DeviceCreateIT {
@@ -75,7 +75,7 @@ class DeviceCreateIT {
 
     private static Stream<Arguments> createDevice() throws IOException {
         JsonNode jsonNode = new ObjectMapper()
-                .readTree(new File("src/test/resources/json/DeviceCreateIT.json"));
+                .readTree(new File("src/test/resources/IT/Device/json/DeviceCreateIT.json"));
         DeviceDTO deviceDTO = new ObjectMapper()
                 .treeToValue(jsonNode, DeviceDTO.class);
 
