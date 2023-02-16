@@ -6,20 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +32,18 @@ class DeviceMapperTest {
     @Autowired
     private DeviceMapper deviceMapper;
 
+    @Test
+    void newDTOToEntity() {
+        DeviceEntity deviceEntityMapped = deviceMapper.dTOToEntity(new DeviceDTO());
+
+        assertThat(new DeviceEntity())
+                .usingRecursiveComparison().ignoringExpectedNullFields()
+                .isEqualTo(deviceEntityMapped);
+        assertThat(new DeviceEntity())
+                .usingRecursiveComparison().ignoringActualNullFields()
+                .isEqualTo(deviceEntityMapped);
+    }
+
     @ParameterizedTest(name = "[{index}] DTO = {arguments}")
     @MethodSource
     void dTOToEntity(DeviceDTO deviceDTO, DeviceEntity deviceEntityExpected) {
@@ -45,7 +54,6 @@ class DeviceMapperTest {
         assertThat(deviceEntityExpected)
                 .usingRecursiveComparison()
                 .isEqualTo(deviceEntityMapped);
-//        }
     }
 
     private static Stream<Arguments> dTOToEntity() throws IOException {
@@ -68,42 +76,75 @@ class DeviceMapperTest {
     }
 
     @Test
-    void entityToDTO() throws IOException {
-        ObjectMapper jsonMapper = new ObjectMapper();
-        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    void newEntityToDTO() {
+        DeviceDTO deviceDTOMapped = deviceMapper.entityToDTO(new DeviceEntity());
 
-        try (InputStream entityIs = new ClassPathResource("mapper/Device/json/device_entity.json").getInputStream();
-             InputStream dTOIs = new ClassPathResource("mapper/Device/json/device_dto.json").getInputStream()
-        ) {
-            DeviceEntity originalEntity = jsonMapper.readValue(entityIs, DeviceEntity.class);
-            DeviceDTO originalDto = jsonMapper.readValue(dTOIs, DeviceDTO.class);
-
-            DeviceDTO mappedDto = deviceMapper.entityToDTO(originalEntity);
-
-            assertEquals(originalDto, mappedDto);
-            assertThat(originalDto)
-                    .usingRecursiveComparison()
-                    .isEqualTo(mappedDto);
-        }
+        assertThat(new DeviceDTO())
+                .usingRecursiveComparison().ignoringExpectedNullFields()
+                .isEqualTo(deviceDTOMapped);
+        assertThat(new DeviceDTO())
+                .usingRecursiveComparison().ignoringActualNullFields()
+                .isEqualTo(deviceDTOMapped);
     }
 
-    @Test
-    void dTOToFilter() throws IOException {
-        ObjectMapper jsonMapper = new ObjectMapper();
-        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    @ParameterizedTest(name = "[{index}] DTO = {arguments}")
+    @MethodSource
+    void entityToDTO(DeviceEntity deviceEntity, DeviceDTO deviceDTOExpected) {
+        DeviceDTO deviceDTOMapped = deviceMapper.entityToDTO(deviceEntity);
 
-        try (InputStream filterIs = new ClassPathResource("mapper/Device/json/device_dto.json").getInputStream();
-             InputStream dTOIs = new ClassPathResource("mapper/Device/json/device_dto.json").getInputStream()
-        ) {
-            DeviceFilter originalFilter = jsonMapper.readValue(filterIs, DeviceFilter.class);
-            DeviceDTO originalDto = jsonMapper.readValue(dTOIs, DeviceDTO.class);
+        assertEquals(deviceDTOExpected, deviceDTOMapped);
+        assertThat(deviceDTOExpected)
+                .usingRecursiveComparison()
+                .isEqualTo(deviceDTOMapped);
+    }
 
-            DeviceFilter mappedFilter = deviceMapper.dTOToFilter(originalDto);
+    private static Stream<Arguments> entityToDTO() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-            assertEquals(originalFilter, mappedFilter);
-            assertThat(originalFilter)
-                    .usingRecursiveComparison()
-                    .isEqualTo(mappedFilter);
-        }
+        JsonNode deviceDTOJsonNode = objectMapper
+                .readTree(new File("src/test/resources/mapper/Device/json/device_dto.json"));
+        DeviceDTO deviceDTOExpected = objectMapper
+                .treeToValue(deviceDTOJsonNode, DeviceDTO.class);
+
+        JsonNode deviceEntityExpectedJsonNode = objectMapper
+                .readTree(new File("src/test/resources/mapper/Device/json/device_entity.json"));
+        DeviceEntity deviceEntity = objectMapper
+                .treeToValue(deviceEntityExpectedJsonNode, DeviceEntity.class);
+
+        return Stream.of(
+                Arguments.of(deviceEntity, deviceDTOExpected)
+        );
+    }
+
+    @ParameterizedTest(name = "[{index}] DTO = {arguments}")
+    @MethodSource
+    void dTOToFilter(DeviceDTO deviceDTO, DeviceFilter deviceFilterExpected) {
+        DeviceFilter deviceFilterMapped = deviceMapper.dTOToFilter(deviceDTO);
+
+        assertEquals(deviceFilterExpected, deviceFilterMapped);
+        assertThat(deviceFilterExpected)
+                .usingRecursiveComparison()
+                .isEqualTo(deviceFilterMapped);
+    }
+
+    private static Stream<Arguments> dTOToFilter() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        JsonNode deviceDTOJsonNode = objectMapper
+                .readTree(new File("src/test/resources/mapper/Device/json/device_dto.json"));
+        DeviceDTO deviceDTO = objectMapper
+                .treeToValue(deviceDTOJsonNode, DeviceDTO.class);
+
+        JsonNode deviceEntityExpectedJsonNode = objectMapper
+                .readTree(new File("src/test/resources/mapper/Device/json/device_dto.json"));
+        DeviceFilter deviceFilterExpected = objectMapper
+                .treeToValue(deviceEntityExpectedJsonNode, DeviceFilter.class);
+
+        return Stream.of(
+                Arguments.of(deviceDTO, deviceFilterExpected),
+                Arguments.of(new DeviceDTO(), new DeviceFilter())
+        );
     }
 }
