@@ -9,7 +9,8 @@ public enum ReplacementType {
     OTK("OTK", "По отказу прибора", ""),
     ZAM("ZAM", "По сроку проверки", ""),
     NEW("NEW", "Модернізація", ""),
-    DIS("DIS", "Демонтаж", "")
+    DIS("DIS", "Демонтаж", ""),
+    DEC("DEC", "Списання", "")
     ;
 
     private final String name;

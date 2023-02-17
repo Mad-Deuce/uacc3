@@ -5,7 +5,6 @@ import dms.export.ExportInfo;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.standing.data.dock.val.ReplacementType;
 import dms.validation.group.OnDeviceCreate;
-import dms.validation.group.OnDevicesReplace;
 import lombok.Data;
 
 import javax.validation.constraints.*;
@@ -18,7 +17,6 @@ import java.util.Objects;
 public class DeviceDTO {
 
     @Null(groups = OnDeviceCreate.class)
-//    @NotBlank(groups = OnDevicesReplace.class)
     private Long id;
 
     @Min(groups = OnDeviceCreate.class, value = 10000000)
@@ -52,8 +50,6 @@ public class DeviceDTO {
     private Integer replacementPeriodMax;
 
     private ReplacementType replacementType;
-//    @ExportInfo(reportId = 1, position = 17, title = "Статус")
-//    private String replacementTypeComment;
 
     private String status;
     @ExportInfo(reportId = 1, position = 8, title = "Статус")

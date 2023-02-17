@@ -30,4 +30,6 @@ public interface DeviceService {
     void setDeviceTo(Long deviceId, String status, String facilityId, Long locationId);
 
     void unsetDevice(Long deviceId, String facilityId);
+
+    void decommissionDevice(DeviceEntity deviceEntity);
 }

@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -456,6 +457,21 @@ public class DeviceServiceImpl implements DeviceService {
         deviceEntity.setLocation(null);
         deviceEntity.setFacility(facilityEntity);
         deviceEntity.setDetail(ReplacementType.DIS.getComment());
+
+        deviceRepository.save(deviceEntity);
+        deviceRepository.flush();
+    }
+
+    @PreAuthorize("#deviceEntity.facility.subdivision.id == authentication.principal.subdivision")
+    @Override
+    public void decommissionDevice(DeviceEntity deviceEntity) {
+
+        deviceValidator.onDecommissionDeviceValidation(deviceEntity);
+
+        deviceEntity.setStatus(Status.PS39);
+
+        deviceEntity.setLocation(null);
+        deviceEntity.setDetail(ReplacementType.DEC.getComment());
 
         deviceRepository.save(deviceEntity);
         deviceRepository.flush();

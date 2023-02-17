@@ -2,7 +2,9 @@ package dms.controller;
 
 
 import dms.dto.DeviceDTO;
+import dms.entity.DeviceEntity;
 import dms.exception.DeviceValidationException;
+import dms.exception.NoEntityException;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,22 +50,6 @@ public class DeviceController {
                             DeviceMapper deviceMapper) {
         this.deviceService = deviceService;
         this.deviceMapper = deviceMapper;
-    }
-
-    @Deprecated
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/by-spec")
-    public Page<DeviceDTO> findDevicesBySpecification(Pageable pageable, DeviceDTO deviceDTO) {
-        return deviceMapper.entityToDTOPage(deviceService
-                .findDevicesBySpecification(pageable, deviceMapper.dTOToFilter(deviceDTO)));
-    }
-
-    @Deprecated
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/by-query")
-    public Page<DeviceDTO> findDevicesByQuery(Pageable pageable, DeviceDTO deviceDTO) throws NoSuchFieldException {
-        return deviceMapper.entityToDTOPage(deviceService
-                .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO)));
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
@@ -148,7 +135,6 @@ public class DeviceController {
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .build();
-
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
@@ -233,6 +219,26 @@ public class DeviceController {
 
         try {
             deviceService.unsetDevice(deviceId, deviceDTO.getFacilityId());
+        } catch (RuntimeException e) {
+            return ResponseEntity.unprocessableEntity()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(e);
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(null);
+
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
+    @PutMapping(value = "/decommission/{id}")
+    @Validated(OnDeviceUnset.class)
+    public ResponseEntity<?> decommissionDeviceById(@PathVariable("id") Long deviceId) {
+
+        try {
+            DeviceEntity deviceEntity = deviceService.findDeviceById(deviceId);
+            deviceService.decommissionDevice(deviceEntity);
         } catch (RuntimeException e) {
             return ResponseEntity.unprocessableEntity()
                     .contentType(MediaType.APPLICATION_JSON)

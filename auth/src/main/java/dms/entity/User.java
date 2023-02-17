@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(schema = "public", name = "users")
 @LoginForm(groups = LoginInfo.class)
 @RegistrationForm(groups = RegistrationInfo.class)
 public class User implements UserDetails {
@@ -32,6 +32,16 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
+
+    public String getSubdivision() {
+        return subdivision;
+    }
+
+    public void setSubdivision(String subdivision) {
+        this.subdivision = subdivision;
+    }
+
+    private String subdivision;
 
     public User() {
     }

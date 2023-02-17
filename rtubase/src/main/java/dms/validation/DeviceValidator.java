@@ -372,7 +372,7 @@ public class DeviceValidator {
     }
 
     /**
-     * @param deviceEntity   статус прибора - 11 (ОБФ) или 21 (АВЗ Ст.) или 32 (АВЗ РТД);
+     * @param deviceEntity   статус прибора - 11 (линия) или 21 (АВЗ Ст.) или 32 (АВЗ РТД);
      * @param facilityEntity Объект (РТД), к которому будет приписан прибор есть в справочнике;
      *                       РТД, к которому приписан прибор и Объект, к которому будет приписан прибор
      *                       приписаны к одному ШЧ - совместимы;
@@ -385,6 +385,23 @@ public class DeviceValidator {
 
         isRtdFacilityExist(facilityEntity, exception);
         isFacilitiesCompatible(facilityEntity, deviceEntity.getFacility(), exception);
+
+        if (!exception.getErrors().isEmpty()) {
+            throw exception;
+        }
+    }
+
+    /**
+     * @param deviceEntity статус прибора - 31 (ОБФ);
+     *                     Объект (РТД), к которому приписан прибор есть в справочнике;
+     *                     !!!!!!!!!!!!!!!   ЧТО ЕЩЕ необходимо проверить?????????
+     */
+    public void onDecommissionDeviceValidation(DeviceEntity deviceEntity) {
+        DeviceValidationException exception = new DeviceValidationException();
+
+        isStatus31(deviceEntity, exception);
+
+        isRtdFacilityExist(deviceEntity.getFacility(), exception);
 
         if (!exception.getErrors().isEmpty()) {
             throw exception;
