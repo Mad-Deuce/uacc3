@@ -18,6 +18,7 @@
         <module>rtubase</module>
         <module>auth</module>
         <module>schedule</module>
+        <module>commons</module>
     </modules>
 
 

@@ -1,6 +1,7 @@
 package dms.service.device;
 
 
+import dms.DeviceAuthService;
 import dms.entity.DeviceEntity;
 import dms.entity.LocationEntity;
 import dms.exception.DeviceValidationException;
@@ -47,8 +48,11 @@ import java.util.stream.Collectors;
 @Service("DevService1")
 public class DeviceServiceImpl implements DeviceService {
 
+
     @PersistenceContext
     EntityManager em;
+
+    private final DeviceAuthService deviceAuthService;
 
     private final DeviceValidator deviceValidator;
     private final DeviceRepository deviceRepository;
@@ -57,11 +61,13 @@ public class DeviceServiceImpl implements DeviceService {
     private final LocationRepository locationRepository;
 
     @Autowired
-    public DeviceServiceImpl(DeviceValidator deviceValidator,
+    public DeviceServiceImpl(DeviceAuthService deviceAuthService,
+                             DeviceValidator deviceValidator,
                              DeviceRepository deviceRepository,
                              LineFacilityRepository lineFacilityRepository,
                              RtdFacilityRepository rtdFacilityRepository,
                              LocationRepository locationRepository) {
+        this.deviceAuthService = deviceAuthService;
         this.deviceValidator = deviceValidator;
         this.deviceRepository = deviceRepository;
         this.lineFacilityRepository = lineFacilityRepository;
@@ -93,6 +99,7 @@ public class DeviceServiceImpl implements DeviceService {
                                 "LEFT JOIN FETCH d.location l " +
                                 "WHERE 1=1 " +
                                 getQueryConditionsPart(deviceFilter) +
+                                deviceAuthService.getAuthConditionsPartOfFindDeviceByFilterQuery() +
                                 " ORDER BY d.id ASC", DeviceEntity.class)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
@@ -444,7 +451,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public void unsetDevice(Long deviceId, String facilityId){
+    public void unsetDevice(Long deviceId, String facilityId) {
         DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
                 .orElseThrow(DeviceValidationException::new);
         FacilityEntity facilityEntity = rtdFacilityRepository.findById(facilityId)
@@ -465,6 +472,7 @@ public class DeviceServiceImpl implements DeviceService {
     @PreAuthorize("#deviceEntity.facility.subdivision.id == authentication.principal.subdivision")
     @Override
     public void decommissionDevice(DeviceEntity deviceEntity) {
+
 
         deviceValidator.onDecommissionDeviceValidation(deviceEntity);
 
