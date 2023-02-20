@@ -87,7 +87,8 @@ public class DeviceServiceImpl implements DeviceService {
                         "SELECT count (distinct d.id) " +
                                 "FROM DeviceEntity d " +
                                 "WHERE 1=1 " +
-                                getQueryConditionsPart(deviceFilter))
+                                getQueryConditionsPart(deviceFilter) +
+                                deviceAuthService.getAuthConditionsPartOfFindDeviceByFilterQuery())
                 .getSingleResult();
 
         List<DeviceEntity> content = em.createQuery(
@@ -469,7 +470,11 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.flush();
     }
 
-    @PreAuthorize("#deviceEntity.facility.subdivision.id == authentication.principal.subdivision")
+    @PreAuthorize(
+            "(hasRole('ROLE_ADMIN') || hasRole('ROLE_OPERATOR'))" +
+                    "&& #deviceEntity.facility.id.substring(0, authentication.principal.permitCode.length()) " +
+                    "== authentication.principal.permitCode"
+    )
     @Override
     public void decommissionDevice(DeviceEntity deviceEntity) {
 

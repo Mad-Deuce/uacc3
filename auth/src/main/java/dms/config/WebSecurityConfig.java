@@ -51,6 +51,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic();
         httpSecurity
                 .authorizeRequests()
+//                .antMatchers("/api/devices/decommission/*").hasAnyRole("ADMIN","OPERATOR")
 //                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 //                .antMatchers("/css/**", "/js/**").permitAll()
 //                .antMatchers("/index.html").permitAll()
@@ -59,6 +60,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .anyRequest().authenticated()
                 .anyRequest().permitAll()
         ;
+
 //        httpSecurity
 //                .formLogin()
 //                .loginPage("/login")
