@@ -22,7 +22,8 @@ public class AdminController {
     private final UserService userService;
     private final UserExportService userExportService;
 
-    AdminController(@Autowired UserService userService, @Autowired UserExportService userExportService) {
+    @Autowired
+    AdminController( UserService userService, UserExportService userExportService) {
         this.userService = userService;
         this.userExportService = userExportService;
     }

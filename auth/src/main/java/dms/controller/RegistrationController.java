@@ -14,7 +14,8 @@ public class RegistrationController {
 
     private final UserService userService;
 
-    RegistrationController(@Autowired UserService userService){
+    @Autowired
+    RegistrationController(UserService userService){
         this.userService = userService;
     }
 
