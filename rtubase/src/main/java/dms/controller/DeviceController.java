@@ -4,7 +4,6 @@ package dms.controller;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.exception.DeviceValidationException;
-import dms.exception.NoEntityException;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -140,15 +138,9 @@ public class DeviceController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/")
     @Validated(OnDeviceCreate.class)
-    public ResponseEntity<?> createDevice(@Valid @RequestBody DeviceDTO deviceDTO) {
+    public ResponseEntity<?> createDevice(@RequestBody @Valid DeviceDTO deviceDTO) {
         DeviceDTO dto;
-        try {
-            dto = deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
-        } catch (DeviceValidationException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e);
-        }
+        dto = deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)

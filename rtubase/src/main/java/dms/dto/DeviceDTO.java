@@ -27,7 +27,7 @@ public class DeviceDTO {
     private Integer typeGroupId;
     private String typeGroupName;
 
-    @NotBlank(groups = OnDeviceCreate.class)
+    @NotBlank(groups = OnDeviceCreate.class, message = "BLYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     @ExportInfo(reportId = 1, position = 3, title = "Номер")
     private String number;
     @Size(groups = OnDeviceCreate.class, min=4, max = 4)

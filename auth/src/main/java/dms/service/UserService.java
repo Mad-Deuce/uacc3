@@ -4,7 +4,6 @@ import dms.entity.Role;
 import dms.entity.User;
 import dms.exception.NoEntityException;
 import dms.exception.NotUniqueUsernameException;
-import dms.repository.RoleRepository;
 import dms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,35 +20,17 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
 
-//    @Autowired
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-//    @Autowired
     private final UserRepository userRepository;
-//    @Autowired
-//    private final RoleRepository roleRepository;
+
 
 
     @Autowired
     public UserService(UserRepository userRepository,
-//                       RoleRepository roleRepository,
                        BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
-//        this.roleRepository = roleRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
-
-//    @Autowired
-//    public void setUserRepository(UserRepository userRepository) {
-//        this.userRepository = userRepository;
-//    }
-//    @Autowired
-//    public void setRoleRepository(RoleRepository roleRepository) {
-//        this.roleRepository = roleRepository;
-//    }
-//    @Autowired
-//    public void setbCryptPasswordEncoder(BCryptPasswordEncoder bCryptPasswordEncoder) {
-//        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-//    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
