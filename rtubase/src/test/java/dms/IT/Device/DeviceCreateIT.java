@@ -43,6 +43,7 @@ class DeviceCreateIT {
     void createDevice(DeviceDTO deviceDTO) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/")
                 .port(port)
                 .contentType(JSON)
@@ -58,6 +59,7 @@ class DeviceCreateIT {
         DeviceDTO result = body.jsonPath().getObject(".", DeviceDTO.class);
 
         response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/")
                 .port(port)
                 .contentType(JSON)

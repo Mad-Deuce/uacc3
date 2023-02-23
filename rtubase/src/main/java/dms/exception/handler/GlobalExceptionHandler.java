@@ -1,6 +1,7 @@
 package dms.exception.handler;
 
 import dms.exception.DeviceValidationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -38,6 +40,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DeviceValidationException.class)
     public ResponseEntity<?> handleValidationErrors(DeviceValidationException ex) {
+        return new ResponseEntity<>(ex, new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<?> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex) {
+        return new ResponseEntity<>(ex, new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<?> handleNoSuchElementException(NoSuchElementException ex) {
+        return new ResponseEntity<>(ex, new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(NoSuchFieldException.class)
+    public ResponseEntity<?> handleNoSuchFieldException(NoSuchFieldException ex) {
         return new ResponseEntity<>(ex, new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

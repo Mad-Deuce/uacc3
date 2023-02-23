@@ -3,7 +3,6 @@ package dms.controller;
 
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
-import dms.exception.DeviceValidationException;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
@@ -14,7 +13,6 @@ import dms.validation.group.OnDevicesReplace;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -31,7 +29,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 
 @RestController
@@ -42,7 +39,6 @@ public class DeviceController {
     private final DeviceService deviceService;
     private final DeviceMapper deviceMapper;
 
-
     @Autowired
     public DeviceController(@Qualifier("DevService1") DeviceService deviceService,
                             DeviceMapper deviceMapper) {
@@ -52,18 +48,9 @@ public class DeviceController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-filter")
-    public ResponseEntity<?> findDevicesByFilter(Pageable pageable, DeviceDTO deviceDTO) {
-
-        Page<DeviceDTO> devices;
-        try {
-            devices = deviceMapper.entityToDTOPage(deviceService
+    public ResponseEntity<?> findDevicesByFilter(Pageable pageable, DeviceDTO deviceDTO) throws NoSuchFieldException {
+        Page<DeviceDTO> devices = deviceMapper.entityToDTOPage(deviceService
                     .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO)));
-        } catch (RuntimeException | NoSuchFieldException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e)
-                    ;
-        }
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +72,6 @@ public class DeviceController {
         String headerValue = "attachment; filename=rep_devices" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
-
         List<DeviceDTO> devicesList = deviceMapper.entityToDTOPage(deviceService
                 .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO))).getContent();
 
@@ -102,16 +88,7 @@ public class DeviceController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> findDeviceById(@PathVariable("id") Long id) {
-
-        DeviceDTO device;
-        try {
-            device = deviceMapper.entityToDTO(deviceService.findDeviceById(id));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e)
-                    ;
-        }
+        DeviceDTO device = deviceMapper.entityToDTO(deviceService.findDeviceById(id));
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -121,14 +98,7 @@ public class DeviceController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteDeviceById(@PathVariable("id") @NotNull Long id) {
-
-        try {
-            deviceService.deleteDeviceById(id);
-        } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e.getMessage());
-        }
+        deviceService.deleteDeviceById(id);
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -139,8 +109,7 @@ public class DeviceController {
     @PostMapping(value = "/")
     @Validated(OnDeviceCreate.class)
     public ResponseEntity<?> createDevice(@RequestBody @Valid DeviceDTO deviceDTO) {
-        DeviceDTO dto;
-        dto = deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
+        DeviceDTO dto = deviceMapper.entityToDTO(deviceService.createDevice(deviceMapper.dTOToEntity(deviceDTO)));
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -150,19 +119,11 @@ public class DeviceController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/{id}")
     public ResponseEntity<?> updateDeviceById(@PathVariable("id") Long id, @RequestBody DeviceDTO deviceDTO) {
-
-        try {
-            deviceService.updateDevice(id, deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
-        } catch (RuntimeException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e);
-        }
+        deviceService.updateDevice(id, deviceMapper.dTOToEntity(deviceDTO), deviceDTO.getActiveProperties());
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(null);
-
+                .build();
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
@@ -170,76 +131,48 @@ public class DeviceController {
     @Validated(OnDevicesReplace.class)
     public ResponseEntity<?> replaceDeviceById(@PathVariable("id") Long oldDeviceId,
                                                @Valid @RequestBody DeviceDTO newDeviceDTO) {
-
-        try {
-            deviceService.replaceDevice(oldDeviceId, newDeviceDTO.getId(), newDeviceDTO.getStatus(), newDeviceDTO.getReplacementType());
-        } catch (RuntimeException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e);
-        }
+        deviceService.replaceDevice(oldDeviceId, newDeviceDTO.getId(), newDeviceDTO.getStatus(), newDeviceDTO.getReplacementType());
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(null);
+                .build();
 
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/set/{id}")
     @Validated(OnDeviceSet.class)
-    public ResponseEntity<?> setDeviceById(@PathVariable("id") Long deviceId, @Valid @RequestBody DeviceDTO deviceDTO) {
-
-        try {
-            deviceService.setDeviceTo(deviceId, deviceDTO.getStatus(), deviceDTO.getFacilityId(), deviceDTO.getLocationId());
-        } catch (RuntimeException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e.getMessage());
-        }
+    public ResponseEntity<?> setDeviceById(@PathVariable("id") Long deviceId,
+                                           @Valid @RequestBody DeviceDTO deviceDTO) {
+        deviceService.setDeviceTo(deviceId, deviceDTO.getStatus(), deviceDTO.getFacilityId(), deviceDTO.getLocationId());
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(null);
-
+                .build();
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/unset/{id}")
     @Validated(OnDeviceUnset.class)
-    public ResponseEntity<?> unsetDeviceById(@PathVariable("id") Long deviceId, @Valid @RequestBody DeviceDTO deviceDTO) {
-
-        try {
-            deviceService.unsetDevice(deviceId, deviceDTO.getFacilityId());
-        } catch (RuntimeException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e);
-        }
+    public ResponseEntity<?> unsetDeviceById(@PathVariable("id") Long deviceId,
+                                             @Valid @RequestBody DeviceDTO deviceDTO) {
+        deviceService.unsetDevice(deviceId, deviceDTO.getFacilityId());
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(null);
-
+                .build();
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.PUT)
     @PutMapping(value = "/decommission/{id}")
     @Validated(OnDeviceUnset.class)
     public ResponseEntity<?> decommissionDeviceById(@PathVariable("id") Long deviceId) {
-
-        try {
-            DeviceEntity deviceEntity = deviceService.findDeviceById(deviceId);
-            deviceService.decommissionDevice(deviceEntity);
-        } catch (RuntimeException e) {
-            return ResponseEntity.unprocessableEntity()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(e);
-        }
+        DeviceEntity deviceEntity = deviceService.findDeviceById(deviceId);
+        deviceService.decommissionDevice(deviceEntity);
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(null);
+                .build();
 
     }
 }

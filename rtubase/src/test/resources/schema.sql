@@ -2,7 +2,7 @@ CREATE SCHEMA IF NOT EXISTS drtu;
 
 create table IF NOT EXISTS drtu.d_dist
 (
-    id        varchar(5) not null
+    id        bigint not null
         constraint d_dist_pkey
             primary key,
     id_rail   char,
@@ -305,4 +305,49 @@ create table IF NOT EXISTS drtu.s_devgrp
 create sequence IF NOT EXISTS drtu.seq_devid
     start with 300000
     maxvalue 999999;
+
+
+
+
+
+create schema if not exists public;
+
+create table if not exists public.roles
+(
+    id   bigint  not null
+        constraint roles_pk
+            primary key,
+    name varchar not null
+);
+
+create unique index if not exists roles_name_uindex
+    on roles (name);
+
+create unique index if not exists roles_id_uindex
+    on roles (id);
+
+create table if not exists public.users
+(
+    id          bigserial
+        constraint users_pk
+            primary key,
+    name        varchar,
+    password    varchar,
+    subdivision varchar,
+    permit_code varchar default '9999'::character varying
+);
+
+create unique index if not exists users_id_uindex
+    on users (id);
+
+create unique index if not exists users_name_uindex
+    on users (name);
+
+create table if not exists public.users_roles
+(
+    user_id  bigint,
+    roles_id bigint
+);
+
+
 
