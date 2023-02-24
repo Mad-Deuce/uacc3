@@ -23,7 +23,6 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 
 @SqlGroup({
-        @Sql(scripts = "/IT/Device/sql/schema.sql"),
         @Sql(scripts = "/IT/Device/sql/DeviceUpdateIT.sql")
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -44,6 +43,7 @@ class DeviceUpdateIT {
         Assertions.assertEquals("00000001", beforeUpdateEntity.getNumber());
 
         Response response = given()
+                .auth().preemptive().basic("admin", "user")
                 .basePath("/api/devices/")
                 .port(port)
                 .contentType(JSON)

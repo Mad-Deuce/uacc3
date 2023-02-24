@@ -23,7 +23,6 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 
 @SqlGroup({
-        @Sql(scripts = "/IT/Device/sql/schema.sql"),
         @Sql(scripts = "/IT/Device/sql/DeviceUnsetIT.sql")
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -40,6 +39,7 @@ class DeviceUnsetIT {
     void unsetDevice(Long deviceId, DeviceDTO deviceDTO) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/")
                 .port(port)
                 .contentType(JSON)

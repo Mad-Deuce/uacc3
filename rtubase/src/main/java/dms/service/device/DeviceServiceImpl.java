@@ -12,8 +12,6 @@ import dms.repository.DeviceRepository;
 import dms.repository.LocationRepository;
 import dms.standing.data.dock.val.ReplacementType;
 import dms.standing.data.dock.val.Status;
-import dms.standing.data.entity.DeviceTypeEntity;
-import dms.standing.data.entity.DeviceTypeGroupEntity;
 import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.repository.LineFacilityRepository;
 import dms.standing.data.repository.RtdFacilityRepository;
@@ -27,20 +25,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
 import java.lang.reflect.Field;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -75,13 +68,20 @@ public class DeviceServiceImpl implements DeviceService {
         this.locationRepository = locationRepository;
     }
 
+
+    @PostAuthorize(
+            "(hasRole('ADMIN') || hasRole('OPERATOR') || hasRole('VIEWER')) && " +
+                    "returnObject.facility.id.substring(0, authentication.principal.permitCode.length()) " +
+                    "== authentication.principal.permitCode"
+    )
     @Override
     public DeviceEntity findDeviceById(Long id) {
         return deviceRepository.findById(id).orElseThrow();
     }
 
+    @PostAuthorize("(hasRole('ADMIN') || hasRole('OPERATOR') || hasRole('VIEWER'))")
     @Override
-    public Page<DeviceEntity> findDevicesByQuery(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
+    public Page<DeviceEntity> findDevicesByFilter(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException {
 
         Long contentSize = (Long) em.createQuery(
                         "SELECT count (distinct d.id) " +
@@ -93,12 +93,12 @@ public class DeviceServiceImpl implements DeviceService {
 
         List<DeviceEntity> content = em.createQuery(
                         "SELECT d " +
-                                "FROM DeviceEntity d " +
-                                "JOIN FETCH d.type t " +
-                                "JOIN FETCH t.group g " +
-                                "LEFT JOIN FETCH d.facility f " +
-                                "LEFT JOIN FETCH d.location l " +
-                                "WHERE 1=1 " +
+                                " FROM DeviceEntity d " +
+                                " JOIN FETCH d.type t " +
+                                " JOIN FETCH t.group g " +
+                                " LEFT JOIN FETCH d.facility f " +
+                                " LEFT JOIN FETCH d.location l " +
+                                " WHERE 1=1 " +
                                 getQueryConditionsPart(deviceFilter) +
                                 deviceAuthService.getAuthConditionsPartOfFindDeviceByFilterQuery() +
                                 " ORDER BY d.id ASC", DeviceEntity.class)
@@ -107,7 +107,6 @@ public class DeviceServiceImpl implements DeviceService {
                 .getResultList();
 
         return new PageImpl<>(content, pageable, contentSize);
-
     }
 
     private String getQueryConditionsPart(DeviceFilter deviceFilter) throws NoSuchFieldException {
@@ -194,63 +193,18 @@ public class DeviceServiceImpl implements DeviceService {
         return queryConditionsPart.toString();
     }
 
-    @Override
-    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, DeviceFilter deviceFilter) {
-        return deviceRepository.findAll(getSpecification(deviceFilter), pageable);
-    }
-
-    private Specification<DeviceFilter> getSpecification(DeviceFilter deviceFilter) {
-
-        return (root, criteriaQuery, criteriaBuilder) -> {
-            Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
-            Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
-            Join<DeviceEntity, LocationEntity> location = root.join("location");
-            Join<DeviceEntity, FacilityEntity> facility = root.join("facility");
-
-            Map<String, Join<?, ?>> joinsMap = new HashMap<>();
-            joinsMap.put("type", type);
-            joinsMap.put("group", group);
-            joinsMap.put("location", location);
-            joinsMap.put("facility", facility);
-
-            criteriaQuery.distinct(false);
-
-            Predicate predicateDefault = criteriaBuilder.equal(root, root);
-
-            List<Predicate> predicates = new ArrayList<>();
-
-            for (ExplicitDeviceMatcher item : ExplicitDeviceMatcher.values()) {
-                if (getProperty(deviceFilter, item) != null) {
-
-                    String[] splitArr = item.getEntityPropertyName().split("\\.");
-
-                    if (splitArr.length == 1) {
-                        predicates.add(criteriaBuilder.like(
-                                root.get(splitArr[0]).as(String.class),
-                                "%" + getProperty(deviceFilter, item) + "%"));
-                    } else {
-                        predicates.add(criteriaBuilder.like(
-                                joinsMap.get(splitArr[splitArr.length - 2])
-                                        .get(splitArr[splitArr.length - 1]).as(String.class),
-                                "%" + getProperty(deviceFilter, item) + "%"));
-                    }
-                }
-            }
-
-            return predicates.stream().reduce(predicateDefault, criteriaBuilder::and);
-        };
-    }
-
     @SneakyThrows
     private String getProperty(DeviceFilter deviceFilter, ExplicitDeviceMatcher item) {
         return BeanUtils.getProperty(deviceFilter, item.getFilterPropertyName());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
-    public void deleteDeviceById(Long id) {
-        deviceRepository.deleteById(id);
+    public void deleteDeviceById(DeviceEntity deviceEntity) {
+        deviceRepository.deleteById(deviceEntity.getId());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public void updateDevice(Long id, DeviceEntity deviceEntity, List<ExplicitDeviceMatcher> activeProperties) {
 
@@ -274,6 +228,11 @@ public class DeviceServiceImpl implements DeviceService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize(
+            "(hasRole('ADMIN') || hasRole('OPERATOR')) && " +
+                    "#deviceEntity.facility.id.substring(0, authentication.principal.permitCode.length()) " +
+                    "== authentication.principal.permitCode"
+    )
     @Override
     public DeviceEntity createDevice(DeviceEntity deviceEntity) {
         deviceValidator.onCreateValidation(deviceEntity);
@@ -287,38 +246,45 @@ public class DeviceServiceImpl implements DeviceService {
         return deviceRepository.saveAndFlush(deviceEntity);
     }
 
+
+    @PreAuthorize(
+            "(hasRole('ADMIN') || hasRole('OPERATOR')) && " +
+                    "#oldDeviceEntity.facility.id.substring(0, authentication.principal.permitCode.length()) " +
+                    "== authentication.principal.permitCode"
+    )
     @Override
-    public void replaceDevice(Long oldDeviceId, Long newDeviceId, String status, ReplacementType replacementType) {
+    public void replaceDevice(DeviceEntity oldDeviceEntity,
+                              DeviceEntity newDeviceEntity,
+                              String status,
+                              ReplacementType replacementType) {
 
         if (status.equals(Status.PS21.getName())) {
-            replaceDeviceToAvzLine(oldDeviceId, newDeviceId, replacementType);
+            deviceValidator.onReplaceToAvzLineValidation(oldDeviceEntity, newDeviceEntity, replacementType);
+            newDeviceEntity.setStatus(Status.PS21);
+            newDeviceEntity.setLocation(null);
+            oldDeviceEntity.setLocation(null);
         }
 
         if (status.equals(Status.PS32.getName())) {
-            replaceDeviceToAvzRtd(oldDeviceId, newDeviceId, replacementType);
+            deviceValidator.onReplaceToAvzRtdValidation(oldDeviceEntity, newDeviceEntity, replacementType);
+            newDeviceEntity.setStatus(Status.PS32);
+            newDeviceEntity.setLocation(null);
+            oldDeviceEntity.setLocation(null);
         }
 
         if (status.equals(Status.PS11.getName())) {
-            replaceDeviceToLine(oldDeviceId, newDeviceId, replacementType);
+            deviceValidator.onReplaceToLineValidation(oldDeviceEntity, newDeviceEntity, replacementType);
+            newDeviceEntity.setStatus(Status.PS11);
+            newDeviceEntity.setLocation(oldDeviceEntity.getLocation());
+            oldDeviceEntity.setLocation(null);
+
         }
-    }
 
-    private void replaceDeviceToAvzLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
-
-        DeviceEntity oldDeviceEntity = deviceRepository.findById(oldDeviceId).orElseThrow(DeviceValidationException::new);
-        DeviceEntity newDeviceEntity = deviceRepository.findById(newDeviceId).orElseThrow(DeviceValidationException::new);
-
-        deviceValidator.onReplaceToAvzLineValidation(oldDeviceEntity, newDeviceEntity, replacementType);
-
-        newDeviceEntity.setStatus(Status.PS21);
         oldDeviceEntity.setStatus(Status.PS31);
 
         FacilityEntity newDeviceFacility = newDeviceEntity.getFacility();
         newDeviceEntity.setFacility(oldDeviceEntity.getFacility());
         oldDeviceEntity.setFacility(newDeviceFacility);
-
-        newDeviceEntity.setLocation(null);
-        oldDeviceEntity.setLocation(null);
 
         newDeviceEntity.setDetail(replacementType.getComment());
         oldDeviceEntity.setDetail(replacementType.getComment());
@@ -328,75 +294,35 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.flush();
     }
 
-    private void replaceDeviceToAvzRtd(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
-
-        DeviceEntity oldDeviceEntity = deviceRepository.findById(oldDeviceId).orElseThrow(DeviceValidationException::new);
-        DeviceEntity newDeviceEntity = deviceRepository.findById(newDeviceId).orElseThrow(DeviceValidationException::new);
-
-        deviceValidator.onReplaceToAvzRtdValidation(oldDeviceEntity, newDeviceEntity, replacementType);
-
-        newDeviceEntity.setStatus(Status.PS32);
-        oldDeviceEntity.setStatus(Status.PS31);
-
-        FacilityEntity newDeviceFacility = newDeviceEntity.getFacility();
-        newDeviceEntity.setFacility(oldDeviceEntity.getFacility());
-        oldDeviceEntity.setFacility(newDeviceFacility);
-
-        newDeviceEntity.setLocation(null);
-        oldDeviceEntity.setLocation(null);
-
-        newDeviceEntity.setDetail(replacementType.getComment());
-        oldDeviceEntity.setDetail(replacementType.getComment());
-
-        deviceRepository.save(newDeviceEntity);
-        deviceRepository.save(oldDeviceEntity);
-        deviceRepository.flush();
-    }
-
-    private void replaceDeviceToLine(Long oldDeviceId, Long newDeviceId, ReplacementType replacementType) {
-
-        DeviceEntity oldDeviceEntity = deviceRepository.findById(oldDeviceId).orElseThrow(DeviceValidationException::new);
-        DeviceEntity newDeviceEntity = deviceRepository.findById(newDeviceId).orElseThrow(DeviceValidationException::new);
-
-        deviceValidator.onReplaceToLineValidation(oldDeviceEntity, newDeviceEntity, replacementType);
-
-        newDeviceEntity.setStatus(Status.PS11);
-        oldDeviceEntity.setStatus(Status.PS31);
-
-        FacilityEntity newDeviceFacility = newDeviceEntity.getFacility();
-        newDeviceEntity.setFacility(oldDeviceEntity.getFacility());
-        oldDeviceEntity.setFacility(newDeviceFacility);
-
-        newDeviceEntity.setLocation(oldDeviceEntity.getLocation());
-        oldDeviceEntity.setLocation(null);
-
-        newDeviceEntity.setDetail(replacementType.getComment());
-        oldDeviceEntity.setDetail(replacementType.getComment());
-
-        deviceRepository.save(newDeviceEntity);
-        deviceRepository.save(oldDeviceEntity);
-        deviceRepository.flush();
-    }
-
+    @PreAuthorize(
+            "(hasRole('ADMIN') || hasRole('OPERATOR')) && " +
+                    "#deviceEntity.facility.id.substring(0, authentication.principal.permitCode.length()) " +
+                    "== authentication.principal.permitCode"
+    )
     @Override
-    public void setDeviceTo(Long deviceId, String status, String facilityId, Long locationId) {
+    public void setDeviceTo(DeviceEntity deviceEntity,
+                            String status,
+                            String facilityId,
+                            Long locationId) {
+
         if (status.equals(Status.PS21.getName())) {
-            setDeviceToAvzLine(deviceId, facilityId);
+            setDeviceToAvzLine(deviceEntity, facilityId);
         }
 
         if (status.equals(Status.PS32.getName())) {
-            setDeviceToAvzRtd(deviceId, facilityId);
+            setDeviceToAvzRtd(deviceEntity, facilityId);
         }
 
         if (status.equals(Status.PS11.getName())) {
-            setDeviceToLine(deviceId, locationId);
+            setDeviceToLine(deviceEntity, locationId);
         }
+
+        deviceRepository.save(deviceEntity);
+        deviceRepository.flush();
     }
 
-    private void setDeviceToLine(Long deviceId, Long locationId) {
+    private void setDeviceToLine(DeviceEntity deviceEntity, Long locationId) {
 
-        DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
-                .orElseThrow(DeviceValidationException::new);
         LocationEntity locationEntity = locationRepository.findById(locationId)
                 .orElseThrow(DeviceValidationException::new);
         FacilityEntity facilityEntity = lineFacilityRepository.findById(locationEntity.getFacility().getId())
@@ -409,15 +335,10 @@ public class DeviceServiceImpl implements DeviceService {
         deviceEntity.setLocation(locationEntity);
         deviceEntity.setFacility(facilityEntity);
         deviceEntity.setDetail(ReplacementType.NEW.getComment());
-
-        deviceRepository.save(deviceEntity);
-        deviceRepository.flush();
     }
 
-    private void setDeviceToAvzLine(Long deviceId, String facilityId) {
+    private void setDeviceToAvzLine(DeviceEntity deviceEntity, String facilityId) {
 
-        DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
-                .orElseThrow(DeviceValidationException::new);
         FacilityEntity facilityEntity = lineFacilityRepository.findById(facilityId).orElseThrow();
 
         deviceValidator.onSetDeviceToAvzLineValidation(deviceEntity, facilityEntity);
@@ -427,17 +348,11 @@ public class DeviceServiceImpl implements DeviceService {
         deviceEntity.setLocation(null);
         deviceEntity.setFacility(facilityEntity);
         deviceEntity.setDetail(ReplacementType.NEW.getComment());
-
-        deviceRepository.save(deviceEntity);
-        deviceRepository.flush();
     }
 
-    private void setDeviceToAvzRtd(Long deviceId, String facilityId) {
+    private void setDeviceToAvzRtd(DeviceEntity deviceEntity, String facilityId) {
 
-        DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
-                .orElseThrow(DeviceValidationException::new);
         FacilityEntity facilityEntity = rtdFacilityRepository.findById(facilityId).orElseThrow();
-
 
         deviceValidator.onSetDeviceToAvzRtdValidation(deviceEntity, facilityEntity);
 
@@ -446,15 +361,15 @@ public class DeviceServiceImpl implements DeviceService {
         deviceEntity.setLocation(null);
         deviceEntity.setFacility(facilityEntity);
         deviceEntity.setDetail(ReplacementType.NEW.getComment());
-
-        deviceRepository.save(deviceEntity);
-        deviceRepository.flush();
     }
 
+    @PreAuthorize(
+            "(hasRole('ADMIN') || hasRole('OPERATOR')) && " +
+                    "#deviceEntity.facility.id.substring(0, authentication.principal.permitCode.length()) " +
+                    "== authentication.principal.permitCode"
+    )
     @Override
-    public void unsetDevice(Long deviceId, String facilityId) {
-        DeviceEntity deviceEntity = deviceRepository.findById(deviceId)
-                .orElseThrow(DeviceValidationException::new);
+    public void unsetDevice(DeviceEntity deviceEntity, String facilityId) {
         FacilityEntity facilityEntity = rtdFacilityRepository.findById(facilityId)
                 .orElseThrow(DeviceValidationException::new);
 
@@ -471,13 +386,12 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @PreAuthorize(
-            "(hasRole('ROLE_ADMIN') || hasRole('ROLE_OPERATOR'))" +
-                    "&& #deviceEntity.facility.id.substring(0, authentication.principal.permitCode.length()) " +
+            "(hasRole('ADMIN') || hasRole('OPERATOR')) && " +
+                    "#deviceEntity.facility.id.substring(0, authentication.principal.permitCode.length()) " +
                     "== authentication.principal.permitCode"
     )
     @Override
     public void decommissionDevice(DeviceEntity deviceEntity) {
-
 
         deviceValidator.onDecommissionDeviceValidation(deviceEntity);
 

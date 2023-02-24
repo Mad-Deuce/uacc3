@@ -50,7 +50,7 @@ public class DeviceController {
     @GetMapping(value = "/by-filter")
     public ResponseEntity<?> findDevicesByFilter(Pageable pageable, DeviceDTO deviceDTO) throws NoSuchFieldException {
         Page<DeviceDTO> devices = deviceMapper.entityToDTOPage(deviceService
-                    .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO)));
+                    .findDevicesByFilter(pageable, deviceMapper.dTOToFilter(deviceDTO)));
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -59,7 +59,7 @@ public class DeviceController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/exportToXls")
-    public void exportDevicesByQuery(Pageable pageable, DeviceDTO deviceDTO, HttpServletResponse response)
+    public void exportDevicesByFilter(Pageable pageable, DeviceDTO deviceDTO, HttpServletResponse response)
             throws NoSuchFieldException, IOException, IllegalAccessException {
 
 //        pageable = PageRequest.of(0, Integer.MAX_VALUE);
@@ -73,7 +73,7 @@ public class DeviceController {
         response.setHeader(headerKey, headerValue);
 
         List<DeviceDTO> devicesList = deviceMapper.entityToDTOPage(deviceService
-                .findDevicesByQuery(pageable, deviceMapper.dTOToFilter(deviceDTO))).getContent();
+                .findDevicesByFilter(pageable, deviceMapper.dTOToFilter(deviceDTO))).getContent();
 
         DeviceReportExporter deviceReportExporter = new DeviceReportExporter();
         XSSFWorkbook workbook = deviceReportExporter.generateWorkbook(devicesList, currentDateTime, deviceDTO);
@@ -98,7 +98,8 @@ public class DeviceController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.DELETE)
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteDeviceById(@PathVariable("id") @NotNull Long id) {
-        deviceService.deleteDeviceById(id);
+        DeviceEntity deviceEntity = deviceService.findDeviceById(id);
+        deviceService.deleteDeviceById(deviceEntity);
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +132,9 @@ public class DeviceController {
     @Validated(OnDevicesReplace.class)
     public ResponseEntity<?> replaceDeviceById(@PathVariable("id") Long oldDeviceId,
                                                @Valid @RequestBody DeviceDTO newDeviceDTO) {
-        deviceService.replaceDevice(oldDeviceId, newDeviceDTO.getId(), newDeviceDTO.getStatus(), newDeviceDTO.getReplacementType());
+        DeviceEntity oldDeviceEntity = deviceService.findDeviceById(oldDeviceId);
+        DeviceEntity newDeviceEntity = deviceService.findDeviceById(newDeviceDTO.getId());
+        deviceService.replaceDevice(oldDeviceEntity, newDeviceEntity, newDeviceDTO.getStatus(), newDeviceDTO.getReplacementType());
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -144,7 +147,8 @@ public class DeviceController {
     @Validated(OnDeviceSet.class)
     public ResponseEntity<?> setDeviceById(@PathVariable("id") Long deviceId,
                                            @Valid @RequestBody DeviceDTO deviceDTO) {
-        deviceService.setDeviceTo(deviceId, deviceDTO.getStatus(), deviceDTO.getFacilityId(), deviceDTO.getLocationId());
+        DeviceEntity deviceEntity = deviceService.findDeviceById(deviceId);
+        deviceService.setDeviceTo(deviceEntity, deviceDTO.getStatus(), deviceDTO.getFacilityId(), deviceDTO.getLocationId());
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -156,7 +160,8 @@ public class DeviceController {
     @Validated(OnDeviceUnset.class)
     public ResponseEntity<?> unsetDeviceById(@PathVariable("id") Long deviceId,
                                              @Valid @RequestBody DeviceDTO deviceDTO) {
-        deviceService.unsetDevice(deviceId, deviceDTO.getFacilityId());
+        DeviceEntity deviceEntity = deviceService.findDeviceById(deviceId);
+        deviceService.unsetDevice(deviceEntity, deviceDTO.getFacilityId());
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)

@@ -26,7 +26,6 @@ import static io.restassured.http.ContentType.JSON;
 
 
 @SqlGroup({
-        @Sql(scripts = "/IT/Device/sql/schema.sql"),
         @Sql(scripts = "/IT/Device/sql/DeviceCreateIT.sql")
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

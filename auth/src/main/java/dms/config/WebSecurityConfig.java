@@ -43,7 +43,7 @@ public class WebSecurityConfig {
                 .httpBasic();
         httpSecurity
                 .authorizeRequests()
-                .antMatchers("/api/devices/decommission/**").hasRole("OPERATOR")
+//                .antMatchers("/api/devices/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
@@ -52,6 +52,4 @@ public class WebSecurityConfig {
         ;
         return httpSecurity.build();
     }
-
-
 }

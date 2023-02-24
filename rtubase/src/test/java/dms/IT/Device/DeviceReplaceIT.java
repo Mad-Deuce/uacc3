@@ -24,7 +24,6 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 
 @SqlGroup({
-        @Sql(scripts = "/IT/Device/sql/schema.sql"),
         @Sql(scripts = "/IT/Device/sql/DeviceReplaceIT.sql")
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -41,6 +40,7 @@ class DeviceReplaceIT {
     void replaceDevice(Long oldDeviceId, DeviceDTO newDeviceDTO) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/")
                 .port(port)
                 .contentType(JSON)

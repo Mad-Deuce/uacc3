@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<?> handleNoSuchElementException(NoSuchElementException ex) {
-        return new ResponseEntity<>(ex, new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(ex.getMessage(), new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(NoSuchFieldException.class)

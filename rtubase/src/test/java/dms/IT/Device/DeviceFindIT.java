@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import static io.restassured.RestAssured.given;
 
 @SqlGroup({
-        @Sql(scripts = "/IT/Device/sql/schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
         @Sql(scripts = "/IT/Device/sql/DeviceFindIT.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -43,6 +42,7 @@ class DeviceFindIT {
     void findDevicesByFilter(HashMap<String, ?> filter, DeviceDTO expectedResult) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParams(filter)
                 .port(port)
@@ -78,6 +78,7 @@ class DeviceFindIT {
     void findDevicesByFilterLikeString(String value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("typeGroupName", value)
                 .port(port)
@@ -106,6 +107,7 @@ class DeviceFindIT {
     void findDevicesByFilterMinString(String value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("releaseYearMin", value)
                 .port(port)
@@ -131,6 +133,7 @@ class DeviceFindIT {
     void findDevicesByFilterMaxString(String value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("releaseYearMax", value)
                 .port(port)
@@ -156,6 +159,7 @@ class DeviceFindIT {
     void findDevicesByFilterDate(String value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("testDate", value)
                 .port(port)
@@ -178,6 +182,7 @@ class DeviceFindIT {
     void findDevicesByFilterMaxDate(String value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("nextTestDateMax", value)
                 .port(port)
@@ -201,6 +206,7 @@ class DeviceFindIT {
     void findDevicesByFilterMinDate(String value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("nextTestDateMin", value)
                 .port(port)
@@ -225,6 +231,7 @@ class DeviceFindIT {
     void findDevicesByFilterLikeLong(Long value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("id", value)
                 .port(port)
@@ -253,6 +260,7 @@ class DeviceFindIT {
     void findDevicesByFilterMaxInteger(int value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("replacementPeriodMax", value)
                 .port(port)
@@ -277,6 +285,7 @@ class DeviceFindIT {
     void findDevicesByFilterMinInteger(int value) {
 
         Response response = given()
+                .auth().preemptive().basic("user_operator", "user")
                 .basePath("/api/devices/by-filter")
                 .queryParam("replacementPeriodMin", value)
                 .port(port)
