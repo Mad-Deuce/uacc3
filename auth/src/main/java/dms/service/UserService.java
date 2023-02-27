@@ -1,42 +1,27 @@
 package dms.service;
 
-import dms.entity.RoleEntity;
+
+
 import dms.entity.UserEntity;
-import dms.repository.RoleRepository;
-import dms.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-@Service
-public class UserService {
+import java.util.List;
 
-    @Autowired
-    private UserRepository userEntityRepository;
-    @Autowired
-    private RoleRepository roleEntityRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+/**
+ * Service interface for class {@link UserEntity}.
+ *
+ * @author Eugene Suleimanov
+ * @version 1.0
+ */
 
-    public UserEntity saveUser(UserEntity userEntity) {
-        RoleEntity userRole = roleEntityRepository.findByName("ROLE_USER");
-        userEntity.setRoleEntity(userRole);
-        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        return userEntityRepository.save(userEntity);
-    }
+public interface UserService {
 
-    public UserEntity findByLogin(String login) {
-        return userEntityRepository.findByLogin(login);
-    }
+    UserEntity register(UserEntity user);
 
-    public UserEntity findByLoginAndPassword(String login, String password) {
-        UserEntity userEntity = findByLogin(login);
-        if (userEntity != null) {
-            if (passwordEncoder.matches(password, userEntity.getPassword())) {
-                return userEntity;
-            }
-        }
-        return null;
-    }
+    List<UserEntity> getAll();
 
+    UserEntity findByLogin(String username);
+
+    UserEntity findById(Long id);
+
+    void delete(Long id);
 }

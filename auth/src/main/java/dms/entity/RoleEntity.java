@@ -1,17 +1,30 @@
 package dms.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(schema = "public", name = "roles")
 @Data
-public class RoleEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@EqualsAndHashCode(callSuper = false)
+public class RoleEntity extends BaseEntity {
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     @Column(name = "name")
     private String name;
+
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+    private List<UserEntity> users;
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id: " + super.getId() + ", " +
+                "name: " + name + "}";
+    }
 }

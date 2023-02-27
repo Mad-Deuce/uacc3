@@ -1,8 +1,0 @@
-package dms.repository;
-
-import dms.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface UserRepositoryOld extends JpaRepository<User, Long> {
-    User findByUsername(String username);
-}
