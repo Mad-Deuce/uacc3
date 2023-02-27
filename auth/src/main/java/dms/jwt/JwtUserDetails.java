@@ -1,13 +1,10 @@
 package dms.jwt;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import dms.entity.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 
 public class JwtUserDetails implements UserDetails {
@@ -20,8 +17,6 @@ public class JwtUserDetails implements UserDetails {
     private final boolean enabled;
     private final Date lastPasswordResetDate;
     private final Collection<? extends GrantedAuthority> authorities;
-
-
 
     public JwtUserDetails(
             Long id,

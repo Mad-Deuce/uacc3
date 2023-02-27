@@ -30,34 +30,6 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-//    @Autowired
-//    private UserRepository userEntityRepository;
-//    @Autowired
-//    private RoleRepository roleEntityRepository;
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
-
-//    public UserEntity saveUser(UserEntity userEntity) {
-//        RoleEntity userRole = roleEntityRepository.findByName("ROLE_USER");
-//        userEntity.setRoleEntity(userRole);
-//        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-//        return userEntityRepository.save(userEntity);
-//    }
-//
-//    public UserEntity findByLogin(String login) {
-//        return userEntityRepository.findByLogin(login);
-//    }
-//
-//    public UserEntity findByLoginAndPassword(String login, String password) {
-//        UserEntity userEntity = findByLogin(login);
-//        if (userEntity != null) {
-//            if (passwordEncoder.matches(password, userEntity.getPassword())) {
-//                return userEntity;
-//            }
-//        }
-//        return null;
-//    }
-
     @Override
     public UserEntity register(UserEntity userEntity) {
         RoleEntity roleEntity = roleRepository.findByName("ROLE_USER");

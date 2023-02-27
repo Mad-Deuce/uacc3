@@ -27,8 +27,17 @@ public class JwtTokenProvider {
     @Value("${jwt.token.expired}")
     private long validityInMilliseconds;
 
+
     @Autowired
     private JwtUserDetailsService userDetailsService;
+
+//    private final JwtUserDetailsService userDetailsService;
+//
+//    @Autowired
+//    public JwtTokenProvider(JwtUserDetailsService userDetailsService) {
+//        this.userDetailsService = userDetailsService;
+//    }
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -68,7 +77,7 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);
         }
         return null;
     }
@@ -77,11 +86,9 @@ public class JwtTokenProvider {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
 
-            if (claims.getBody().getExpiration().before(new Date())) {
-                return false;
-            }
+            return !claims.getBody().getExpiration().before(new Date());
 
-            return true;
+
         } catch (JwtException | IllegalArgumentException e) {
             throw new JwtAuthenticationException("JWT token is expired or invalid");
         }
@@ -91,9 +98,7 @@ public class JwtTokenProvider {
     private List<String> getRoleNames(List<RoleEntity> roleEntities) {
         List<String> result = new ArrayList<>();
 
-        roleEntities.forEach(role -> {
-            result.add(role.getName());
-        });
+        roleEntities.forEach(role -> result.add(role.getName()));
 
         return result;
     }

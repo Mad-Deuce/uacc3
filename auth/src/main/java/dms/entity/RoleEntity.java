@@ -11,9 +11,6 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class RoleEntity extends BaseEntity {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
 
     @Column(name = "name")
     private String name;

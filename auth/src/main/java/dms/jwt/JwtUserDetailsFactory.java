@@ -7,17 +7,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
-/**
- * Implementation of Factory Method for class {@link JwtUserDetails}.
- *
- * @author Eugene Suleimanov
- * @version 1.0
- */
 
 public final class JwtUserDetailsFactory {
 
@@ -34,10 +25,8 @@ public final class JwtUserDetailsFactory {
                 userEntity.getStatus().equals(Status.ACTIVE),
                 userEntity.getUpdated(),
                 mapToGrantedAuthorities(new ArrayList<>(userEntity.getRoles()))
-
         );
     }
-
 
     private static List<GrantedAuthority> mapToGrantedAuthorities(List<RoleEntity> roleEntities) {
         return roleEntities.stream()

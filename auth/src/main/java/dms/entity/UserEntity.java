@@ -11,9 +11,6 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class UserEntity extends BaseEntity{
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
 
     @Column(name = "name")
     private String username;
@@ -26,10 +23,6 @@ public class UserEntity extends BaseEntity{
 
     @Column(name = "permit_code")
     private String permitCode;
-
-//    @ManyToOne
-//    @JoinColumn(name = "role_id")
-//    private RoleEntity roleEntity;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
