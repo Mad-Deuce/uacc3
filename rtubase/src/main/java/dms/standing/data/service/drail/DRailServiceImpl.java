@@ -1,7 +1,7 @@
 package dms.standing.data.service.drail;
 
 import dms.standing.data.entity.RailwayEntity;
-import dms.standing.data.repository.DRailRepository;
+import dms.standing.data.repository.RailwayRepository;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -19,16 +19,16 @@ import java.util.List;
 @Service
 public class DRailServiceImpl implements DRailService {
 
-    private final DRailRepository dRailRepository;
+    private final RailwayRepository railwayRepository;
 
     @Autowired
-    public DRailServiceImpl(DRailRepository dRailRepository) {
-        this.dRailRepository = dRailRepository;
+    public DRailServiceImpl(RailwayRepository railwayRepository) {
+        this.railwayRepository = railwayRepository;
     }
 
     @Override
     public List<RailwayEntity> getAll() {
-        return dRailRepository.findAll();
+        return railwayRepository.findAll();
     }
 
     @Override
@@ -59,6 +59,6 @@ public class DRailServiceImpl implements DRailService {
             rails.add(rail);
 
         }
-        dRailRepository.saveAll(rails);
+        railwayRepository.saveAll(rails);
     }
 }
