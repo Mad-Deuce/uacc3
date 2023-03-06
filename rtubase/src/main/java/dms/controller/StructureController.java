@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,8 +25,9 @@ public class StructureController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/root")
     public ResponseEntity<?> getRoot() {
+        List<StructureDTO> result = new ArrayList<>();
 
-        StructureDTO result = structureService.getRoot();
+        result.add(structureService.getRoot());
 
         return ResponseEntity
                 .ok()

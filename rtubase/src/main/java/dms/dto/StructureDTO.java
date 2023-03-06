@@ -10,16 +10,20 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StructureDTO {
     private String id;
-    private Status status;
-    private RegionType regionType;
-    private String name;
-    private boolean hasChildren;
+    private String status;
+    private String regionType;
+    private String item;
+    private boolean expandable;
+    private boolean isLoading;
+    private int level;
 
-    public StructureDTO(String id, Status status, RegionType regionType, String name, boolean hasChildren) {
+    public StructureDTO(String id, String status, String regionType, String item, boolean expandable, int level) {
         this.id = id;
         this.status = status;
         this.regionType = regionType;
-        this.name = name;
-        this.hasChildren = hasChildren;
+        this.item = item;
+        this.expandable = expandable;
+        this.isLoading=true;
+        this.level=level;
     }
 }
