@@ -40,7 +40,11 @@ public class StructureController {
     @GetMapping(value = "/")
     public ResponseEntity<?> getChildren(StructureDTO structureDTO) {
 
-        List<StructureDTO> result = structureService.getChildren(structureDTO.getId(), structureDTO.getRegionType());
+        List<StructureDTO> result = structureService.getChildren(
+                structureDTO.getId(),
+                structureDTO.getRegionType(),
+                structureDTO.getCls()
+        );
 
         return ResponseEntity
                 .ok()

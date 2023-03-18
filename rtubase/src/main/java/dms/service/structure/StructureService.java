@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface StructureService {
 
-    List<StructureDTO> getChildren(String id, String regionType);
+    List<StructureDTO> getChildren(String id, String regionType, String parentCls);
 
     StructureDTO getRoot();
 }

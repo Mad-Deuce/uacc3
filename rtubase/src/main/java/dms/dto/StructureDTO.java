@@ -16,8 +16,9 @@ public class StructureDTO {
     private boolean expandable;
     private boolean isLoading;
     private int level;
+    private String cls;
 
-    public StructureDTO(String id, String status, String regionType, String item, boolean expandable, int level) {
+    public StructureDTO(String id, String status, String regionType, String item, boolean expandable, int level, String cls) {
         this.id = id;
         this.status = status;
         this.regionType = regionType;
@@ -25,5 +26,6 @@ public class StructureDTO {
         this.expandable = expandable;
         this.isLoading=true;
         this.level=level;
+        this.cls=cls;
     }
 }
