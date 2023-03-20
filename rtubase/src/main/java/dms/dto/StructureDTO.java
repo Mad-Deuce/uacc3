@@ -1,8 +1,6 @@
 package dms.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import dms.standing.data.dock.val.RegionType;
-import dms.standing.data.dock.val.Status;
 import lombok.Data;
 
 
@@ -16,9 +14,11 @@ public class StructureDTO {
     private boolean expandable;
     private boolean isLoading;
     private int level;
-    private String cls;
+    private String clsId;
+    private String clsName;
 
-    public StructureDTO(String id, String status, String regionType, String item, boolean expandable, int level, String cls) {
+
+    public StructureDTO(String id, String status, String regionType, String item, boolean expandable, int level, String clsId, String clsName) {
         this.id = id;
         this.status = status;
         this.regionType = regionType;
@@ -26,6 +26,7 @@ public class StructureDTO {
         this.expandable = expandable;
         this.isLoading=true;
         this.level=level;
-        this.cls=cls;
+        this.clsId = clsId;
+        this.clsName = clsName;
     }
 }

@@ -43,7 +43,7 @@ public class StructureController {
         List<StructureDTO> result = structureService.getChildren(
                 structureDTO.getId(),
                 structureDTO.getRegionType(),
-                structureDTO.getCls()
+                structureDTO.getClsId()
         );
 
         return ResponseEntity

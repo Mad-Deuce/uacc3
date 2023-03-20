@@ -40,63 +40,79 @@ public class StructureServiceImpl implements StructureService {
     }
 
     @Override
-    public List<StructureDTO> getChildren(String parentId, String regionType, String parentCls) {
+    public List<StructureDTO> getChildren(String parentId, String regionType, String parentClsId) {
 
-        if (parentCls.equals(Cls.CLS2.getId())) {
+        if (parentClsId.equals(Cls.CLS2.getId())) {
             List<RailwayEntity> entityList = railwayRepository.findAll();
             return entityList.stream()
-                    .map(item -> new StructureDTO(item.getId(), null, null, item.getName(), true, 1, Cls.CLS131.getId()))
+                    .map(item -> new StructureDTO(item.getId(), null, null,
+                            item.getName(), true, 1, Cls.CLS131.getId(), Cls.CLS131.getName()))
                     .collect(Collectors.toList());
         }
 
-        if (parentCls.equals(Cls.CLS131.getId())) {
+        if (parentClsId.equals(Cls.CLS131.getId())) {
             List<SubdivisionEntity> entityList = subdivisionRepository.findAllByIdStartingWithOrderById(parentId);
             return entityList.stream()
-                    .map(item -> new StructureDTO(item.getId(), null, null, item.getName(), true, 2, Cls.CLS132.getId()))
+                    .map(item -> new StructureDTO(item.getId(), null, null,
+                            item.getName(), true, 2, Cls.CLS132.getId(), Cls.CLS132.getName()))
                     .collect(Collectors.toList());
         }
 
-        if (parentCls.equals(Cls.CLS132.getId())) {
+        if (parentClsId.equals(Cls.CLS132.getId())) {
             List<RtdFacilityEntity> entityList = rtdFacilityRepository.findAllByIdStartingWithOrderById(parentId);
             return entityList.stream()
-                    .map(item -> new StructureDTO(item.getId(), null, null, item.getName(), true, 3, Cls.CLS133.getId()))
+                    .map(item -> new StructureDTO(item.getId(), null, null,
+                            item.getName(), true, 3, Cls.CLS133.getId(), Cls.CLS133.getName()))
                     .collect(Collectors.toList());
         }
 
-        if (parentCls.equals(Cls.CLS133.getId())) {
+        if (parentClsId.equals(Cls.CLS133.getId())) {
             List<StructureDTO> result = new ArrayList<>();
-            result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.EC.getName(), Cls.CLS2111.getName(), true, 4, Cls.CLS2111.getId()));
-            result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.PG.getName(), Cls.CLS2112.getName(), true, 4, Cls.CLS2112.getId()));
-            result.add(new StructureDTO(parentId, Status.PS32.getName(), null, Cls.CLS21152.getName(), false, 4, Cls.CLS21152.getId()));
-            result.add(new StructureDTO(parentId, Status.PS31.getName(), null, Cls.CLS21151.getName(), false, 4, Cls.CLS21151.getId()));
+            result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.EC.getName(),
+                    Cls.CLS2111.getName(), true, 4, Cls.CLS2111.getId(), Cls.CLS2111.getName()));
+            result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.PG.getName(),
+                    Cls.CLS2112.getName(), true, 4, Cls.CLS2112.getId(), Cls.CLS2112.getName()));
+            result.add(new StructureDTO(parentId, Status.PS32.getName(), null,
+                    Cls.CLS21152.getName(), false, 4, Cls.CLS21152.getId(), Cls.CLS21152.getName()));
+            result.add(new StructureDTO(parentId, Status.PS31.getName(), null,
+                    Cls.CLS21151.getName(), false, 4, Cls.CLS21151.getId(), Cls.CLS21151.getName()));
             return result;
         }
 
-        if (parentCls.equals(Cls.CLS2111.getId())) {
+        if (parentClsId.equals(Cls.CLS2111.getId())) {
             if (parentId.length() == 7) {
                 List<StructureDTO> result = new ArrayList<>();
-                result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.EC.getName(), Cls.CLS21111.getName(), false, 6, Cls.CLS21111.getId()));
-                result.add(new StructureDTO(parentId, Status.PS21.getName(), RegionType.EC.getName(), Cls.CLS21114.getName(), false, 6, Cls.CLS21114.getId()));
-                result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.EC.getName(), Cls.CLS21112.getName(), false, 6, Cls.CLS21112.getId()));
+                result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.EC.getName(),
+                        Cls.CLS21111.getName(), false, 6, Cls.CLS21111.getId(), Cls.CLS21111.getName()));
+                result.add(new StructureDTO(parentId, Status.PS21.getName(), RegionType.EC.getName(),
+                        Cls.CLS21114.getName(), false, 6, Cls.CLS21114.getId(), Cls.CLS21114.getName()));
+                result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.EC.getName(),
+                        Cls.CLS21112.getName(), false, 6, Cls.CLS21112.getId(), Cls.CLS21112.getName()));
                 return result;
             } else {
-                List<LineFacilityEntity> entityList = lineFacilityRepository.findAllByIdStartingWithOrderById(parentId + "0");
+                List<LineFacilityEntity> entityList = lineFacilityRepository
+                        .findAllByIdStartingWithOrderById(parentId + "0");
                 return entityList.stream()
-                        .map(item -> new StructureDTO(item.getId(), Status.PS11.getName(), RegionType.EC.getName(), item.getName(), true, 5, Cls.CLS2111.getId()))
+                        .map(item -> new StructureDTO(item.getId(), Status.PS11.getName(), RegionType.EC.getName(),
+                                item.getName(), true, 5, Cls.CLS2111.getId(), Cls.CLS2111.getName()))
                         .collect(Collectors.toList());
             }
         }
 
-        if (parentCls.equals(Cls.CLS2112.getId())) {
+        if (parentClsId.equals(Cls.CLS2112.getId())) {
             if (parentId.length() == 7) {
                 List<StructureDTO> result = new ArrayList<>();
-                result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.PG.getName(), Cls.CLS21121.getName(), false, 6, Cls.CLS21121.getId()));
-                result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.PG.getName(), Cls.CLS21122.getName(), false, 6, Cls.CLS21122.getId()));
+                result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.PG.getName(),
+                        Cls.CLS21121.getName(), false, 6, Cls.CLS21121.getId(), Cls.CLS21121.getName()));
+                result.add(new StructureDTO(parentId, Status.PS11.getName(), RegionType.PG.getName(),
+                        Cls.CLS21122.getName(), false, 6, Cls.CLS21122.getId(), Cls.CLS21122.getName()));
                 return result;
             } else {
-                List<LineFacilityEntity> entityList = lineFacilityRepository.findAllByIdStartingWithOrderById(parentId + "2");
+                List<LineFacilityEntity> entityList = lineFacilityRepository
+                        .findAllByIdStartingWithOrderById(parentId + "2");
                 return entityList.stream()
-                        .map(item -> new StructureDTO(item.getId(), Status.PS11.getName(), RegionType.PG.getName(), item.getName(), true, 5, Cls.CLS2112.getId()))
+                        .map(item -> new StructureDTO(item.getId(), Status.PS11.getName(), RegionType.PG.getName(),
+                                item.getName(), true, 5, Cls.CLS2112.getId(), Cls.CLS2112.getName()))
                         .collect(Collectors.toList());
             }
         }
@@ -106,6 +122,7 @@ public class StructureServiceImpl implements StructureService {
 
     @Override
     public StructureDTO getRoot() {
-        return new StructureDTO(null, null, null, Cls.CLS2.getName(), true, 0, Cls.CLS2.getId());
+        return new StructureDTO(null, null, null, Cls.CLS2.getName(), true,
+                0, Cls.CLS2.getId(), Cls.CLS2.getName());
     }
 }
