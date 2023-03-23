@@ -56,6 +56,8 @@ public enum ExplicitDeviceMatcher {
     LOCATE_TYPE_COMMENT("locateTypeComment","locateTypeComment","location.locateType.comment"),
     PLACE_NUMBER("placeNumber","placeNumber","location.placeNumber"),
     PLACE_DETAIL("locationDetail","locationDetail","location.detail"),
+
+    CLS_ID("clsId","clsId","detail"),
     ;
     private final String dtoPropertyName;
     private final String filterPropertyName;

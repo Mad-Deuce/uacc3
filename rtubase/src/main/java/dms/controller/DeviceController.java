@@ -57,6 +57,7 @@ public class DeviceController {
                 .body(devices);
     }
 
+
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/exportToXls")
     public void exportDevicesByFilter(Pageable pageable, DeviceDTO deviceDTO, HttpServletResponse response)

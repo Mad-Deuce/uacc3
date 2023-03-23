@@ -116,7 +116,18 @@ public class DeviceServiceImpl implements DeviceService {
             if (getProperty(deviceFilter, item) != null) {
                 String[] splitProperty = item.getEntityPropertyName().split("\\.");
                 Field field = DeviceEntity.class.getDeclaredField(splitProperty[0]);
-                if (java.util.Date.class.isAssignableFrom(field.getType())) {
+                if (item.equals(ExplicitDeviceMatcher.CLS_ID)) {
+                    if (getProperty(deviceFilter, item).equals("21111")) {
+                        queryConditionsPart
+                                .append(" AND d.status = '11' ");
+                    } else if (getProperty(deviceFilter, item).equals("21114")) {
+                        queryConditionsPart
+                                .append(" AND d.status = '21' ");
+                    } else if (getProperty(deviceFilter, item).equals("21112")) {
+                        queryConditionsPart
+                                .append(" AND (d.status = '21' OR d.status = '11') ");
+                    }
+                } else if (java.util.Date.class.isAssignableFrom(field.getType())) {
 
                     if (item.getFilterPropertyName().toLowerCase().contains("min")) {
                         queryConditionsPart

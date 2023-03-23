@@ -56,5 +56,7 @@ public class DeviceFilter {
     private String placeNumber;
     private String locationDetail;
 
+    private String clsId;
+
     private List<ExplicitDeviceMatcher> activeProperties;
 }

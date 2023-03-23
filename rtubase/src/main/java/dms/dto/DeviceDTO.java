@@ -87,6 +87,8 @@ public class DeviceDTO {
     @ExportInfo(reportId = 1, position = 16, title = "Коментар до місця")
     private String locationDetail;
 
+    private String clsId;
+
     private List<ExplicitDeviceMatcher> activeProperties;
 
     @Override

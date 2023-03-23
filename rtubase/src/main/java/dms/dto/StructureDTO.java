@@ -16,9 +16,11 @@ public class StructureDTO {
     private int level;
     private String clsId;
     private String clsName;
+    private String parentItem;
 
 
-    public StructureDTO(String id, String status, String regionType, String item, boolean expandable, int level, String clsId, String clsName) {
+    public StructureDTO(String id, String status, String regionType, String item,
+                        boolean expandable, int level, String clsId, String clsName, String parentItem) {
         this.id = id;
         this.status = status;
         this.regionType = regionType;
@@ -28,5 +30,6 @@ public class StructureDTO {
         this.level=level;
         this.clsId = clsId;
         this.clsName = clsName;
+        this.parentItem=parentItem;
     }
 }
