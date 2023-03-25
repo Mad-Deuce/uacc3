@@ -5,6 +5,7 @@ import dms.standing.data.repository.DeviceTypeGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,5 +20,10 @@ public class DeviceTypeGroupServiceImpl implements DeviceTypeGroupService {
     @Override
     public Optional<DeviceTypeGroupEntity> findGroupByID(Integer id) {
         return groupRepository.findById(id);
+    }
+
+    @Override
+    public List<DeviceTypeGroupEntity> findAllGroups() {
+        return groupRepository.findAll();
     }
 }

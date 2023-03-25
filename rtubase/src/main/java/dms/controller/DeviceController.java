@@ -6,6 +6,8 @@ import dms.entity.DeviceEntity;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
+import dms.standing.data.entity.DeviceTypeGroupEntity;
+import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.validation.group.OnDeviceCreate;
 import dms.validation.group.OnDeviceSet;
 import dms.validation.group.OnDeviceUnset;
@@ -37,13 +39,26 @@ import java.util.List;
 public class DeviceController {
 
     private final DeviceService deviceService;
+    private final DeviceTypeGroupService deviceTypeGroupService;
     private final DeviceMapper deviceMapper;
 
     @Autowired
     public DeviceController(@Qualifier("DevService1") DeviceService deviceService,
+                            DeviceTypeGroupService deviceTypeGroupService,
                             DeviceMapper deviceMapper) {
         this.deviceService = deviceService;
+        this.deviceTypeGroupService = deviceTypeGroupService;
         this.deviceMapper = deviceMapper;
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/types/group")
+    public ResponseEntity<?> findAllGroups() throws NoSuchFieldException {
+        List<DeviceTypeGroupEntity> groups = deviceTypeGroupService.findAllGroups();
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(groups);
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
