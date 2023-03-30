@@ -6,7 +6,9 @@ import dms.entity.DeviceEntity;
 import dms.export.DeviceReportExporter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
+import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
+import dms.standing.data.service.device.type.SDevService;
 import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.validation.group.OnDeviceCreate;
 import dms.validation.group.OnDeviceSet;
@@ -40,26 +42,40 @@ public class DeviceController {
 
     private final DeviceService deviceService;
     private final DeviceTypeGroupService deviceTypeGroupService;
+    private final SDevService deviceTypeService;
     private final DeviceMapper deviceMapper;
 
     @Autowired
     public DeviceController(@Qualifier("DevService1") DeviceService deviceService,
                             DeviceTypeGroupService deviceTypeGroupService,
+                            SDevService deviceTypeService,
                             DeviceMapper deviceMapper) {
         this.deviceService = deviceService;
         this.deviceTypeGroupService = deviceTypeGroupService;
+        this.deviceTypeService = deviceTypeService;
         this.deviceMapper = deviceMapper;
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/types/group")
-    public ResponseEntity<?> findAllGroups() throws NoSuchFieldException {
+    public ResponseEntity<?> findAllGroups() {
         List<DeviceTypeGroupEntity> groups = deviceTypeGroupService.findAllGroups();
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(groups);
     }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/types")
+    public ResponseEntity<?> findAllTypes() {
+        List<DeviceTypeEntity> groups = deviceTypeService.findAllTypes();
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(groups);
+    }
+
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/by-filter")
@@ -71,6 +87,19 @@ public class DeviceController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(devices);
     }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/by-filter-spec")
+    public ResponseEntity<?> findDevicesByFilterSpec(Pageable pageable, DeviceDTO deviceDTO) {
+        Page<DeviceDTO> devices = deviceMapper.entityToDTOPage(deviceService
+                .findDevicesBySpecification(pageable, deviceMapper.dTOToFilter(deviceDTO)));
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(devices);
+    }
+
+
 
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)

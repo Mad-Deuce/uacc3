@@ -5,6 +5,7 @@ import dms.standing.data.repository.DeviceTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,5 +22,10 @@ public class SDevServiceImpl implements SDevService {
     public Optional<DeviceTypeEntity> findSDevByID(Long id) {
         if (id==null) return Optional.empty();
         return deviceTypeRepository.findById(id);
+    }
+
+    @Override
+    public List<DeviceTypeEntity> findAllTypes() {
+        return deviceTypeRepository.findAll();
     }
 }

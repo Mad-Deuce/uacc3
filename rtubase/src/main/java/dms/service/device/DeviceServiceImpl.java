@@ -12,6 +12,8 @@ import dms.repository.DeviceRepository;
 import dms.repository.LocationRepository;
 import dms.standing.data.dock.val.ReplacementType;
 import dms.standing.data.dock.val.Status;
+import dms.standing.data.entity.DeviceTypeEntity;
+import dms.standing.data.entity.DeviceTypeGroupEntity;
 import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.repository.LineFacilityRepository;
 import dms.standing.data.repository.RtdFacilityRepository;
@@ -25,15 +27,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 import java.lang.reflect.Field;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -208,6 +216,54 @@ public class DeviceServiceImpl implements DeviceService {
     private String getProperty(DeviceFilter deviceFilter, ExplicitDeviceMatcher item) {
         return BeanUtils.getProperty(deviceFilter, item.getFilterPropertyName());
     }
+
+    @Override
+    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, DeviceFilter deviceFilter) {
+        return deviceRepository.findAll(getSpecification(deviceFilter), pageable);
+    }
+
+    private Specification<DeviceFilter> getSpecification(DeviceFilter deviceFilter) {
+
+        return (root, criteriaQuery, criteriaBuilder) -> {
+           Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
+            Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
+            Join<DeviceEntity, LocationEntity> location = root.join("location");
+            Join<DeviceEntity, FacilityEntity> facility = root.join("facility");
+
+            Map<String, Join<?, ?>> joinsMap = new HashMap<>();
+            joinsMap.put("type", type);
+            joinsMap.put("group", group);
+            joinsMap.put("location", location);
+            joinsMap.put("facility", facility);
+
+            criteriaQuery.distinct(false);
+
+            Predicate predicateDefault = criteriaBuilder.equal(root, root);
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            for (ExplicitDeviceMatcher item : ExplicitDeviceMatcher.values()) {
+                if (getProperty(deviceFilter, item) != null) {
+
+                    String[] splitArr = item.getEntityPropertyName().split("\\.");
+
+                    if (splitArr.length == 1) {
+                        predicates.add(criteriaBuilder.like(
+                                root.get(splitArr[0]).as(String.class),
+                                "%" + getProperty(deviceFilter, item) + "%"));
+                    } else {
+                        predicates.add(criteriaBuilder.like(
+                                joinsMap.get(splitArr[splitArr.length - 2])
+                                        .get(splitArr[splitArr.length - 1]).as(String.class),
+                                "%" + getProperty(deviceFilter, item) + "%"));
+                    }
+                }
+            }
+
+            return predicates.stream().reduce(predicateDefault, criteriaBuilder::and);
+        };
+    }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
