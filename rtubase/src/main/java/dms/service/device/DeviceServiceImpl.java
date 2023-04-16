@@ -7,6 +7,7 @@ import dms.entity.LocationEntity;
 import dms.exception.DeviceValidationException;
 import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
+import dms.filter.Filter;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
 import dms.repository.LocationRepository;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,9 +41,7 @@ import javax.persistence.criteria.Predicate;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -109,7 +109,9 @@ public class DeviceServiceImpl implements DeviceService {
                                 " WHERE 1=1 " +
                                 getQueryConditionsPart(deviceFilter) +
                                 deviceAuthService.getAuthConditionsPartOfFindDeviceByFilterQuery() +
-                                " ORDER BY d.id ASC", DeviceEntity.class)
+                                getQueryOrderPart(pageable) +
+                                " ORDER BY d.id ASC"
+                        , DeviceEntity.class)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
@@ -212,58 +214,91 @@ public class DeviceServiceImpl implements DeviceService {
         return queryConditionsPart.toString();
     }
 
+    private String getQueryOrderPart(Pageable pageable) {
+        if (pageable.getSort().isUnsorted()) {
+            return "";
+        } else {
+            for (ExplicitDeviceMatcher item : ExplicitDeviceMatcher.values()) {
+                List<Sort.Order> orders = pageable.getSort().get().collect(Collectors.toList());
+                for (Sort.Order order : orders) {
+                    String property = order.getProperty();
+                    Sort.Direction direction = order.getDirection();
+
+
+                }
+
+                if (item.getFilterPropertyName().equals(pageable.getSort())) {
+                    return "";
+
+                }
+            }
+        }
+        return "";
+
+    }
+
     @SneakyThrows
     private String getProperty(DeviceFilter deviceFilter, ExplicitDeviceMatcher item) {
         return BeanUtils.getProperty(deviceFilter, item.getFilterPropertyName());
     }
 
+
     @Override
-    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, DeviceFilter deviceFilter) {
-        return deviceRepository.findAll(getSpecification(deviceFilter), pageable);
+    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, List<Filter> filters) {
+        return deviceRepository.findAll(getSpecification(filters), pageable);
     }
 
-    private Specification<DeviceFilter> getSpecification(DeviceFilter deviceFilter) {
-
+    private Specification<?> getSpecification(List<Filter> filters) {
         return (root, criteriaQuery, criteriaBuilder) -> {
-           Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
+            Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
             Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
             Join<DeviceEntity, LocationEntity> location = root.join("location");
             Join<DeviceEntity, FacilityEntity> facility = root.join("facility");
-
-            Map<String, Join<?, ?>> joinsMap = new HashMap<>();
-            joinsMap.put("type", type);
-            joinsMap.put("group", group);
-            joinsMap.put("location", location);
-            joinsMap.put("facility", facility);
 
             criteriaQuery.distinct(false);
 
             Predicate predicateDefault = criteriaBuilder.equal(root, root);
 
-            List<Predicate> predicates = new ArrayList<>();
+            List<Predicate> predicatesList = new ArrayList<>();
 
-            for (ExplicitDeviceMatcher item : ExplicitDeviceMatcher.values()) {
-                if (getProperty(deviceFilter, item) != null) {
+            filters.forEach(filter -> {
+                        if (!filter.getValues().isEmpty() && !filter.getValues().contains(null)) {
+                            PredicatesConst predicate = PredicatesConst
+                                    .valueOf(camelCaseToUnderScoreUpperCase(filter.getMatchMode()));
 
-                    String[] splitArr = item.getEntityPropertyName().split("\\.");
-
-                    if (splitArr.length == 1) {
-                        predicates.add(criteriaBuilder.like(
-                                root.get(splitArr[0]).as(String.class),
-                                "%" + getProperty(deviceFilter, item) + "%"));
-                    } else {
-                        predicates.add(criteriaBuilder.like(
-                                joinsMap.get(splitArr[splitArr.length - 2])
-                                        .get(splitArr[splitArr.length - 1]).as(String.class),
-                                "%" + getProperty(deviceFilter, item) + "%"));
+                            if (filter.getFieldName().equals("id")) {
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter));
+                            }
+                            if (filter.getFieldName().equals("typeGroupName")) {
+                                predicatesList.add(predicate.create(group, criteriaBuilder, filter));
+                            }
+                        }
                     }
-                }
-            }
+            );
 
-            return predicates.stream().reduce(predicateDefault, criteriaBuilder::and);
+            return predicatesList.stream().reduce(predicateDefault, criteriaBuilder::and);
         };
     }
 
+    private String camelCaseToUnderScoreUpperCase(String camelCase) {
+        String result = "";
+        boolean prevUpperCase = false;
+        for (int i = 0; i < camelCase.length(); i++) {
+            char c = camelCase.charAt(i);
+            if (!Character.isLetter(c))
+                return camelCase;
+            if (Character.isUpperCase(c)) {
+                if (prevUpperCase)
+                    return camelCase;
+                result += "_" + c;
+                prevUpperCase = true;
+            } else {
+                result += Character.toUpperCase(c);
+                prevUpperCase = false;
+            }
+        }
+        return result;
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Override
@@ -470,4 +505,6 @@ public class DeviceServiceImpl implements DeviceService {
         deviceRepository.save(deviceEntity);
         deviceRepository.flush();
     }
+
+
 }

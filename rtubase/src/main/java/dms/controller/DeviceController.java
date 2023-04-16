@@ -4,6 +4,7 @@ package dms.controller;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.export.DeviceReportExporter;
+import dms.filter.Filter;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
 import dms.standing.data.entity.DeviceTypeEntity;
@@ -81,25 +82,23 @@ public class DeviceController {
     @GetMapping(value = "/by-filter")
     public ResponseEntity<?> findDevicesByFilter(Pageable pageable, DeviceDTO deviceDTO) throws NoSuchFieldException {
         Page<DeviceDTO> devices = deviceMapper.entityToDTOPage(deviceService
-                    .findDevicesByFilter(pageable, deviceMapper.dTOToFilter(deviceDTO)));
+                .findDevicesByFilter(pageable, deviceMapper.dTOToFilter(deviceDTO)));
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(devices);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/by-filter-spec")
-    public ResponseEntity<?> findDevicesByFilterSpec(Pageable pageable, DeviceDTO deviceDTO) {
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
+    @PostMapping(value = "/by-filter-spec", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findDevicesByFilterSpec(Pageable pageable, @RequestBody(required = false) List<Filter> filters) {
         Page<DeviceDTO> devices = deviceMapper.entityToDTOPage(deviceService
-                .findDevicesBySpecification(pageable, deviceMapper.dTOToFilter(deviceDTO)));
+                .findDevicesBySpecification(pageable, filters));
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(devices);
     }
-
-
 
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
