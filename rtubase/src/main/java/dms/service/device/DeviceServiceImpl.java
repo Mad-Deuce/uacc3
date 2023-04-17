@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.lang.reflect.Field;
 import java.sql.Date;
@@ -252,7 +253,7 @@ public class DeviceServiceImpl implements DeviceService {
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
             Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
-            Join<DeviceEntity, LocationEntity> location = root.join("location");
+            Join<DeviceEntity, LocationEntity> location = root.join("location", JoinType.LEFT);
             Join<DeviceEntity, FacilityEntity> facility = root.join("facility");
 
             criteriaQuery.distinct(false);
@@ -269,8 +270,23 @@ public class DeviceServiceImpl implements DeviceService {
                             if (filter.getFieldName().equals("id")) {
                                 predicatesList.add(predicate.create(root, criteriaBuilder, filter));
                             }
+                            if (filter.getFieldName().equals("number")) {
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter));
+                            }
+                            if (filter.getFieldName().equals("nextTestDate")) {
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter));
+                            }
+                            if (filter.getFieldName().equals("status")) {
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter));
+                            }
+                            if (filter.getFieldName().equals("typeName")) {
+                                predicatesList.add(predicate.create(type, criteriaBuilder, filter));
+                            }
                             if (filter.getFieldName().equals("typeGroupName")) {
                                 predicatesList.add(predicate.create(group, criteriaBuilder, filter));
+                            }
+                            if (filter.getFieldName().equals("facilityId")) {
+                                predicatesList.add(predicate.create(facility, criteriaBuilder, filter));
                             }
                         }
                     }

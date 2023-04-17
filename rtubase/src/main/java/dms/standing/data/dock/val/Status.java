@@ -3,6 +3,11 @@ package dms.standing.data.dock.val;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.trim;
+
 @Getter
 @AllArgsConstructor
 public enum Status {
@@ -20,8 +25,26 @@ public enum Status {
     PS2("2", "Учет приостановлен", "ВЫКЛ"),
 
     ;
-
     private final String name;
     private final String comment;
     private final String valueC;
+
+    public static List<Status> toStatusList(List<String> nameList) {
+        List<Status> result = new ArrayList<>();
+        nameList.forEach(item -> result.add(convertToStatus(item)));
+        return result;
+    }
+
+    private static Status convertToStatus(String name) {
+//        if (name==null) return null;
+        for (Status status : Status.values()) {
+            if (status.getName().equals(trim(name))) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Unknown code " + name);
+
+    }
+
+
 }
