@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.trim;
 
@@ -29,9 +30,9 @@ public enum Status {
     private final String comment;
     private final String valueC;
 
-    public static List<Status> toStatusList(List<String> nameList) {
+    public static List<Status> toStatusList(List<Object> nameList) {
         List<Status> result = new ArrayList<>();
-        nameList.forEach(item -> result.add(convertToStatus(item)));
+        nameList.forEach(item -> result.add(convertToStatus(Objects.toString(item))));
         return result;
     }
 

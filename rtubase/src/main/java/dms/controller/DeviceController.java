@@ -4,7 +4,7 @@ package dms.controller;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
 import dms.export.DeviceReportExporter;
-import dms.filter.Filter;
+import dms.filter.FilterAbs;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
 import dms.standing.data.entity.DeviceTypeEntity;
@@ -91,7 +91,8 @@ public class DeviceController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/by-filter-spec", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findDevicesByFilterSpec(Pageable pageable, @RequestBody(required = false) List<Filter> filters) {
+    public ResponseEntity<?> findDevicesByFilterSpec(Pageable pageable,
+                                                     @RequestBody(required = false) List<FilterAbs<Object>> filters) {
         Page<DeviceDTO> devices = deviceMapper.entityToDTOPage(deviceService
                 .findDevicesBySpecification(pageable, filters));
         return ResponseEntity

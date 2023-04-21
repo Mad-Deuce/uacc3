@@ -2,7 +2,6 @@ package dms.dto;
 
 
 import dms.export.ExportInfo;
-import dms.filter.Filter;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.standing.data.dock.val.ReplacementType;
 import dms.validation.group.OnDeviceCreate;
@@ -92,7 +91,6 @@ public class DeviceDTO {
 
     private List<ExplicitDeviceMatcher> activeProperties;
 
-    private List<Filter> filters;
 
     @Override
     public boolean equals(Object o) {

@@ -7,7 +7,7 @@ import dms.entity.LocationEntity;
 import dms.exception.DeviceValidationException;
 import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
-import dms.filter.Filter;
+import dms.filter.FilterAbs;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
 import dms.repository.LocationRepository;
@@ -42,6 +42,7 @@ import javax.persistence.criteria.Predicate;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -245,11 +246,11 @@ public class DeviceServiceImpl implements DeviceService {
 
 
     @Override
-    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, List<Filter> filters) {
+    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, List<FilterAbs<Object>> filters) {
         return deviceRepository.findAll(getSpecification(filters), pageable);
     }
 
-    private Specification<?> getSpecification(List<Filter> filters) {
+    private Specification<?> getSpecification(List<FilterAbs<Object>> filters) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
             Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
@@ -267,26 +268,69 @@ public class DeviceServiceImpl implements DeviceService {
                             PredicatesConst predicate = PredicatesConst
                                     .valueOf(camelCaseToUnderScoreUpperCase(filter.getMatchMode()));
 
+//                            List<Object> filterValues = new ArrayList<>();
+                            List<Object> filterValues = Collections.EMPTY_LIST;
+
                             if (filter.getFieldName().equals("id")) {
-                                predicatesList.add(predicate.create(root, criteriaBuilder, filter));
+                                filterValues = filter.getValues().stream()
+                                        .map(Object::toString)
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
                             if (filter.getFieldName().equals("number")) {
-                                predicatesList.add(predicate.create(root, criteriaBuilder, filter));
+                                filterValues = filter.getValues().stream()
+                                        .map(Object::toString)
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter.getFieldName(), filterValues));
+                            }
+                            if (filter.getFieldName().equals("releaseYear")) {
+                                filterValues = filter.getValues().stream()
+                                        .filter(v -> v.getClass().equals(Date.class))
+                                        .map(v -> Integer.toString(((Date) v).toLocalDate().getYear()))
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter.getFieldName(), filterValues));
+                            }
+                            if (filter.getFieldName().equals("testDate")) {
+                                filterValues = filter.getValues().stream()
+                                        .filter(v -> v.getClass().equals(Date.class))
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
                             if (filter.getFieldName().equals("nextTestDate")) {
-                                predicatesList.add(predicate.create(root, criteriaBuilder, filter));
+                                filterValues = filter.getValues().stream()
+                                        .filter(v -> v.getClass().equals(Date.class))
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
                             if (filter.getFieldName().equals("status")) {
-                                predicatesList.add(predicate.create(root, criteriaBuilder, filter));
+                                filterValues = filter.getValues().stream()
+                                        .map(Object::toString)
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter.getFieldName(), filterValues));
+                            }
+                            if (filter.getFieldName().equals("replacementPeriod")) {
+                                filterValues = filter.getValues().stream()
+                                        .map(Object::toString)
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(root, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
                             if (filter.getFieldName().equals("typeName")) {
-                                predicatesList.add(predicate.create(type, criteriaBuilder, filter));
+                                filterValues = filter.getValues().stream()
+                                        .map(Object::toString)
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(type, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
                             if (filter.getFieldName().equals("typeGroupName")) {
-                                predicatesList.add(predicate.create(group, criteriaBuilder, filter));
+                                filterValues = filter.getValues().stream()
+                                        .map(Object::toString)
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(group, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
                             if (filter.getFieldName().equals("facilityId")) {
-                                predicatesList.add(predicate.create(facility, criteriaBuilder, filter));
+                                filterValues = filter.getValues().stream()
+                                        .map(Object::toString)
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(facility, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
                         }
                     }
