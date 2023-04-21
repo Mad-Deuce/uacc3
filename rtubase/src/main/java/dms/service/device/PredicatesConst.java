@@ -209,11 +209,81 @@ public enum PredicatesConst {
         @Override
         Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
             if (!filterValues.isEmpty()) {
-                Path<String> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
+                Path<Object> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
                         .getEntityPropertyNameLastPart());
                 return criteriaBuilder.equal(
-                        path.as(String.class),
+                        path,
                         filterValues.get(0));
+            } else {
+                return alwaysTrue(criteriaBuilder);
+            }
+        }
+    },
+    NOT_EQUALS {
+        @Override
+        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
+            if (!filterValues.isEmpty()) {
+                Path<Object> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
+                        .getEntityPropertyNameLastPart());
+                return criteriaBuilder.notEqual(
+                        path,
+                        filterValues.get(0));
+            } else {
+                return alwaysTrue(criteriaBuilder);
+            }
+        }
+    },
+    LTE {
+        @Override
+        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
+            if (!filterValues.isEmpty()) {
+                Path<Integer> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
+                        .getEntityPropertyNameLastPart());
+                return criteriaBuilder.le(
+                        path.as(Integer.class),
+                        ((Integer) filterValues.get(0)));
+            } else {
+                return alwaysTrue(criteriaBuilder);
+            }
+        }
+    },
+    LT {
+        @Override
+        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
+            if (!filterValues.isEmpty()) {
+                Path<Integer> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
+                        .getEntityPropertyNameLastPart());
+                return criteriaBuilder.lt(
+                        path.as(Integer.class),
+                       ((Integer) filterValues.get(0)));
+            } else {
+                return alwaysTrue(criteriaBuilder);
+            }
+        }
+    },
+    GTE {
+        @Override
+        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
+            if (!filterValues.isEmpty()) {
+                Path<Integer> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
+                        .getEntityPropertyNameLastPart());
+                return criteriaBuilder.ge(
+                        path.as(Integer.class),
+                        ((Integer) filterValues.get(0)));
+            } else {
+                return alwaysTrue(criteriaBuilder);
+            }
+        }
+    },
+    GT {
+        @Override
+        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
+            if (!filterValues.isEmpty()) {
+                Path<Integer> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
+                        .getEntityPropertyNameLastPart());
+                return criteriaBuilder.gt(
+                        path.as(Integer.class),
+                       ((Integer) filterValues.get(0)));
             } else {
                 return alwaysTrue(criteriaBuilder);
             }

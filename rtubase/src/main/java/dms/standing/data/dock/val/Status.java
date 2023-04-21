@@ -1,5 +1,6 @@
 package dms.standing.data.dock.val;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.trim;
 
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @Getter
 @AllArgsConstructor
 public enum Status {

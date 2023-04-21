@@ -310,7 +310,7 @@ public class DeviceServiceImpl implements DeviceService {
                             }
                             if (filter.getFieldName().equals("replacementPeriod")) {
                                 filterValues = filter.getValues().stream()
-                                        .map(Object::toString)
+                                        .filter(v -> v.getClass().equals(Integer.class))
                                         .collect(Collectors.toList());
                                 predicatesList.add(predicate.create(root, criteriaBuilder, filter.getFieldName(), filterValues));
                             }

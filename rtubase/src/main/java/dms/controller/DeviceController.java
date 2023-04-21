@@ -7,6 +7,7 @@ import dms.export.DeviceReportExporter;
 import dms.filter.FilterAbs;
 import dms.mapper.DeviceMapper;
 import dms.service.device.DeviceService;
+import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
 import dms.standing.data.service.device.type.SDevService;
@@ -32,6 +33,7 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +57,19 @@ public class DeviceController {
         this.deviceTypeGroupService = deviceTypeGroupService;
         this.deviceTypeService = deviceTypeService;
         this.deviceMapper = deviceMapper;
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/statuses")
+    public ResponseEntity<?> findAllStatuses() {
+        Object[] statuses = Status.values();
+//        List<String> statuses = Arrays.stream(Status.values())
+//                .map(Status::getValueC)
+//                .toList();
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(statuses);
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)

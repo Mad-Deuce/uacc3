@@ -15,7 +15,7 @@ import java.util.List;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = DateFilterImpl.class, name = "date"),
         @JsonSubTypes.Type(value = StringFilterImpl.class, name = "string"),
-//        @JsonSubTypes.Type(value = StringFilterImpl.class, names = {"", "string"})
+        @JsonSubTypes.Type(value = IntegerFilterImpl.class, name = "numeric")
 })
 public abstract class FilterAbs<T> {
     private String fieldName;
