@@ -2,7 +2,7 @@ package dms.service.device;
 
 import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
-import dms.filter.FilterAbs;
+import dms.filter.Filter;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.standing.data.dock.val.ReplacementType;
 import org.springframework.data.domain.Page;
@@ -17,7 +17,7 @@ public interface DeviceService {
 
     Page<DeviceEntity> findDevicesByFilter(Pageable pageable, DeviceFilter deviceFilter) throws NoSuchFieldException;
 
-    Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, List<FilterAbs<Object>> filters);
+    Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, List<Filter<Object>> filters);
 
     void deleteDeviceById(DeviceEntity deviceEntity);
 

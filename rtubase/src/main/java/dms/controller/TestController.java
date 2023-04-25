@@ -1,7 +1,7 @@
 package dms.controller;
 
 
-import dms.filter.FilterAbs;
+import dms.filter.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +35,7 @@ public class TestController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/by-filter-spec", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findDevicesByFilterSpec(Pageable pageable, @RequestBody(required = false) List<FilterAbs<Object>> filters) {
+    public ResponseEntity<?> findDevicesByFilterSpec(Pageable pageable, @RequestBody(required = false) List<Filter<Object>> filters) {
 
         return ResponseEntity
                 .ok()

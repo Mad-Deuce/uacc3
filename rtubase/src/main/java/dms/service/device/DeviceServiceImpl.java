@@ -7,7 +7,7 @@ import dms.entity.LocationEntity;
 import dms.exception.DeviceValidationException;
 import dms.exception.NoEntityException;
 import dms.filter.DeviceFilter;
-import dms.filter.FilterAbs;
+import dms.filter.Filter;
 import dms.mapper.ExplicitDeviceMatcher;
 import dms.repository.DeviceRepository;
 import dms.repository.LocationRepository;
@@ -246,11 +246,11 @@ public class DeviceServiceImpl implements DeviceService {
 
 
     @Override
-    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, List<FilterAbs<Object>> filters) {
+    public Page<DeviceEntity> findDevicesBySpecification(Pageable pageable, List<Filter<Object>> filters) {
         return deviceRepository.findAll(getSpecification(filters), pageable);
     }
 
-    private Specification<?> getSpecification(List<FilterAbs<Object>> filters) {
+    private Specification<?> getSpecification(List<Filter<Object>> filters) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<DeviceEntity, DeviceTypeEntity> type = root.join("type");
             Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");

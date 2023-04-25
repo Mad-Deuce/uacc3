@@ -5,7 +5,7 @@ import dms.entity.DeviceEntity;
 import dms.filter.DeviceFilter;
 import dms.service.location.LocationService;
 import dms.standing.data.entity.FacilityEntity;
-import dms.standing.data.service.device.type.SDevService;
+import dms.standing.data.service.device.type.DeviceTypeService;
 import dms.standing.data.service.device.type.group.DeviceTypeGroupService;
 import dms.standing.data.service.facility.LineFacilityService;
 import dms.standing.data.service.facility.RtdFacilityService;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public abstract class DeviceMapper {
 
     @Autowired
-    protected SDevService deviceTypeService;
+    protected DeviceTypeService deviceTypeService;
     @Autowired
     protected DeviceTypeGroupService deviceTypeGroupService;
     @Autowired

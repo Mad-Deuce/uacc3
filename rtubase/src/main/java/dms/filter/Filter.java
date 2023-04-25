@@ -11,13 +11,13 @@ import java.util.List;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type",
-        defaultImpl = StringFilterImpl.class)
+        defaultImpl = StringFilter.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = DateFilterImpl.class, name = "date"),
-        @JsonSubTypes.Type(value = StringFilterImpl.class, name = "string"),
-        @JsonSubTypes.Type(value = IntegerFilterImpl.class, name = "numeric")
+        @JsonSubTypes.Type(value = DateFilter.class, name = "date"),
+        @JsonSubTypes.Type(value = StringFilter.class, name = "string"),
+        @JsonSubTypes.Type(value = IntegerFilter.class, name = "numeric")
 })
-public abstract class FilterAbs<T> {
+public abstract class Filter<T> {
     private String fieldName;
     private List<T> values;
     private String matchMode;

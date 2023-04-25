@@ -1,67 +1,15 @@
-PUT http://localhost:8080/api/devs/19
-Authorization: Basic postgres postgres
-Accept: application/json
+### Authorization by token, part 1. Retrieve and save token.
+POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "number": "0001",
-  "statusCode": "31",
-  "activeProperties": [
-    "STATUS"
-  ]
+  "login": "admin",
+  "password": "user"
 }
 
+> {% client.global.set("auth_token", response.body.json.token); %}
+
+### Authorization by token, part 2. Use token to authorize.
+GET http://localhost:8080/api/devices/by-filter-spec
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwiaWF0IjoxNjgyNDM4MzkxLCJleHAiOjE2ODI0NzQzOTF9.Twy6QDZkL16o6Paxu4jAyGYF0q4xJvWaT5kiJuzYRt4
 ###
-POST http://localhost:8080/api/devices/
-Authorization: Basic postgres postgres
-Accept: application/json
-Content-Type: application/json
-
-{
-  "number": "2000"
-}
-
-
-###
-GET http://localhost:8080/api/devs/?size=10&sort=id&id=975&typeGroupId=12
-Authorization: Basic postgres postgres
-Accept: application/json
-
-###
-GET http://localhost:8080/api/devs/1131005975
-Authorization: Basic postgres postgres
-Accept: application/json
-
-###
-DELETE http://localhost:8080/api/devices/97451
-
-###
-GET http://localhost:8080/api/devs/send/
-
-
-
-###
-GET http://localhost:8080/api/rails/
-Authorization: Basic postgres postgres
-Accept: application/json
-
-###
-POST http://localhost:8080/api/rails/
-Authorization: Basic postgres postgres
-Accept: application/json
-
-
-###
-GET http://localhost:8080/api/dist/
-Authorization: Basic postgres postgres
-Accept: application/json
-
-###
-GET http://localhost:8080/api/rtu/
-Authorization: Basic postgres postgres
-Accept: application/jsond
-
-###
-GET http://localhost:8080/api/obj/
-Authorization: Basic postgres postgres
-Accept: application/json

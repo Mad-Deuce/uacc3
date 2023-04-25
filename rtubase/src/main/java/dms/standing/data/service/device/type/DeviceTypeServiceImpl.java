@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SDevServiceImpl implements SDevService {
+public class DeviceTypeServiceImpl implements DeviceTypeService {
 
     private final DeviceTypeRepository deviceTypeRepository;
 
     @Autowired
-    public SDevServiceImpl(DeviceTypeRepository deviceTypeRepository) {
+    public DeviceTypeServiceImpl(DeviceTypeRepository deviceTypeRepository) {
         this.deviceTypeRepository = deviceTypeRepository;
     }
 
