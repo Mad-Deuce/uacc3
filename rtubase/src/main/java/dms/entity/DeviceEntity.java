@@ -3,9 +3,10 @@ package dms.entity;
 
 import dms.standing.data.converter.StatusConverter;
 import dms.standing.data.dock.val.Status;
-import dms.standing.data.entity.FacilityEntity;
 import dms.standing.data.entity.DeviceTypeEntity;
+import dms.standing.data.entity.FacilityEntity;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -55,6 +56,13 @@ public class DeviceEntity implements Serializable {
     @Basic
     @Column(name = "d_nkip")
     private Date nextTestDate;
+
+    @Formula(value = "case " +
+            "when t_zam * 0.1 > 3 " +
+            "then (d_nkip + date_trunc('second', (3 || 'month')::interval))::date " +
+            "else (d_nkip + date_trunc('second', (t_zam * 0.1 || 'month')::interval))::date " +
+            "end")
+    private Date extraNextTestDate;
 
     @Basic
     @Column(name = "d_tkip")
