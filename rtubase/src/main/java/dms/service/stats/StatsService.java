@@ -1,9 +1,10 @@
 package dms.service.stats;
 
 
-import java.util.Map;
+
+import dms.dto.stats.OverdueDevicesStats;
 
 public interface StatsService {
 
-    Map<String, Long> getStats(String cls, String id);
+    OverdueDevicesStats getOverdueDevicesStats();
 }

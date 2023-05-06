@@ -83,7 +83,7 @@
 			"name": "devices",
 			"item": [
 				{
-					"name": "by_filter_(specification)",
+					"name": "find_by_filter_(specification)",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -226,6 +226,132 @@
 						}
 					},
 					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{dms_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "stats",
+			"item": [
+				{
+					"name": "overdue_devices",
+					"item": [
+						{
+							"name": "stats_by_cls",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/stats/overdue-devices?cls=131&id=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"stats",
+										"overdue-devices"
+									],
+									"query": [
+										{
+											"key": "cls",
+											"value": "131"
+										},
+										{
+											"key": "id",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "stats_by_cls_separated",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/stats/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"stats",
+										""
+									],
+									"query": [
+										{
+											"key": "cls",
+											"value": "131",
+											"disabled": true
+										},
+										{
+											"key": "rootId",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			],
 			"auth": {

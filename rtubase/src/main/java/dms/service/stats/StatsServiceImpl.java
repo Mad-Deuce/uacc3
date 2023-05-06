@@ -1,15 +1,15 @@
 package dms.service.stats;
 
 
+import dms.dto.stats.OverdueDevicesStats;
 import dms.repository.DeviceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Tuple;
 import java.sql.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 
 @Slf4j
@@ -22,45 +22,26 @@ public class StatsServiceImpl implements StatsService {
         this.deviceRepository = deviceRepository;
     }
 
+
     @Override
-    public Map<String, Long> getStats(String cls, String id) {
-        Map<String, Long> resultMap = new LinkedHashMap<>();
-        resultMap.putAll(getNormalDeviceQuantity(id));
-        resultMap.putAll(getOverdueDeviceQuantity(id));
-        resultMap.putAll(getExtraOverdueDeviceQuantity(id));
-        resultMap.putAll(getPassiveDeviceQuantity(id));
-        return resultMap;
+    public OverdueDevicesStats getOverdueDevicesStats() {
+        Date nowDate = new Date(System.currentTimeMillis());
+        OverdueDevicesStats root = new OverdueDevicesStats("root");
+        List<Tuple> tupleList;
+
+        tupleList = deviceRepository.getNormalDevicesStatsAlt(nowDate);
+        root.fillFromTuple(tupleList);
+
+        tupleList = deviceRepository.getOverdueDevicesStatsAlt(nowDate);
+        root.fillFromTuple(tupleList);
+
+        tupleList = deviceRepository.getExtraOverdueDevicesStatsAlt(nowDate);
+        root.fillFromTuple(tupleList);
+
+        tupleList = deviceRepository.getPassiveDevicesStatsAlt(nowDate);
+        root.fillFromTuple(tupleList);
+
+        return root;
     }
 
-    private Map<String, Long> getNormalDeviceQuantity(String id) {
-        Map<String, Long> resultMap = new LinkedHashMap<>();
-        String mapKey = "NormalDeviceQuantity";
-        Long mapValue = deviceRepository.getNormalDeviceQuantity(new Date(System.currentTimeMillis()), id + "%");
-        resultMap.put(mapKey, mapValue);
-        return resultMap;
-    }
-
-    private Map<String, Long> getPassiveDeviceQuantity(String id) {
-        Map<String, Long> resultMap = new LinkedHashMap<>();
-        String mapKey = "passiveDeviceQuantity";
-        Long mapValue = deviceRepository.getPassiveDeviceQuantity(id + "%");
-        resultMap.put(mapKey, mapValue);
-        return resultMap;
-    }
-
-    private Map<String, Long> getOverdueDeviceQuantity(String id) {
-        Map<String, Long> resultMap = new LinkedHashMap<>();
-        String mapKey = "overdueDeviceQuantity";
-        Long mapValue = deviceRepository.getOverdueDeviceQuantity(new Date(System.currentTimeMillis()), id + "%");
-        resultMap.put(mapKey, mapValue);
-        return resultMap;
-    }
-
-    private Map<String, Long> getExtraOverdueDeviceQuantity(String id) {
-        Map<String, Long> resultMap = new LinkedHashMap<>();
-        String mapKey = "extraOverdueDeviceQuantity";
-        Long mapValue = deviceRepository.getExtraOverdueDeviceQuantity(new Date(System.currentTimeMillis()), id + "%");
-        resultMap.put(mapKey, mapValue);
-        return resultMap;
-    }
 }
