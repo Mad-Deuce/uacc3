@@ -2,7 +2,6 @@ package dms.repository;
 
 import dms.entity.DeviceEntity;
 import dms.entity.LocationEntity;
-import dms.standing.data.dock.val.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,21 +9,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.Tuple;
 import java.sql.Date;
 import java.util.List;
 
-public interface DeviceRepository extends JpaRepository<DeviceEntity, Long>, JpaSpecificationExecutor {
+public interface DeviceRepository extends JpaRepository<DeviceEntity, Long>, JpaSpecificationExecutor<DeviceEntity> {
 
-
-    Page<DeviceEntity> findAll(Specification specification, Pageable pageable);
-
-    Page<DeviceEntity> findAllByStatus(Status status, Pageable pageable);
-
-    List<DeviceEntity> findAllByStatus(Status status);
-
-    List<DeviceEntity> findAllById(Long id);
+    @NonNull
+    Page<DeviceEntity> findAll(Specification specification, @NonNull Pageable pageable);
 
     List<DeviceEntity> findAllByLocation(LocationEntity location);
 
