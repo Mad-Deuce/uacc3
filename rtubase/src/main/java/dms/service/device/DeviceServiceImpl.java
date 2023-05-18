@@ -261,6 +261,11 @@ public class DeviceServiceImpl implements DeviceService {
 
             Predicate predicateDefault = criteriaBuilder.equal(root, root);
 
+            Predicate predicateAuth = criteriaBuilder
+                    .like(facility.get("id"), deviceAuthService.getPrincipalPermitCode() + "%");
+
+            predicateDefault = predicateAuth;
+
             List<Predicate> predicatesList = new ArrayList<>();
 
             filters.forEach(filter -> {

@@ -22,32 +22,6 @@ public enum PredicatesConst {
             return criteriaBuilder.in(path).value(convertByClass(path, filterValues));
         }
     },
-//    STARTS_WITH {
-//        @Override
-//        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, Filter<Object> filter) {
-//            return criteriaBuilder.like(
-//                    from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filter.getFieldName()).getEntityPropertyNameLastPart()).as(String.class),
-//                    filter.getValues().get(0) + "%");
-//        }
-//    },
-//    END_WITH {
-//        @Override
-//        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, Filter<Object> filter) {
-//            return criteriaBuilder.like(
-//                    from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filter.getFieldName()).getEntityPropertyNameLastPart()).as(String.class),
-//                    "%" + filter.getValues().get(0));
-//        }
-//    },
-
-    //    NOT_CONTAINS {
-//        @Override
-//        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, Filter<Object> filter) {
-//            return criteriaBuilder.notLike(
-//                    from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filter.getFieldName()).getEntityPropertyNameLastPart()).as(String.class),
-//                    "%" + filter.getValues().get(0) + "%");
-//        }
-//    },
-
 
     DATE_IS {
         @Override
@@ -289,51 +263,6 @@ public enum PredicatesConst {
             }
         }
     },
-//    NOT_EQUALS {
-//        @Override
-//        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, Filter<Object> filter) {
-//            return criteriaBuilder.notEqual(
-//                    from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filter.getFieldName()).getEntityPropertyNameLastPart()).as(String.class),
-//                    filter.getValues().get(0));
-//        }
-//    },
-//    GREATER_THAN_OR_EQUAL_TO {
-//        @Override
-//        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, Filter<Object> filter) {
-//            return criteriaBuilder.greaterThanOrEqualTo(
-//                    from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filter.getFieldName()).getEntityPropertyNameLastPart()).as(String.class),
-//                    filter.getValues().get(0));
-//        }
-//    },
-//    LESS_THAN_OR_EQUAL_TO {
-//        @Override
-//        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
-//
-//            if (!filterValues.isEmpty()) {
-//                Path<Object> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
-//                        .getEntityPropertyNameLastPart());
-//                return criteriaBuilder.lessThanOrEqualTo(
-//                        path.as(String.class),
-//                        filterValues.get(0));
-//            } else {
-//                return alwaysTrue(criteriaBuilder);
-//            }
-//
-////            return criteriaBuilder.lessThanOrEqualTo(
-////                    from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filter.getFieldName()).getEntityPropertyNameLastPart()).as(String.class),
-////                    filter.getValues().get(0));
-//        }
-//    },
-//    DATE_IS {
-//        @Override
-//        Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, Filter<Object> filter) {
-//            return criteriaBuilder.equal(
-//                    from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filter.getFieldName()).getEntityPropertyNameLastPart()).as(String.class),
-//                    filter.getValues().get(0));
-//        }
-//    }
-
-
     ;
 
     abstract Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues);

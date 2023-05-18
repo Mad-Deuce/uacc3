@@ -1,5 +1,6 @@
 package dms.service.structure;
 
+import dms.DeviceAuthService;
 import dms.dto.StructureDTO;
 import dms.standing.data.dock.val.Cls;
 import dms.standing.data.dock.val.RegionType;
@@ -23,16 +24,20 @@ import java.util.stream.Collectors;
 @Service
 public class StructureServiceImpl implements StructureService {
 
+    private final DeviceAuthService deviceAuthService;
+
     private final RailwayRepository railwayRepository;
     private final SubdivisionRepository subdivisionRepository;
     private final RtdFacilityRepository rtdFacilityRepository;
     private final LineFacilityRepository lineFacilityRepository;
 
 
-    public StructureServiceImpl(RailwayRepository railwayRepository,
+    public StructureServiceImpl(DeviceAuthService deviceAuthService,
+                                RailwayRepository railwayRepository,
                                 SubdivisionRepository subdivisionRepository,
                                 RtdFacilityRepository rtdFacilityRepository,
                                 LineFacilityRepository lineFacilityRepository) {
+        this.deviceAuthService = deviceAuthService;
         this.railwayRepository = railwayRepository;
         this.subdivisionRepository = subdivisionRepository;
         this.lineFacilityRepository = lineFacilityRepository;
@@ -146,7 +151,35 @@ public class StructureServiceImpl implements StructureService {
 
     @Override
     public StructureDTO getRoot() {
-        return new StructureDTO(null, null, null, Cls.CLS2.getName(), true,
-                0, Cls.CLS2.getId(), Cls.CLS2.getName(),"");
+        String principalPermitCode = deviceAuthService.getPrincipalPermitCode();
+        final String parentItem;
+        if (principalPermitCode.length() == 0) {
+            return new StructureDTO(null, null, null, Cls.CLS2.getName(), true,
+                    0, Cls.CLS2.getId(), Cls.CLS2.getName(), "");
+        } else
+        if (principalPermitCode.length() == 1) {
+            RailwayEntity entity = railwayRepository.findById(principalPermitCode).orElseThrow();
+            parentItem = Cls.CLS2.getName();
+            return new StructureDTO(entity.getId(), null, null,
+                    entity.getName(), true,1, Cls.CLS131.getId(),
+                    Cls.CLS131.getName(), parentItem);
+        } else
+        if (principalPermitCode.length() == 3) {
+            SubdivisionEntity entity = subdivisionRepository.findById(principalPermitCode).orElseThrow();
+            parentItem = Cls.CLS132.getName();
+            return new StructureDTO(entity.getId(), null, null,
+                    entity.getName(), true,2, Cls.CLS132.getId(),
+                    Cls.CLS132.getName(), parentItem);
+        } else
+        if (principalPermitCode.length() == 4) {
+            RtdFacilityEntity entity = rtdFacilityRepository.findById(principalPermitCode).orElseThrow();
+            parentItem = Cls.CLS133.getName();
+            return new StructureDTO(entity.getId(), null, null,
+                    entity.getName(), true,2, Cls.CLS133.getId(),
+                    Cls.CLS133.getName(), parentItem);
+        } else {
+            return new StructureDTO(null, null, null, "empty", false,
+                    0, "", "", "");
+        }
     }
 }

@@ -10,7 +10,7 @@
 			"name": "auth",
 			"item": [
 				{
-					"name": "login",
+					"name": "login-admin",
 					"event": [
 						{
 							"listen": "test",
@@ -32,6 +32,51 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"login\": \"admin\",\r\n    \"password\": \"user\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login-operator1021",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();\r",
+									"pm.globals.set(\"dms_token\",response.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"user_operator1021\",\r\n    \"password\": \"user\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -89,7 +134,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "[\r\n    {\r\n        \"fieldName\": \"facilityId\",\r\n        \"values\": [\r\n            \"1011001\"\r\n        ],\r\n        \"matchMode\": \"equals\",\r\n        \"type\": \"string\"\r\n    }\r\n]",
+							"raw": "[\r\n    {\r\n        \"fieldName\": \"facilityId\",\r\n        \"values\": [\r\n            \"1021001\"\r\n        ],\r\n        \"matchMode\": \"equals\",\r\n        \"type\": \"string\"\r\n    },\r\n    {\r\n        \"fieldName\": \"status\",\r\n        \"values\": [\r\n            \"21\"\r\n        ],\r\n        \"matchMode\": \"in\",\r\n        \"type\": \"string\"\r\n    }\r\n]",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -266,49 +311,7 @@
 					"name": "overdue_devices",
 					"item": [
 						{
-							"name": "stats_by_cls",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:8080/api/stats/overdue-devices?cls=131&id=1",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"api",
-										"stats",
-										"overdue-devices"
-									],
-									"query": [
-										{
-											"key": "cls",
-											"value": "131"
-										},
-										{
-											"key": "id",
-											"value": "1"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "stats_by_cls_separated",
+							"name": "stats",
 							"event": [
 								{
 									"listen": "prerequest",

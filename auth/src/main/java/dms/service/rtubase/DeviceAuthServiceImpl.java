@@ -35,5 +35,13 @@ public class DeviceAuthServiceImpl implements DeviceAuthService {
         return queryAuthConditionsPart.toString();
     }
 
-
+    @Override
+    public String getPrincipalPermitCode(){
+        JwtUserDetails principal = (JwtUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal != null) {
+            return principal.getPermitCode();
+        } else {
+            return "";
+        }
+    }
 }
