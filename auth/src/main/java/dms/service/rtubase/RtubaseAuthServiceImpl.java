@@ -1,7 +1,6 @@
 package dms.service.rtubase;
 
-import dms.DeviceAuthService;
-import dms.entity.UserEntity;
+import dms.RtubaseAuthService;
 import dms.jwt.JwtUserDetails;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Primary
-public class DeviceAuthServiceImpl implements DeviceAuthService {
+public class RtubaseAuthServiceImpl implements RtubaseAuthService {
 
     @Override
     public String getAuthConditionsPartOfFindDeviceByFilterQuery (){

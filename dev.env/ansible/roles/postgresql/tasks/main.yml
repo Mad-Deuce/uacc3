@@ -43,3 +43,6 @@
     databases: all
     method: md5
     create: false
+
+- name: "exec sql script: add view"
+  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"

@@ -1,5 +1,6 @@
-package dms.standing.data.service.drail;
+package dms.standing.data.service.railway;
 
+import dms.RtubaseAuthService;
 import dms.standing.data.entity.RailwayEntity;
 import dms.standing.data.repository.RailwayRepository;
 import org.apache.poi.ss.usermodel.Row;
@@ -17,18 +18,31 @@ import java.util.Iterator;
 import java.util.List;
 
 @Service
-public class DRailServiceImpl implements DRailService {
+public class RailwayServiceImpl implements RailwayService {
+
+    private final RtubaseAuthService rtubaseAuthService;
 
     private final RailwayRepository railwayRepository;
 
     @Autowired
-    public DRailServiceImpl(RailwayRepository railwayRepository) {
+    public RailwayServiceImpl(RtubaseAuthService rtubaseAuthService, RailwayRepository railwayRepository) {
+        this.rtubaseAuthService = rtubaseAuthService;
         this.railwayRepository = railwayRepository;
     }
 
     @Override
     public List<RailwayEntity> getAll() {
-        return railwayRepository.findAll();
+
+        String principalPermitCode = rtubaseAuthService.getPrincipalPermitCode();
+        List<RailwayEntity> result;
+
+        if (principalPermitCode.equals("")){
+            result = railwayRepository.findByIdStartsWith(principalPermitCode);
+        } else {
+            result = railwayRepository.findByIdStartsWith(principalPermitCode.substring(0, 1));
+        }
+
+        return result;
     }
 
     @Override

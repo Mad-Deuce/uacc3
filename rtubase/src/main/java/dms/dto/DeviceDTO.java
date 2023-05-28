@@ -45,6 +45,8 @@ public class DeviceDTO {
     private Date nextTestDateMin;
     private Date nextTestDateMax;
 
+    private Date extraNextTestDate;
+
     private Integer replacementPeriod;
     private Integer replacementPeriodMin;
     private Integer replacementPeriodMax;

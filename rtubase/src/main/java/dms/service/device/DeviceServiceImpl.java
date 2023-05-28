@@ -1,7 +1,7 @@
 package dms.service.device;
 
 
-import dms.DeviceAuthService;
+import dms.RtubaseAuthService;
 import dms.entity.DeviceEntity;
 import dms.entity.LocationEntity;
 import dms.exception.DeviceValidationException;
@@ -16,6 +16,7 @@ import dms.standing.data.dock.val.Status;
 import dms.standing.data.entity.DeviceTypeEntity;
 import dms.standing.data.entity.DeviceTypeGroupEntity;
 import dms.standing.data.entity.FacilityEntity;
+import dms.standing.data.entity.SubdivisionEntity;
 import dms.standing.data.repository.LineFacilityRepository;
 import dms.standing.data.repository.RtdFacilityRepository;
 import dms.validation.DeviceValidator;
@@ -55,7 +56,7 @@ public class DeviceServiceImpl implements DeviceService {
     @PersistenceContext
     EntityManager em;
 
-    private final DeviceAuthService deviceAuthService;
+    private final RtubaseAuthService rtubaseAuthService;
 
     private final DeviceValidator deviceValidator;
     private final DeviceRepository deviceRepository;
@@ -64,13 +65,13 @@ public class DeviceServiceImpl implements DeviceService {
     private final LocationRepository locationRepository;
 
     @Autowired
-    public DeviceServiceImpl(DeviceAuthService deviceAuthService,
+    public DeviceServiceImpl(RtubaseAuthService rtubaseAuthService,
                              DeviceValidator deviceValidator,
                              DeviceRepository deviceRepository,
                              LineFacilityRepository lineFacilityRepository,
                              RtdFacilityRepository rtdFacilityRepository,
                              LocationRepository locationRepository) {
-        this.deviceAuthService = deviceAuthService;
+        this.rtubaseAuthService = rtubaseAuthService;
         this.deviceValidator = deviceValidator;
         this.deviceRepository = deviceRepository;
         this.lineFacilityRepository = lineFacilityRepository;
@@ -98,7 +99,7 @@ public class DeviceServiceImpl implements DeviceService {
                                 "FROM DeviceEntity d " +
                                 "WHERE 1=1 " +
                                 getQueryConditionsPart(deviceFilter) +
-                                deviceAuthService.getAuthConditionsPartOfFindDeviceByFilterQuery())
+                                rtubaseAuthService.getAuthConditionsPartOfFindDeviceByFilterQuery())
                 .getSingleResult();
 
         List<DeviceEntity> content = em.createQuery(
@@ -110,7 +111,7 @@ public class DeviceServiceImpl implements DeviceService {
                                 " LEFT JOIN FETCH d.location l " +
                                 " WHERE 1=1 " +
                                 getQueryConditionsPart(deviceFilter) +
-                                deviceAuthService.getAuthConditionsPartOfFindDeviceByFilterQuery() +
+                                rtubaseAuthService.getAuthConditionsPartOfFindDeviceByFilterQuery() +
                                 getQueryOrderPart(pageable) +
                                 " ORDER BY d.id ASC"
                         , DeviceEntity.class)
@@ -256,13 +257,14 @@ public class DeviceServiceImpl implements DeviceService {
             Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
             Join<DeviceEntity, LocationEntity> location = root.join("location", JoinType.LEFT);
             Join<DeviceEntity, FacilityEntity> facility = root.join("facility");
+            Join<FacilityEntity, SubdivisionEntity> subdivision = facility.join("subdivision");
 
             criteriaQuery.distinct(false);
 
             Predicate predicateDefault = criteriaBuilder.equal(root, root);
 
             Predicate predicateAuth = criteriaBuilder
-                    .like(facility.get("id"), deviceAuthService.getPrincipalPermitCode() + "%");
+                    .like(facility.get("id"), rtubaseAuthService.getPrincipalPermitCode() + "%");
 
             predicateDefault = predicateAuth;
 
@@ -336,6 +338,12 @@ public class DeviceServiceImpl implements DeviceService {
                                         .map(Object::toString)
                                         .collect(Collectors.toList());
                                 predicatesList.add(predicate.create(facility, criteriaBuilder, filter.getFieldName(), filterValues));
+                            }
+                            if (filter.getFieldName().equals("subdivisionShortName")) {
+                                filterValues = filter.getValues().stream()
+                                        .map(Object::toString)
+                                        .collect(Collectors.toList());
+                                predicatesList.add(predicate.create(subdivision, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
                         }
                     }

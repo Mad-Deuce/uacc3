@@ -1,6 +1,6 @@
 package dms.service.structure;
 
-import dms.DeviceAuthService;
+import dms.RtubaseAuthService;
 import dms.dto.StructureDTO;
 import dms.standing.data.dock.val.Cls;
 import dms.standing.data.dock.val.RegionType;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class StructureServiceImpl implements StructureService {
 
-    private final DeviceAuthService deviceAuthService;
+    private final RtubaseAuthService rtubaseAuthService;
 
     private final RailwayRepository railwayRepository;
     private final SubdivisionRepository subdivisionRepository;
@@ -32,12 +32,12 @@ public class StructureServiceImpl implements StructureService {
     private final LineFacilityRepository lineFacilityRepository;
 
 
-    public StructureServiceImpl(DeviceAuthService deviceAuthService,
+    public StructureServiceImpl(RtubaseAuthService rtubaseAuthService,
                                 RailwayRepository railwayRepository,
                                 SubdivisionRepository subdivisionRepository,
                                 RtdFacilityRepository rtdFacilityRepository,
                                 LineFacilityRepository lineFacilityRepository) {
-        this.deviceAuthService = deviceAuthService;
+        this.rtubaseAuthService = rtubaseAuthService;
         this.railwayRepository = railwayRepository;
         this.subdivisionRepository = subdivisionRepository;
         this.lineFacilityRepository = lineFacilityRepository;
@@ -151,7 +151,7 @@ public class StructureServiceImpl implements StructureService {
 
     @Override
     public StructureDTO getRoot() {
-        String principalPermitCode = deviceAuthService.getPrincipalPermitCode();
+        String principalPermitCode = rtubaseAuthService.getPrincipalPermitCode();
         final String parentItem;
         if (principalPermitCode.length() == 0) {
             return new StructureDTO(null, null, null, Cls.CLS2.getName(), true,

@@ -1,6 +1,6 @@
 package dms;
 
-public interface DeviceAuthService {
+public interface RtubaseAuthService {
 
     default String getAuthConditionsPartOfFindDeviceByFilterQuery() {
         return "";
