@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/obj")
-public class DObjController {
+@RequestMapping("/api/standing-data/facilities")
+public class FacilityController {
     private final LineFacilityService lineFacilityService;
 
     @Autowired
-    public DObjController(LineFacilityService lineFacilityService) {
+    public FacilityController(LineFacilityService lineFacilityService) {
         this.lineFacilityService = lineFacilityService;
     }
 

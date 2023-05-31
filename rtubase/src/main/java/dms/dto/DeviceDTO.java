@@ -7,6 +7,8 @@ import dms.standing.data.dock.val.ReplacementType;
 import dms.validation.group.OnDeviceCreate;
 import lombok.Data;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 import java.sql.Date;
 import java.util.List;
@@ -65,6 +67,9 @@ public class DeviceDTO {
     private String subdivisionId;
     @ExportInfo(reportId = 1, position = 1, title = "Підрозділ")
     private String subdivisionShortName;
+
+    private String rtdId;
+    private String rtdName;
 
     @Size(groups = OnDeviceCreate.class, min=4, max = 4)
     private String facilityId;

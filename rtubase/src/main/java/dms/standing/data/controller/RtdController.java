@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rtu")
-public class DRtuController {
+@RequestMapping("/api/standing-data/rtds")
+public class RtdController {
 
     private final RtdFacilityService rtdFacilityService;
 
     @Autowired
-    public DRtuController(RtdFacilityService rtdFacilityService) {
+    public RtdController(RtdFacilityService rtdFacilityService) {
         this.rtdFacilityService = rtdFacilityService;
     }
 

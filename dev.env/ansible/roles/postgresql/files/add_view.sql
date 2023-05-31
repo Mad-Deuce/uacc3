@@ -1,3 +1,7 @@
+CREATE SCHEMA IF NOT EXISTS dms;
+comment on schema dms is 'Device Management System';
+alter schema dms owner to postgres;
+
 create or replace view dms.v$devices_main
             (id, type_id, type_name, type_group_id, type_group_name, number, release_year, test_date, next_test_date,
              replacement_period, status, detail, railway_id, railway_name, subdivision_id, subdivision_short_name, rtd_id,
@@ -39,8 +43,7 @@ FROM drtu.dev
          LEFT JOIN drtu.d_rail ON "substring"(dev.obj_code::text, 1, 1) = d_rail.id::text
          LEFT JOIN drtu.s_dev ON dev.devid = s_dev.id
          LEFT JOIN drtu.s_devgrp ON s_dev.grid = s_devgrp.grid
-         LEFT JOIN drtu.dev_obj ON dev.id_obj = dev_obj.id
-LIMIT 10;
+         LEFT JOIN drtu.dev_obj ON dev.id_obj = dev_obj.id;
 ;
 
 alter table dms.v$devices_main

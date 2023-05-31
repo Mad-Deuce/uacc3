@@ -2,6 +2,7 @@ package dms.mapper;
 
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceEntity;
+import dms.entity.DeviceViewMainEntity;
 import dms.filter.DeviceFilter;
 import dms.service.location.LocationService;
 import dms.standing.data.entity.FacilityEntity;
@@ -73,11 +74,23 @@ public abstract class DeviceMapper {
     @Mapping(target = "locationDetail", source = "location.detail")
     public abstract DeviceDTO entityToDTO(DeviceEntity entity);
 
+    @Mapping(target = "regionType", source = "regionType.name")
+    @Mapping(target = "regionTypeComment", source = "regionType.comment")
+    @Mapping(target = "statusComment", source = "status.comment")
+    @Mapping(target = "locateType", source = "locateType.name")
+    @Mapping(target = "locateTypeComment", source = "locateType.comment")
+    public abstract DeviceDTO entityToDTO(DeviceViewMainEntity entity);
+
     public abstract DeviceFilter dTOToFilter(DeviceDTO deviceDTO);
 
 
     public Page<DeviceDTO> entityToDTOPage(Page<DeviceEntity> deviceEntityPage) {
         List<DeviceDTO> content = deviceEntityPage.getContent().stream().map(this::entityToDTO).collect(Collectors.toList());
         return new PageImpl<>(content, deviceEntityPage.getPageable(), deviceEntityPage.getTotalElements());
+    }
+
+    public Page<DeviceDTO> entityPageToDtoPage(Page<DeviceViewMainEntity> entityPage) {
+        List<DeviceDTO> content = entityPage.getContent().stream().map(this::entityToDTO).collect(Collectors.toList());
+        return new PageImpl<>(content, entityPage.getPageable(), entityPage.getTotalElements());
     }
 }

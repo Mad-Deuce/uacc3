@@ -1,6 +1,8 @@
 package dms.service.device;
 
 import dms.mapper.ExplicitDeviceMatcher;
+import dms.standing.data.dock.val.LocateType;
+import dms.standing.data.dock.val.RegionType;
 import dms.standing.data.dock.val.Status;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,8 +19,7 @@ public enum PredicatesConst {
     IN {
         @Override
         Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
-            Path<Object> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
-                    .getEntityPropertyNameLastPart());
+            Path<Object> path = from.get(filterFieldName);
             return criteriaBuilder.in(path).value(convertByClass(path, filterValues));
         }
     },
@@ -183,8 +184,7 @@ public enum PredicatesConst {
         @Override
         Predicate create(From<?, ?> from, CriteriaBuilder criteriaBuilder, String filterFieldName, List<Object> filterValues) {
             if (!filterValues.isEmpty()) {
-                Path<Object> path = from.get(ExplicitDeviceMatcher.getInstanceByFilterPropertyName(filterFieldName)
-                        .getEntityPropertyNameLastPart());
+                Path<Object> path = from.get(filterFieldName);
                 return criteriaBuilder.equal(
                         path,
                         filterValues.get(0));
@@ -229,7 +229,7 @@ public enum PredicatesConst {
                         .getEntityPropertyNameLastPart());
                 return criteriaBuilder.lt(
                         path.as(Integer.class),
-                       ((Integer) filterValues.get(0)));
+                        ((Integer) filterValues.get(0)));
             } else {
                 return alwaysTrue(criteriaBuilder);
             }
@@ -257,7 +257,7 @@ public enum PredicatesConst {
                         .getEntityPropertyNameLastPart());
                 return criteriaBuilder.gt(
                         path.as(Integer.class),
-                       ((Integer) filterValues.get(0)));
+                        ((Integer) filterValues.get(0)));
             } else {
                 return alwaysTrue(criteriaBuilder);
             }
@@ -270,6 +270,10 @@ public enum PredicatesConst {
     public static List<?> convertByClass(Path<Object> path, List<Object> filterValueList) {
         if (Status.class.equals(path.getJavaType())) {
             return Status.toStatusList(filterValueList);
+        } else if (RegionType.class.equals(path.getJavaType())) {
+            return RegionType.toStatusList(filterValueList);
+        } else if (LocateType.class.equals(path.getJavaType())) {
+            return LocateType.toStatusList(filterValueList);
         } else {
             return filterValueList;
         }
