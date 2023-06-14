@@ -7,6 +7,7 @@ import dms.standing.data.dock.val.LocateType;
 import dms.standing.data.dock.val.RegionType;
 import dms.standing.data.dock.val.Status;
 import lombok.Data;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -53,6 +54,10 @@ public class DeviceViewMainEntity {
     @Basic
     @Column(name = "next_test_date")
     private Date nextTestDate;
+
+    @Basic
+    @Column(name = "extra_next_test_date")
+    private Date extraNextTestDate;
 
     @Basic
     @Column(name = "replacement_period", nullable = false, columnDefinition = "NUMERIC(5,0)")
