@@ -1,6 +1,7 @@
 package dms.service.structure;
 
 import dms.RtubaseAuthService;
+import dms.dto.ObjectTreeNode;
 import dms.dto.StructureDTO;
 import dms.standing.data.dock.val.Cls;
 import dms.standing.data.dock.val.RegionType;
@@ -150,36 +151,170 @@ public class StructureServiceImpl implements StructureService {
     }
 
     @Override
+    public List<ObjectTreeNode> getChildrenAlt(String parentId, String parentClsId) {
+
+        final String parentItem;
+
+        if (parentClsId.equals(Cls.CLS2.getId())) {
+            List<RailwayEntity> entityList = railwayRepository.findAll();
+            return entityList.stream()
+                    .map(item -> new ObjectTreeNode("" + item.getId(), "" + Cls.CLS131.getId(), true,
+                            1, "" + item.getName(), "" + item.getName() + "-Stats",
+                            item.getName() + ". Stats"))
+                    .collect(Collectors.toList());
+        }
+
+        if (parentClsId.equals(Cls.CLS131.getId())) {
+            List<SubdivisionEntity> entityList = subdivisionRepository.findAllByIdStartingWithOrderById(parentId);
+            return entityList.stream()
+                    .map(item -> new ObjectTreeNode("" + item.getId(), "" + Cls.CLS132.getId(), true,
+                            2, "" + item.getName(), "" + Cls.CLS132.getId() + "-Stats",
+                            Cls.CLS132.getName() + ". Stats"))
+                    .collect(Collectors.toList());
+        }
+
+        if (parentClsId.equals(Cls.CLS132.getId())) {
+            List<RtdFacilityEntity> entityList = rtdFacilityRepository.findAllByIdStartingWithOrderById(parentId);
+            return entityList.stream()
+                    .map(item -> new ObjectTreeNode("" + item.getId(), "" + Cls.CLS133.getId(), true,
+                            3, "" + item.getName(), "" + Cls.CLS133.getId() + "-Stats",
+                            Cls.CLS133.getName() + ". Stats"))
+                    .collect(Collectors.toList());
+        }
+
+        if (parentClsId.equals(Cls.CLS133.getId())) {
+            List<ObjectTreeNode> result = new ArrayList<>();
+            parentItem = rtdFacilityRepository.findById(parentId).orElseThrow().getName();
+
+            result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS2111.getId(), true,
+                    4, "" + RegionType.EC.getName(), "" + RegionType.EC.getName(),
+                    "" + RegionType.EC.getName()));
+            result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS2112.getId(), true,
+                    4, "" + RegionType.PG.getName(), "" + RegionType.PG.getName(),
+                    "" + RegionType.PG.getName()));
+
+            result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS21152.getId(), false,
+                    4, "" + Cls.CLS21152.getName(), "" + Cls.CLS21152.getName() + " " + parentItem,
+                    "" + Cls.CLS21152.getName() + " " + parentItem));
+
+            result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS21151.getId(), false,
+                    4, "" + Cls.CLS21151.getName(), "" + Cls.CLS21151.getName() + " " + parentItem,
+                    "" + Cls.CLS21151.getName() + " " + parentItem));
+
+            return result;
+        }
+
+        if (parentClsId.equals(Cls.CLS2111.getId())) {
+            if (parentId.length() == 7) {
+                List<ObjectTreeNode> result = new ArrayList<>();
+                parentItem = lineFacilityRepository.findById(parentId).orElseThrow().getName();
+
+                result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS21111.getId(), false,
+                        6, "" + Cls.CLS21111.getName(), "" + Cls.CLS21111.getName() + "-" + parentItem,
+                        "" + parentItem + ". " + Cls.CLS21111.getName()));
+                result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS21114.getId(), false,
+                        6, "" + Cls.CLS21114.getName(), "" + Cls.CLS21114.getName() + "-" + parentItem,
+                        "" + parentItem + ". " + Cls.CLS21114.getName()));
+                result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS21112.getId(), false,
+                        6, "" + Cls.CLS21112.getName(), "" + Cls.CLS21112.getName() + "-" + parentItem,
+                        "" + parentItem + ". " + Cls.CLS21112.getName()));
+
+                return result;
+            } else {
+                List<LineFacilityEntity> entityList = lineFacilityRepository
+                        .findAllByIdStartingWithOrderById(parentId + "0");
+                return entityList.stream()
+                        .map(item -> new ObjectTreeNode("" + item.getId(), "" + Cls.CLS2111.getId(),
+                                true, 5, "" + item.getName(), "" + item.getName() + "-Stats",
+                                "" + item.getName() + ". Stats"))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        if (parentClsId.equals(Cls.CLS2112.getId())) {
+            if (parentId.length() == 7) {
+                List<ObjectTreeNode> result = new ArrayList<>();
+                parentItem = lineFacilityRepository.findById(parentId).orElseThrow().getName();
+                result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS21121.getId(), false,
+                        6, "" + Cls.CLS21121.getName(), "" + Cls.CLS21121.getName() + "-" + parentItem,
+                        "" + parentItem + ". " + Cls.CLS21121.getName()));
+                result.add(new ObjectTreeNode("" + parentId, "" + Cls.CLS21122.getId(), false,
+                        6, "" + Cls.CLS21122.getName(), "" + Cls.CLS21122.getName() + "-" + parentItem,
+                        "" + parentItem + ". " + Cls.CLS21122.getName()));
+                return result;
+            } else {
+                List<LineFacilityEntity> entityList = lineFacilityRepository
+                        .findAllByIdStartingWithOrderById(parentId + "2");
+                parentItem = Cls.CLS2112.getName();
+                return entityList.stream()
+                        .map(item -> new ObjectTreeNode("" + item.getId(), "" + Cls.CLS2112.getId(),
+                                true, 5, "" + item.getName(), "" + item.getName() + "-Stats",
+                                "" + item.getName() + ". Stats"))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    @Override
     public StructureDTO getRoot() {
         String principalPermitCode = rtubaseAuthService.getPrincipalPermitCode();
         final String parentItem;
         if (principalPermitCode.length() == 0) {
             return new StructureDTO(null, null, null, Cls.CLS2.getName(), true,
                     0, Cls.CLS2.getId(), Cls.CLS2.getName(), "");
-        } else
-        if (principalPermitCode.length() == 1) {
+        } else if (principalPermitCode.length() == 1) {
             RailwayEntity entity = railwayRepository.findById(principalPermitCode).orElseThrow();
             parentItem = Cls.CLS2.getName();
             return new StructureDTO(entity.getId(), null, null,
-                    entity.getName(), true,1, Cls.CLS131.getId(),
+                    entity.getName(), true, 1, Cls.CLS131.getId(),
                     Cls.CLS131.getName(), parentItem);
-        } else
-        if (principalPermitCode.length() == 3) {
+        } else if (principalPermitCode.length() == 3) {
             SubdivisionEntity entity = subdivisionRepository.findById(principalPermitCode).orElseThrow();
             parentItem = Cls.CLS132.getName();
             return new StructureDTO(entity.getId(), null, null,
-                    entity.getName(), true,2, Cls.CLS132.getId(),
+                    entity.getName(), true, 2, Cls.CLS132.getId(),
                     Cls.CLS132.getName(), parentItem);
-        } else
-        if (principalPermitCode.length() == 4) {
+        } else if (principalPermitCode.length() == 4) {
             RtdFacilityEntity entity = rtdFacilityRepository.findById(principalPermitCode).orElseThrow();
             parentItem = Cls.CLS133.getName();
             return new StructureDTO(entity.getId(), null, null,
-                    entity.getName(), true,2, Cls.CLS133.getId(),
+                    entity.getName(), true, 2, Cls.CLS133.getId(),
                     Cls.CLS133.getName(), parentItem);
         } else {
             return new StructureDTO(null, null, null, "empty", false,
                     0, "", "", "");
+        }
+    }
+
+    @Override
+    public ObjectTreeNode getRootAlt() {
+        String principalPermitCode = rtubaseAuthService.getPrincipalPermitCode();
+        final String parentItem;
+        if (principalPermitCode.length() == 0) {
+            return new ObjectTreeNode(null, "" + Cls.CLS2.getId(), true,
+                    0, "" + Cls.CLS2.getName(), Cls.CLS2.getName() + "-Stats",
+                    Cls.CLS2.getName() + ". Stats");
+        } else if (principalPermitCode.length() == 1) {
+            RailwayEntity entity = railwayRepository.findById(principalPermitCode).orElseThrow();
+            return new ObjectTreeNode("" + entity.getId(), "" + Cls.CLS131.getId(), true,
+                    1, "" + Cls.CLS131.getName(), Cls.CLS131.getName() + "-Stats",
+                    Cls.CLS131.getName() + ". Stats");
+        } else if (principalPermitCode.length() == 3) {
+            SubdivisionEntity entity = subdivisionRepository.findById(principalPermitCode).orElseThrow();
+            return new ObjectTreeNode("" + entity.getId(), "" + Cls.CLS132.getId(), true,
+                    2, "" + Cls.CLS132.getName(), Cls.CLS132.getName() + "-Stats",
+                    Cls.CLS132.getName() + ". Stats");
+        } else if (principalPermitCode.length() == 4) {
+            RtdFacilityEntity entity = rtdFacilityRepository.findById(principalPermitCode).orElseThrow();
+            return new ObjectTreeNode("" + entity.getId(), "" + Cls.CLS133.getId(), true,
+                    3, "" + Cls.CLS133.getName(), Cls.CLS133.getName() + "-Stats",
+                    Cls.CLS133.getName() + ". Stats");
+        } else {
+            return new ObjectTreeNode(null, "", false,
+                    0, "empty", "empty",
+                    "empty");
         }
     }
 }
