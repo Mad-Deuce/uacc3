@@ -1,8 +1,7 @@
 package dms.controller;
 
 
-import dms.dto.ObjectTreeNode;
-import dms.dto.StructureDTO;
+import dms.dto.ObjectTreeNodeDto;
 import dms.service.structure.StructureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -26,7 +25,7 @@ public class ObjectTreeController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/root")
     public ResponseEntity<?> getRoot() {
-        List<ObjectTreeNode> result = new ArrayList<>();
+        List<ObjectTreeNodeDto> result = new ArrayList<>();
 
         result.add(structureService.getRootAlt());
 
@@ -38,9 +37,9 @@ public class ObjectTreeController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/")
-    public ResponseEntity<?> getChildren(ObjectTreeNode structureDTO) {
+    public ResponseEntity<?> getChildren(ObjectTreeNodeDto structureDTO) {
 
-        List<ObjectTreeNode> result = structureService.getChildrenAlt(
+        List<ObjectTreeNodeDto> result = structureService.getChildrenAlt(
                 structureDTO.getId(),
                 structureDTO.getClsId()
         );

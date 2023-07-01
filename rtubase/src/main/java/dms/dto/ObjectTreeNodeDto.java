@@ -6,10 +6,9 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ObjectTreeNode {
+public class ObjectTreeNodeDto {
     private String id;
     private String clsId;
-//    private String regionType;
 
     private boolean expandable;
     private boolean isLoading;
@@ -19,12 +18,10 @@ public class ObjectTreeNode {
     private String tabLabel;
     private String tabHeader;
 
-
-    public ObjectTreeNode(String id, String clsId, boolean expandable, int level,
-                          String label, String tabLabel, String tabHeader) {
+    public ObjectTreeNodeDto(String id, String clsId, boolean expandable, int level, String label, String tabLabel,
+                             String tabHeader) {
         this.id = id;
         this.clsId = clsId;
-//        this.regionType = regionType;
 
         this.expandable = expandable;
         this.isLoading = true;
