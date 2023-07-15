@@ -257,7 +257,7 @@ public class DeviceServiceImpl implements DeviceService {
             Join<DeviceTypeEntity, DeviceTypeGroupEntity> group = type.join("group");
             Join<DeviceEntity, LocationEntity> location = root.join("location", JoinType.LEFT);
             Join<DeviceEntity, FacilityEntity> facility = root.join("facility");
-            Join<FacilityEntity, SubdivisionEntity> subdivision = facility.join("subdivision");
+//            Join<FacilityEntity, SubdivisionEntity> subdivision = facility.join("subdivision");
 
             criteriaQuery.distinct(false);
 
@@ -339,12 +339,12 @@ public class DeviceServiceImpl implements DeviceService {
                                         .collect(Collectors.toList());
                                 predicatesList.add(predicate.create(facility, criteriaBuilder, filter.getFieldName(), filterValues));
                             }
-                            if (filter.getFieldName().equals("subdivisionShortName")) {
-                                filterValues = filter.getValues().stream()
-                                        .map(Object::toString)
-                                        .collect(Collectors.toList());
-                                predicatesList.add(predicate.create(subdivision, criteriaBuilder, filter.getFieldName(), filterValues));
-                            }
+//                            if (filter.getFieldName().equals("subdivisionShortName")) {
+//                                filterValues = filter.getValues().stream()
+//                                        .map(Object::toString)
+//                                        .collect(Collectors.toList());
+//                                predicatesList.add(predicate.create(subdivision, criteriaBuilder, filter.getFieldName(), filterValues));
+//                            }
                         }
                     }
             );

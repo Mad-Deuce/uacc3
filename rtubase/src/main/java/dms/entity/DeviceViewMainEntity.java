@@ -14,7 +14,7 @@ import java.sql.Date;
 
 @Data
 @Entity
-@Table(name = "v$devices_main", schema = "dms", catalog = "rtubase")
+@Table(name = "v$devices_main",  catalog = "rtubase")
 public class DeviceViewMainEntity {
 
     @Id

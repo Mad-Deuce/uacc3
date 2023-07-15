@@ -1,7 +1,9 @@
 package dms.repository;
 
+import dms.config.multitenant.TenantIdentifierResolver;
 import dms.entity.DeviceEntity;
 import dms.entity.DeviceViewMainEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,6 +13,7 @@ import org.springframework.lang.NonNull;
 
 public interface DeviceViewRepository extends JpaRepository<DeviceViewMainEntity, Long>,
         JpaSpecificationExecutor<DeviceViewMainEntity> {
+
 
     @NonNull
     Page<DeviceViewMainEntity> findAll(Specification specification, @NonNull Pageable pageable);

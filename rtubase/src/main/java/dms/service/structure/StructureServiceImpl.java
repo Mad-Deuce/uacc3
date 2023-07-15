@@ -60,7 +60,7 @@ public class StructureServiceImpl implements StructureService {
             List<SubdivisionEntity> entityList = subdivisionRepository.findAllByIdStartingWithOrderById(parentId);
             return entityList.stream()
                     .map(item -> new ObjectTreeNodeDto("" + item.getId(), "" + Cls.CLS132.getId(), true,
-                            2, "" + item.getName(), "" + Cls.CLS132.getId() + "-Stats",
+                            2, "" + item.getName(), "" + Cls.CLS132.getName() + "-Stats",
                             Cls.CLS132.getName() + ". Stats"))
                     .collect(Collectors.toList());
         } else
@@ -69,7 +69,7 @@ public class StructureServiceImpl implements StructureService {
             List<RtdFacilityEntity> entityList = rtdFacilityRepository.findAllByIdStartingWithOrderById(parentId);
             return entityList.stream()
                     .map(item -> new ObjectTreeNodeDto("" + item.getId(), "" + Cls.CLS133.getId(), true,
-                            3, "" + item.getName(), "" + Cls.CLS133.getId() + "-Stats",
+                            3, "" + item.getName(), "" + Cls.CLS133.getName() + "-Stats",
                             Cls.CLS133.getName() + ". Stats"))
                     .collect(Collectors.toList());
         } else

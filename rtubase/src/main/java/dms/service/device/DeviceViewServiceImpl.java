@@ -1,13 +1,16 @@
 package dms.service.device;
 
 import dms.RtubaseAuthService;
+import dms.config.multitenant.TenantIdentifierResolver;
 import dms.entity.DeviceViewMainEntity;
 import dms.filter.Filter;
 import dms.repository.DeviceViewRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.criteria.Predicate;
 import java.sql.Date;
@@ -19,6 +22,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class DeviceViewServiceImpl implements DeviceViewService {
+
+    @Autowired
+    TenantIdentifierResolver currentTenant;
+
+    @Autowired
+    TransactionTemplate txTemplate;
 
     private final RtubaseAuthService rtubaseAuthService;
 
@@ -37,6 +46,9 @@ public class DeviceViewServiceImpl implements DeviceViewService {
 
     @Override
     public Page<DeviceViewMainEntity> findDevicesBySpecification(Pageable pageable, List<Filter<Object>> filters) {
+
+        currentTenant.setCurrentTenant("dms");
+
         return deviceRepository.findAll(getSpecification(filters), pageable);
     }
 

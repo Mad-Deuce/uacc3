@@ -1,8 +1,10 @@
 package dms.controller;
 
 
+import dms.dao.SchemaManager;
 import dms.filter.Filter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -15,6 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
+
+    @Autowired
+    SchemaManager sm;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -42,4 +47,41 @@ public class TestController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(filters);
     }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/create-schema", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createSchema() {
+
+        sm.createSchema("test_schema");
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("New Schema Created");
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/rename-schema", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> renameSchema() {
+
+        sm.renameSchema("test_schema","new_test_schema");
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("Schema Renamed");
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/remove-schema", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> removeSchema() {
+
+        sm.removeSchema("new_test_schema");
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("Schema Removed");
+    }
+
 }

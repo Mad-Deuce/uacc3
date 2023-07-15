@@ -7,10 +7,10 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(schema="public",name = "users")
+@Table(schema = "public", name = "users")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class UserEntity extends BaseEntity{
+public class UserEntity extends BaseEntity {
 
     @Column(name = "name")
     private String username;
@@ -25,7 +25,7 @@ public class UserEntity extends BaseEntity{
     private String permitCode;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "users_roles",
+    @JoinTable(schema = "public", name = "users_roles",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "roles_id", referencedColumnName = "id")})
     private List<RoleEntity> roles;
