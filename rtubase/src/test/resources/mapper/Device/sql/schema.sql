@@ -1,6 +1,6 @@
 CREATE SCHEMA IF NOT EXISTS drtu;
 
-create table IF NOT EXISTS drtu.d_dist
+create table IF NOT EXISTS drtu_old.d_dist
 (
     id        varchar(5) not null
         constraint d_dist_pkey
@@ -11,7 +11,7 @@ create table IF NOT EXISTS drtu.d_dist
     code_dist numeric(2)
 );
 
-create table IF NOT EXISTS drtu.d_obj
+create table IF NOT EXISTS drtu_old.d_obj
 (
     kod_dor  char       not null,
     kod_otd  char,
@@ -30,12 +30,12 @@ create table IF NOT EXISTS drtu.d_obj
 );
 
 create index IF NOT EXISTS d_obj_ind_cls
-    on drtu.d_obj (cls);
+    on drtu_old.d_obj (cls);
 
 create index IF NOT EXISTS d_obj_ind_kind
-    on drtu.d_obj (kind);
+    on drtu_old.d_obj (kind);
 
-create table IF NOT EXISTS drtu.d_rail
+create table IF NOT EXISTS drtu_old.d_rail
 (
     id   char not null
         constraint d_rail_prima
@@ -44,7 +44,7 @@ create table IF NOT EXISTS drtu.d_rail
     code char
 );
 
-create table IF NOT EXISTS drtu.d_rtu
+create table IF NOT EXISTS drtu_old.d_rtu
 (
     id      varchar(5) not null
         constraint d_rtu_pkey
@@ -55,7 +55,7 @@ create table IF NOT EXISTS drtu.d_rtu
     kod_did numeric(2)
 );
 
-create table IF NOT EXISTS drtu.s_locate
+create table IF NOT EXISTS drtu_old.s_locate
 (
     id     varchar(2) not null
         constraint s_locate_pkey
@@ -64,7 +64,7 @@ create table IF NOT EXISTS drtu.s_locate
     name   varchar(50)
 );
 
-create table IF NOT EXISTS drtu.dev
+create table IF NOT EXISTS drtu_old.dev
 (
     id_obj   numeric(14),
     devid    numeric(10),
@@ -88,27 +88,27 @@ create table IF NOT EXISTS drtu.dev
 );
 
 create index IF NOT EXISTS dev_i_d_nkip
-    on drtu.dev (d_nkip);
+    on drtu_old.dev (d_nkip);
 
 create index IF NOT EXISTS dev_i_obj_code
-    on drtu.dev (obj_code);
+    on drtu_old.dev (obj_code);
 
 create index IF NOT EXISTS dev_ind_d_tkip
-    on drtu.dev (d_tkip);
+    on drtu_old.dev (d_tkip);
 
 create index IF NOT EXISTS dev_ind_devid
-    on drtu.dev (devid);
+    on drtu_old.dev (devid);
 
 create unique index IF NOT EXISTS dev_ind_id_obj
-    on drtu.dev (id_obj);
+    on drtu_old.dev (id_obj);
 
 create index IF NOT EXISTS dev_ind_num
-    on drtu.dev (num);
+    on drtu_old.dev (num);
 
 create index IF NOT EXISTS dev_ind_oksend
-    on drtu.dev (ok_send);
+    on drtu_old.dev (ok_send);
 
-create table IF NOT EXISTS drtu.dev_obj
+create table IF NOT EXISTS drtu_old.dev_obj
 (
     id       numeric(14) not null
         constraint dev_obj_p
@@ -127,17 +127,17 @@ create table IF NOT EXISTS drtu.dev_obj
 );
 
 create index IF NOT EXISTS dev_obj_i_obj_code
-    on drtu.dev_obj (obj_code);
+    on drtu_old.dev_obj (obj_code);
 
 create index IF NOT EXISTS dev_obj_ind_nplace
-    on drtu.dev_obj (region, locate, nplace);
+    on drtu_old.dev_obj (region, locate, nplace);
 
 create index IF NOT EXISTS dev_obj_ind_oksend
-    on drtu.dev_obj (ok_send);
+    on drtu_old.dev_obj (ok_send);
 
 
 
-create table IF NOT EXISTS drtu.dev_test
+create table IF NOT EXISTS drtu_old.dev_test
 (
     cnt      numeric(10),
     id       numeric(10),
@@ -152,7 +152,7 @@ create table IF NOT EXISTS drtu.dev_test
     erc      char(2)
 );
 
-create table IF NOT EXISTS drtu.dev_trail
+create table IF NOT EXISTS drtu_old.dev_trail
 (
     id       numeric(10) not null
         constraint dev_trail_pkey
@@ -167,7 +167,7 @@ create table IF NOT EXISTS drtu.dev_trail
     obj_code varchar(10)
 );
 
-create table IF NOT EXISTS drtu.dev_trans
+create table IF NOT EXISTS drtu_old.dev_trans
 (
     name        char(12) not null
         constraint dev_trans_pkey
@@ -183,7 +183,7 @@ create table IF NOT EXISTS drtu.dev_trans
     time_t      timestamp
 );
 
-create table IF NOT EXISTS drtu.dev_zam
+create table IF NOT EXISTS drtu_old.dev_zam
 (
     id          numeric(10) not null
         constraint dev_zam_pkey
@@ -197,9 +197,9 @@ create table IF NOT EXISTS drtu.dev_zam
 );
 
 create index IF NOT EXISTS ind_dev_zam
-    on drtu.dev_zam (obj_code);
+    on drtu_old.dev_zam (obj_code);
 
-create table IF NOT EXISTS drtu.pers
+create table IF NOT EXISTS drtu_old.pers
 (
     num      varchar(4)  not null,
     pos      char(2),
@@ -209,7 +209,7 @@ create table IF NOT EXISTS drtu.pers
         primary key (obj_code, num)
 );
 
-create table IF NOT EXISTS drtu.pribory
+create table IF NOT EXISTS drtu_old.pribory
 (
     metka      varchar(5),
     kod_dor    varchar(5),
@@ -236,17 +236,17 @@ create table IF NOT EXISTS drtu.pribory
 );
 
 create index IF NOT EXISTS ind_pribory_id_rtu
-    on drtu.pribory (id_rtu);
+    on drtu_old.pribory (id_rtu);
 
 create index IF NOT EXISTS ind_pribory_obj_code
-    on drtu.pribory (obj_code);
+    on drtu_old.pribory (obj_code);
 
-create table IF NOT EXISTS drtu.s_calendar
+create table IF NOT EXISTS drtu_old.s_calendar
 (
     myear varchar(4)
 );
 
-create table IF NOT EXISTS drtu.s_dev
+create table IF NOT EXISTS drtu_old.s_dev
 (
     id       numeric(10) not null
         constraint s_dev_pkey
@@ -269,12 +269,12 @@ create table IF NOT EXISTS drtu.s_dev
 );
 
 create index IF NOT EXISTS s_dev_ind_scode
-    on drtu.s_dev (scode);
+    on drtu_old.s_dev (scode);
 
 create index IF NOT EXISTS s_dev_ind_type
-    on drtu.s_dev (dtype);
+    on drtu_old.s_dev (dtype);
 
-create table IF NOT EXISTS drtu.s_dev_new
+create table IF NOT EXISTS drtu_old.s_dev_new
 (
     id       numeric(10) not null
         constraint s_dev_new_pkey
@@ -293,7 +293,7 @@ create table IF NOT EXISTS drtu.s_dev_new
     plant    varchar(160)
 );
 
-create table IF NOT EXISTS drtu.s_devgrp
+create table IF NOT EXISTS drtu_old.s_devgrp
 (
     grid numeric(10) not null
         constraint s_devgrp_pkey
@@ -302,7 +302,7 @@ create table IF NOT EXISTS drtu.s_devgrp
     opcl char default 'O'::character varying
 );
 
-create sequence IF NOT EXISTS drtu.seq_devid
+create sequence IF NOT EXISTS drtu_old.seq_devid
     start with 300000
     maxvalue 999999;
 

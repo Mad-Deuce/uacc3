@@ -10,7 +10,7 @@ import javax.persistence.*;
 @ToString(of = {"code", "name"})
 @NoArgsConstructor
 @Entity
-@Table(name = "d_rail", schema = "drtu", catalog = "rtubase")
+@Table(name = "d_rail", schema = "drtu_old", catalog = "rtubase")
 public class RailwayEntity {
 
     @Id

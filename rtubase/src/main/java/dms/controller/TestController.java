@@ -76,7 +76,20 @@ public class TestController {
     @GetMapping(value = "/remove-schema", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> removeSchema() {
 
-        sm.removeSchema("new_test_schema");
+        sm.removeSchema("drtu");
+        sm.removeSchema("dock");
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("Schema Removed");
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/restore-schema", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> restoreSchema() {
+
+        sm.restoreEmpty();
 
         return ResponseEntity
                 .ok()

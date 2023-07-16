@@ -17,7 +17,7 @@ SELECT dev.id,
        dev.myear                                      AS release_year,
        dev.d_tkip                                     AS test_date,
        dev.d_nkip                                     AS next_test_date,
-       drtu.zam10(dev.d_nkip, dev.t_zam, '1'::"char") AS extra_next_test_date,
+       drtu_old.zam10(dev.d_nkip, dev.t_zam, '1'::"char") AS extra_next_test_date,
        dev.t_zam                                      AS replacement_period,
        dev.ps                                         AS status,
        dev.detail,
@@ -37,14 +37,14 @@ SELECT dev.id,
        dev_obj.locate_t                               AS locate_type,
        dev_obj.nplace                                 AS place_number,
        dev_obj.detail                                 AS location_detail
-FROM drtu.dev
-         LEFT JOIN drtu.d_obj ON dev.obj_code::text = d_obj.id::text
-         LEFT JOIN drtu.d_rtu ON "substring"(dev.obj_code::text, 1, 4) = d_rtu.id::text
-         LEFT JOIN drtu.d_dist ON "substring"(dev.obj_code::text, 1, 3) = d_dist.id::text
-         LEFT JOIN drtu.d_rail ON "substring"(dev.obj_code::text, 1, 1) = d_rail.id::text
-         LEFT JOIN drtu.s_dev ON dev.devid = s_dev.id
-         LEFT JOIN drtu.s_devgrp ON s_dev.grid = s_devgrp.grid
-         LEFT JOIN drtu.dev_obj ON dev.id_obj = dev_obj.id;
+FROM drtu_old.dev
+         LEFT JOIN drtu_old.d_obj ON dev.obj_code::text = d_obj.id::text
+         LEFT JOIN drtu_old.d_rtu ON "substring"(dev.obj_code::text, 1, 4) = d_rtu.id::text
+         LEFT JOIN drtu_old.d_dist ON "substring"(dev.obj_code::text, 1, 3) = d_dist.id::text
+         LEFT JOIN drtu_old.d_rail ON "substring"(dev.obj_code::text, 1, 1) = d_rail.id::text
+         LEFT JOIN drtu_old.s_dev ON dev.devid = s_dev.id
+         LEFT JOIN drtu_old.s_devgrp ON s_dev.grid = s_devgrp.grid
+         LEFT JOIN drtu_old.dev_obj ON dev.id_obj = dev_obj.id;
 ;
 
 alter table dms.v$devices_main

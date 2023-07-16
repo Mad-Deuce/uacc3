@@ -13,7 +13,7 @@ import java.io.Serializable;
 @ToString
 @NoArgsConstructor
 @Entity
-@Table(name = "d_dist", schema = "drtu", catalog = "rtubase")
+@Table(name = "d_dist", schema = "drtu_old", catalog = "rtubase")
 public class SubdivisionEntity implements Serializable {
 
     @Id
