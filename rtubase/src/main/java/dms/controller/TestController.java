@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.util.List;
 
 @Slf4j
@@ -64,7 +65,7 @@ public class TestController {
     @GetMapping(value = "/rename-schema", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> renameSchema() {
 
-        sm.renameSchema("test_schema","new_test_schema");
+        sm.renameSchema("test_schema", "new_test_schema");
 
         return ResponseEntity
                 .ok()
@@ -95,6 +96,49 @@ public class TestController {
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body("Schema Removed");
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/read-file", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> readFile() {
+
+        sm.readFileLineByLine();
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("File Read");
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/unzip-file", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> unzipFile() throws Exception {
+
+        String fileZip = "rtubase/src/main/resources/pd_files/d1110714.001";
+        String destDir = "rtubase/src/main/resources/pd_files/tttw";
+
+        File fz = new File(fileZip);
+        log.info("exists: " + String.valueOf(fz.exists()));
+        log.info("is dir: " + String.valueOf(fz.isDirectory()));
+        log.info("is file: " + String.valueOf(fz.isFile()));
+        log.info("can read: " + String.valueOf(fz.canRead()));
+
+        File dd = new File(destDir);
+        log.info("exists: " + String.valueOf(dd.exists()));
+        log.info("is dir: " + String.valueOf(dd.isDirectory()));
+        log.info("is file: " + String.valueOf(dd.isFile()));
+        log.info("can read: " + String.valueOf(dd.canWrite()));
+
+//        sm.extractZip(fileZip, destDir);
+//        sm.extract7z(fileZip, destDir);
+        sm.extractGzip(fileZip, destDir);
+//        sm.extractTarGz("TAR", fileZip, destDir);
+//        sm.extractTarGz("TAR_GZ", fileZip, destDir);
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("File UnRAR");
     }
 
 }
