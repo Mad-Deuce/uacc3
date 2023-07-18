@@ -4,16 +4,9 @@ package dms.dao;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import dms.dto.DeviceDTO;
+import dms.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZFile;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -23,6 +16,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
@@ -128,21 +123,19 @@ public class SchemaManager {
 
     }
 
-    public void readFileLineByLine() {
+    private List<String> readFileToList(String path) throws IOException {
+        List<String> rowList = Collections.emptyList();
 
-        String path = "rtubase/src/main/resources/pd_files/d1011714";
+        File file = new File(path);
+        log.info("exists: " + file.exists());
+        log.info("is dir: " + file.isDirectory());
+        log.info("is file: " + file.isFile());
+        log.info("can read: " + file.canRead());
 
-        try {
-            List<String> allLines = Files.readAllLines(Paths.get(path), Charset.forName("windows-1251"));
-
-            for (String line : allLines) {
-
-                System.out.println(line.length());
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (file.exists() && file.isFile() && file.canRead()) {
+            rowList = Files.readAllLines(Paths.get(path), Charset.forName("windows-1251"));
         }
+        return rowList;
     }
 
     public void unzipFile() {
@@ -211,42 +204,8 @@ public class SchemaManager {
         return destFile;
     }
 
-    public void extractZip(String sourceFilePath, String destinationFilePath) throws Exception {
-        File input = new File(sourceFilePath);
-        InputStream is = new FileInputStream(input);
-        ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
-        ZipArchiveEntry entry = null;
-        // ZipArchiveEntry entry = (ZipArchiveEntry) in.getNextEntry();
-        while((entry = (ZipArchiveEntry) in.getNextEntry()) != null) {
-            OutputStream out = new FileOutputStream(new File(destinationFilePath, entry.getName()));
-            IOUtils.copy(in, out);
-            out.close();
-        }
-        in.close();
-    }
-
-    public void extract7z(String sourceFilePath, String destinationFilePath) throws Exception {
-        SevenZFile sevenZFile = new SevenZFile(new File(sourceFilePath));
-        SevenZArchiveEntry entry;
-        while ((entry = sevenZFile.getNextEntry()) != null) {
-            if (entry.isDirectory()) {
-                continue;
-            }
-            File curfile = new File(destinationFilePath, "7z_" + entry.getName());
-            File parent = curfile.getParentFile();
-            if (!parent.exists()) {
-                parent.mkdirs();
-            }
-            FileOutputStream out = new FileOutputStream(curfile);
-            byte[] content = new byte[(int) entry.getSize()];
-            sevenZFile.read(content, 0, content.length);
-            out.write(content);
-            out.close();
-        }
-        sevenZFile.close();
-    }
-
     public void extractGzip(String sourceFilePath, String destinationFilePath) throws Exception {
+
         byte[] buffer = new byte[1024];
         FileInputStream fileIn = new FileInputStream(sourceFilePath);
         GZIPInputStream gZIPInputStream = new GZIPInputStream(fileIn);
@@ -259,35 +218,160 @@ public class SchemaManager {
         fileOutputStream.close();
     }
 
-    public void extractTarGz(String decompressionMethod, String sourceFilePath, String destinationFilePath) throws Exception {
-        TarArchiveInputStream fin = null;
-        switch(decompressionMethod) {
-            case "TAR":{
-                fin = new TarArchiveInputStream(new FileInputStream(sourceFilePath));
-                break;
-            }
-            case "TAR_GZ":{
-                fin = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(sourceFilePath)));
-                break;
-            }
+    @Transactional
+    public void restoreDevFromDFiles() throws Exception {
+        String compressedFilePath = "rtubase/src/main/resources/pd_files/d1110714.001";
+        String extractedFilePath = "rtubase/src/main/resources/pd_files/d1110714";
+
+        CompressUtils.extractGzip(compressedFilePath, extractedFilePath);
+
+        File extractedFile = new File(extractedFilePath);
+        if (!extractedFile.exists() || !extractedFile.isFile() || !extractedFile.canRead()) {
+            log.error("dms: file not accessible");
+            return;
         }
 
-        TarArchiveEntry entry;
-        while ((entry = fin.getNextTarEntry()) != null) {
-            if (entry.isDirectory()) {
-                continue;
-            }
-            File curfile = new File(destinationFilePath + entry.getName());
-            File parent = curfile.getParentFile();
-            if (!parent.exists()) {
-                parent.mkdirs();
-            }
-            IOUtils.copy(fin, new FileOutputStream(curfile));
-            System.out.println("tesss");
+        List<DeviceDTO> deviceDTOList = new ArrayList<>();
+        List<String> strRowList = readFileToList(extractedFilePath);
+
+        String headerRow = strRowList.get(0);
+        if (!checkVersion(headerRow.substring(35, 42))) {
+            log.error("dms: version wrong");
+            return;
         }
-        fin.close();
+
+        strRowList.forEach(item -> {
+            deviceDTOList.add(DeviceDTO.stringify(item));
+        });
+
+        removeDevice(headerRow.substring(1, 5));
+        addDeviceRecord(deviceDTOList);
     }
 
+    private boolean checkVersion(String version) {
+        return em.createNativeQuery(
+                        "select  value_c  from dock.val where name = 'VERSION'")
+                .getSingleResult().equals(version);
+    }
+
+
+    private void removeDevice(String objCode) {
+        if (objCode.charAt(3) == '0') {
+            em.createNativeQuery(
+                            "delete from drtu.dev where SUBSTR(obj_code , 1 , 3 ) =  '" +
+                                    objCode +
+                                    "'")
+                    .executeUpdate();
+        } else {
+            em.createNativeQuery(
+                            "delete from drtu.dev where SUBSTR(obj_code , 1 , 4 ) =  '" +
+                                    objCode +
+                                    "'")
+                    .executeUpdate();
+        }
+
+    }
+
+    private boolean isDeviceTypeExists(String typeId) {
+        return em.createNativeQuery(
+                        "select 'X' from drtu.s_dev where id = TO_NUMBER (  '" +
+                                typeId +
+                                "' , '9999999999' ) ")
+                .getSingleResult().equals("X");
+    }
+
+    private boolean isLocationFree(String locationId) {
+        if (locationId == null || locationId.equals("")) return true;
+        return !em.createNativeQuery(
+                        "'X' from drtu.dev where id_obj = TO_NUMBER('" +
+                                locationId +
+                                "', '99999999999999')")
+                .getSingleResult().equals("X");
+    }
+
+    private void addDeviceRecord(List<DeviceDTO> deviceDTOList) {
+        deviceDTOList.forEach(item -> {
+            if (!isDeviceTypeExists(String.valueOf(item.getTypeId()))) {
+                log.warn("device type not exist");
+                return;
+            }
+            if (!isLocationFree(String.valueOf(item.getLocationId()))) {
+                log.warn("Location not free");
+                return;
+            }
+            if (updateDevice(item) < 1) {
+                insertDevice(item);
+            }
+        });
+    }
+
+    private Integer updateDevice(DeviceDTO deviceDTO) {
+        return em.createNativeQuery(
+                "update drtu.dev " +
+                        "set devid = TO_NUMBER (  '" +
+                        deviceDTO.getTypeId() +
+                        "' , '9999999999' ) , NUM  =  '" +
+                        deviceDTO.getNumber() +
+                        "' , myear  =  '" +
+                        deviceDTO.getReleaseYear() +
+                        "' , d_tkip  = TO_DATE (  " +
+                        deviceDTO.getTestDate() +
+                        " , 'DDMMYYYY' ) , d_nkip  = TO_DATE (  " +
+                        deviceDTO.getNextTestDate() +
+                        " , 'DDMMYYYY' ) , t_zam  =  " +
+                        deviceDTO.getReplacementPeriod() +
+                        " , id_obj  = TO_NUMBER (  null , '99999999999999' ) , obj_code  =  '" +
+                        deviceDTO.getFacilityId().substring(0, 4) +
+                        "' , ps  =  '" +
+                        deviceDTO.getStatus() +
+                        "' , opcl  =  '" +
+                        deviceDTO.getOpcl() +
+                        "' , tid_pr  =  " +
+                        deviceDTO.getTid_pr() +
+                        " , tid_rg  =  " +
+                        deviceDTO.getTid_rg() +
+                        " , scode  =  '" +
+                        deviceDTO.getScode() +
+                        "'  where id = TO_NUMBER (  '" +
+                        deviceDTO.getId() +
+                        "' , '9999999999' )").executeUpdate();
+    }
+
+    private Integer insertDevice(DeviceDTO deviceDTO) {
+        return em.createNativeQuery(
+                "insert into drtu.dev (ID, DEVID, NUM, MYEAR, D_TKIP, D_NKIP, T_ZAM, ID_OBJ, OBJ_CODE, PS, " +
+                        "OPCL, TID_PR, TID_RG, SCODE) values (TO_NUMBER (  '" +
+                        deviceDTO.getId() +
+                        "' , '9999999999' ) , TO_NUMBER (  '" +
+                        deviceDTO.getTypeId() +
+                        "' , '9999999999' ) ,  '" +
+                        deviceDTO.getNumber() +
+                        "' ,  '" +
+                        deviceDTO.getReleaseYear() +
+                        "' , TO_DATE (  " +
+                        deviceDTO.getTestDate() +
+                        " , 'DDMMYYYY' ) , TO_DATE (  " +
+                        deviceDTO.getNextTestDate() +
+                        " , 'DDMMYYYY' ) ,  " +
+                        deviceDTO.getReplacementPeriod() +
+                        " , TO_NUMBER (  " +
+                        deviceDTO.getLocationId() +
+                        " , '99999999999999' ) ,  '" +
+                        deviceDTO.getFacilityId() +
+                        "' ,  '" +
+                        deviceDTO.getStatus() +
+                        "' ,  '" +
+                        deviceDTO.getOpcl() +
+                        "' ,  " +
+                        deviceDTO.getTid_pr() +
+                        " ,  " +
+                        deviceDTO.getTid_rg() +
+                        " ,  '" +
+                        deviceDTO.getScode() +
+                        "' )").executeUpdate();
+
+
+    }
 
 
 }

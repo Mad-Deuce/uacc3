@@ -102,7 +102,7 @@ public class TestController {
     @GetMapping(value = "/read-file", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> readFile() {
 
-        sm.readFileLineByLine();
+//        sm.readFileLineByLine();
 
         return ResponseEntity
                 .ok()
@@ -139,6 +139,18 @@ public class TestController {
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body("File UnRAR");
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/parse-d-file", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> parseDFile() throws Exception {
+
+        sm.restoreDevFromDFiles();
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("res");
     }
 
 }

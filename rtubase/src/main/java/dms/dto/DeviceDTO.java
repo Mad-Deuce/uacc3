@@ -6,15 +6,17 @@ import dms.mapper.ExplicitDeviceMatcher;
 import dms.standing.data.dock.val.ReplacementType;
 import dms.validation.group.OnDeviceCreate;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import java.sql.Date;
 import java.util.List;
 import java.util.Objects;
 
-
+@Slf4j
 @Data
 public class DeviceDTO {
 
@@ -32,7 +34,7 @@ public class DeviceDTO {
     @NotBlank(groups = OnDeviceCreate.class, message = "BLYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     @ExportInfo(reportId = 1, position = 3, title = "Номер")
     private String number;
-    @Size(groups = OnDeviceCreate.class, min=4, max = 4)
+    @Size(groups = OnDeviceCreate.class, min = 4, max = 4)
     @ExportInfo(reportId = 1, position = 4, title = "Рік виготовлення")
     private String releaseYear;
     private String releaseYearMin;
@@ -71,7 +73,7 @@ public class DeviceDTO {
     private String rtdId;
     private String rtdName;
 
-    @Size(groups = OnDeviceCreate.class, min=4, max = 4)
+    @Size(groups = OnDeviceCreate.class, min = 4, max = 4)
     private String facilityId;
     @ExportInfo(reportId = 1, position = 7, title = "Об'єкт")
     private String facilityName;
@@ -98,6 +100,11 @@ public class DeviceDTO {
 
     private List<ExplicitDeviceMatcher> activeProperties;
 
+    private String opcl;
+    private String tid_pr;
+    private String tid_rg;
+    private String scode;
+
 
     @Override
     public boolean equals(Object o) {
@@ -111,5 +118,57 @@ public class DeviceDTO {
     public int hashCode() {
         return Objects.hash(typeId, number, releaseYear, testDate, nextTestDate, replacementPeriod, status, detail, facilityId, locationId);
     }
+
+    public static DeviceDTO stringify(String str) {
+        DeviceDTO result = new DeviceDTO();
+        if (str.length() == 135) {
+            result.setId(Long.parseLong(str.substring(0, 10).trim()));                              //10    trim
+            result.setTypeId(Long.parseLong(str.substring(10, 20).trim()));                         //10    trim
+            result.setNumber(str.substring(20, 30).trim());                                         //10    trim
+            result.setTypeName(str.substring(30, 50).trim());                                       //20    trim
+            result.setReleaseYear(str.substring(50, 54).trim());                                    //4
+
+            result.setTestDate(strToDate(str.substring(54, 62)));                        //8
+            result.setNextTestDate(strToDate(str.substring(62, 70)));                        //8
+
+
+//            result.setTestDate(Date.valueOf(str.substring(58, 62) + "-"
+//                    + str.substring(56, 58) + "-" + str.substring(54, 56)));                        //8
+//            result.setNextTestDate(Date.valueOf(str.substring(66, 70) + "-"
+//                    + str.substring(64, 66) + "-" + str.substring(62, 64)));                        //8
+
+            result.setReplacementPeriod(Integer.parseInt(str.substring(70, 75).trim()));            //5     trim
+
+            if (str.substring(75, 89).trim().length() > 0) {
+                result.setLocationId(Long.parseLong(str.substring(75, 89).trim()));                 //14    "" to null
+            }
+            result.setFacilityId((str.substring(89, 96).trim()));                                   //7     trim
+            result.setStatus((str.substring(96, 98).trim()));                                       //2     trim
+            result.setOpcl((str.substring(98, 99).trim()));                                         //1     OPCL not used
+
+            if (str.substring(99, 103).trim().length() > 0) {
+                result.setTid_pr((str.substring(99, 103).trim()));                                  //4     TID_PR not used "" to null
+            }
+            if (str.substring(103, 107).trim().length() > 0) {
+                result.setTid_rg((str.substring(103, 107).trim()));                                 //4     TID_RG not used "" to null
+
+            }
+
+            result.setScode("F");                                                                   //1     SCODE not used  "" to null
+            return result;
+        } else return null;
+    }
+
+    private static Date strToDate(String str) {
+        if (str.trim().length() != 8) return null;
+        try {
+            return Date.valueOf(str.substring(4) + "-"
+                    + str.substring(2, 4) + "-" + str.substring(0, 2));
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
 }
 
