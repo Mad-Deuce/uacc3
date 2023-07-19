@@ -7,6 +7,8 @@ import com.jcraft.jsch.Session;
 import dms.dto.DeviceDTO;
 import dms.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.type.DateType;
+import org.hibernate.type.LongType;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -19,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
@@ -220,6 +223,11 @@ public class SchemaManager {
 
     @Transactional
     public void restoreDevFromDFiles() throws Exception {
+
+//        log.info(updateSingleDev() + "");
+//        log.info(insertSingleDev() + "");
+
+//        createSingleDev();
         String compressedFilePath = "rtubase/src/main/resources/pd_files/d1110714.001";
         String extractedFilePath = "rtubase/src/main/resources/pd_files/d1110714";
 
@@ -273,102 +281,122 @@ public class SchemaManager {
     }
 
     private boolean isDeviceTypeExists(String typeId) {
+        if (typeId == null || typeId.trim().equals("null") || typeId.trim().equals("")) return false;
         return em.createNativeQuery(
                         "select 'X' from drtu.s_dev where id = TO_NUMBER (  '" +
                                 typeId +
                                 "' , '9999999999' ) ")
-                .getSingleResult().equals("X");
+                .getResultList().size() > 0;
     }
 
     private boolean isLocationFree(String locationId) {
-        if (locationId == null || locationId.equals("")) return true;
-        return !em.createNativeQuery(
-                        "'X' from drtu.dev where id_obj = TO_NUMBER('" +
-                                locationId +
-                                "', '99999999999999')")
-                .getSingleResult().equals("X");
+        if (locationId == null || locationId.trim().equals("null") || locationId.trim().equals(""))
+            return true;
+        try {
+            return em.createNativeQuery(
+                            "select 'X' from drtu.dev where id_obj = TO_NUMBER('" +
+                                    locationId.trim() +
+                                    "', '99999999999999')")
+                    .getResultList().size() < 1;
+        } catch (Exception e) {
+            log.error("--------------------------" + locationId);
+            throw e;
+        }
     }
 
     private void addDeviceRecord(List<DeviceDTO> deviceDTOList) {
-        deviceDTOList.forEach(item -> {
-            if (!isDeviceTypeExists(String.valueOf(item.getTypeId()))) {
-                log.warn("device type not exist");
-                return;
-            }
-            if (!isLocationFree(String.valueOf(item.getLocationId()))) {
-                log.warn("Location not free");
-                return;
-            }
-            if (updateDevice(item) < 1) {
-                insertDevice(item);
-            }
-        });
+        deviceDTOList.stream()
+                .filter(Objects::nonNull)
+                .forEach(item -> {
+                    if (!isDeviceTypeExists(String.valueOf(item.getTypeId()))) {
+                        log.warn("device type not exist");
+                        return;
+                    }
+                    if (!isLocationFree(String.valueOf(item.getLocationId()))) {
+                        log.warn("Location not free");
+                        return;
+                    }
+                    if (updateDevice(item) < 1) {
+                        insertDevice(item);
+                    }
+                });
     }
+
+
+
+
 
     private Integer updateDevice(DeviceDTO deviceDTO) {
         return em.createNativeQuery(
-                "update drtu.dev " +
-                        "set devid = TO_NUMBER (  '" +
-                        deviceDTO.getTypeId() +
-                        "' , '9999999999' ) , NUM  =  '" +
-                        deviceDTO.getNumber() +
-                        "' , myear  =  '" +
-                        deviceDTO.getReleaseYear() +
-                        "' , d_tkip  = TO_DATE (  " +
-                        deviceDTO.getTestDate() +
-                        " , 'DDMMYYYY' ) , d_nkip  = TO_DATE (  " +
-                        deviceDTO.getNextTestDate() +
-                        " , 'DDMMYYYY' ) , t_zam  =  " +
-                        deviceDTO.getReplacementPeriod() +
-                        " , id_obj  = TO_NUMBER (  null , '99999999999999' ) , obj_code  =  '" +
-                        deviceDTO.getFacilityId().substring(0, 4) +
-                        "' , ps  =  '" +
-                        deviceDTO.getStatus() +
-                        "' , opcl  =  '" +
-                        deviceDTO.getOpcl() +
-                        "' , tid_pr  =  " +
-                        deviceDTO.getTid_pr() +
-                        " , tid_rg  =  " +
-                        deviceDTO.getTid_rg() +
-                        " , scode  =  '" +
-                        deviceDTO.getScode() +
-                        "'  where id = TO_NUMBER (  '" +
-                        deviceDTO.getId() +
-                        "' , '9999999999' )").executeUpdate();
+                        "update DRTU.DEV " +
+                                "set DEVID    = :devid, " +
+                                "    NUM      = :num, " +
+                                "    MYEAR    = :myear, " +
+                                "    D_TKIP   = :dtkip, " +
+                                "    D_NKIP   = :dnkip, " +
+                                "    T_ZAM    = :tzam, " +
+                                "    ID_OBJ   = :idobj, " +
+                                "    OBJ_CODE = :objcode, " +
+                                "    PS       = :ps, " +
+                                "    OPCL     = :opcl, " +
+                                "    TID_PR   = :tidpr, " +
+                                "    TID_RG   = :tidrg, " +
+                                "    SCODE    = :scode " +
+                                "where ID = :id  "
+                ).unwrap(org.hibernate.query.NativeQuery.class)
+                .setParameter("devid", deviceDTO.getTypeId())
+                .setParameter("num", deviceDTO.getNumber())
+                .setParameter("myear", deviceDTO.getReleaseYear())
+                .setParameter("dtkip", deviceDTO.getTestDate(), DateType.INSTANCE)
+                .setParameter("dnkip", deviceDTO.getNextTestDate(), DateType.INSTANCE)
+                .setParameter("tzam", deviceDTO.getReplacementPeriod())
+                .setParameter("idobj", deviceDTO.getLocationId(), LongType.INSTANCE)
+                .setParameter("objcode", deviceDTO.getFacilityId())
+                .setParameter("ps", deviceDTO.getStatus())
+                .setParameter("opcl", deviceDTO.getOpcl())
+                .setParameter("tidpr", deviceDTO.getTid_pr())
+                .setParameter("tidrg", deviceDTO.getTid_rg())
+                .setParameter("scode", deviceDTO.getScode())
+                .setParameter("id", deviceDTO.getId())
+                .executeUpdate();
     }
 
     private Integer insertDevice(DeviceDTO deviceDTO) {
         return em.createNativeQuery(
-                "insert into drtu.dev (ID, DEVID, NUM, MYEAR, D_TKIP, D_NKIP, T_ZAM, ID_OBJ, OBJ_CODE, PS, " +
-                        "OPCL, TID_PR, TID_RG, SCODE) values (TO_NUMBER (  '" +
-                        deviceDTO.getId() +
-                        "' , '9999999999' ) , TO_NUMBER (  '" +
-                        deviceDTO.getTypeId() +
-                        "' , '9999999999' ) ,  '" +
-                        deviceDTO.getNumber() +
-                        "' ,  '" +
-                        deviceDTO.getReleaseYear() +
-                        "' , TO_DATE (  " +
-                        deviceDTO.getTestDate() +
-                        " , 'DDMMYYYY' ) , TO_DATE (  " +
-                        deviceDTO.getNextTestDate() +
-                        " , 'DDMMYYYY' ) ,  " +
-                        deviceDTO.getReplacementPeriod() +
-                        " , TO_NUMBER (  " +
-                        deviceDTO.getLocationId() +
-                        " , '99999999999999' ) ,  '" +
-                        deviceDTO.getFacilityId() +
-                        "' ,  '" +
-                        deviceDTO.getStatus() +
-                        "' ,  '" +
-                        deviceDTO.getOpcl() +
-                        "' ,  " +
-                        deviceDTO.getTid_pr() +
-                        " ,  " +
-                        deviceDTO.getTid_rg() +
-                        " ,  '" +
-                        deviceDTO.getScode() +
-                        "' )").executeUpdate();
+                        "insert into DRTU.DEV (ID, DEVID, NUM, MYEAR, D_TKIP, D_NKIP, T_ZAM, ID_OBJ, " +
+                                "OBJ_CODE, PS, OPCL, TID_PR, TID_RG, SCODE) " +
+                                "values ( " +
+                                "   :id, " +
+                                "   :devid, " +
+                                "   :num, " +
+                                "   :myear, " +
+                                "   :dtkip, " +
+                                "   :dnkip, " +
+                                "   :tzam, " +
+                                "   :idobj, " +
+                                "   :objcode, " +
+                                "   :ps, " +
+                                "   :opcl, " +
+                                "   :tidpr, " +
+                                "   :tidrg, " +
+                                "   :scode " +
+                                ")"
+                ).unwrap(org.hibernate.query.NativeQuery.class)
+                .setParameter("devid", deviceDTO.getTypeId())
+                .setParameter("num", deviceDTO.getNumber())
+                .setParameter("myear", deviceDTO.getReleaseYear())
+                .setParameter("dtkip", deviceDTO.getTestDate(), DateType.INSTANCE)
+                .setParameter("dnkip", deviceDTO.getNextTestDate(), DateType.INSTANCE)
+                .setParameter("tzam", deviceDTO.getReplacementPeriod())
+                .setParameter("idobj", deviceDTO.getLocationId(), LongType.INSTANCE)
+                .setParameter("objcode", deviceDTO.getFacilityId())
+                .setParameter("ps", deviceDTO.getStatus())
+                .setParameter("opcl", deviceDTO.getOpcl())
+                .setParameter("tidpr", deviceDTO.getTid_pr())
+                .setParameter("tidrg", deviceDTO.getTid_rg())
+                .setParameter("scode", deviceDTO.getScode())
+                .setParameter("id", deviceDTO.getId())
+                .executeUpdate();
 
 
     }

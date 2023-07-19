@@ -142,6 +142,7 @@ public class DeviceDTO {
             if (str.substring(75, 89).trim().length() > 0) {
                 result.setLocationId(Long.parseLong(str.substring(75, 89).trim()));                 //14    "" to null
             }
+
             result.setFacilityId((str.substring(89, 96).trim()));                                   //7     trim
             result.setStatus((str.substring(96, 98).trim()));                                       //2     trim
             result.setOpcl((str.substring(98, 99).trim()));                                         //1     OPCL not used
