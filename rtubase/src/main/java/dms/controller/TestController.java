@@ -129,12 +129,6 @@ public class TestController {
         log.info("is file: " + String.valueOf(dd.isFile()));
         log.info("can read: " + String.valueOf(dd.canWrite()));
 
-//        sm.extractZip(fileZip, destDir);
-//        sm.extract7z(fileZip, destDir);
-        sm.extractGzip(fileZip, destDir);
-//        sm.extractTarGz("TAR", fileZip, destDir);
-//        sm.extractTarGz("TAR_GZ", fileZip, destDir);
-
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -145,7 +139,7 @@ public class TestController {
     @GetMapping(value = "/parse-d-file", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> parseDFile() throws Exception {
 
-        sm.restoreDevFromDFiles();
+        sm.receiveDFile();
 
         return ResponseEntity
                 .ok()

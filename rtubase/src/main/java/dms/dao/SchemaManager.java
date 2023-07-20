@@ -14,18 +14,20 @@ import org.springframework.stereotype.Component;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 @Slf4j
 @Component
@@ -33,6 +35,8 @@ public class SchemaManager {
 
     @PersistenceContext
     private EntityManager em;
+
+    final String RTU_T = "1000";
 
     @Transactional
     public void createSchema(String schemaName) {
@@ -127,7 +131,7 @@ public class SchemaManager {
     }
 
     private List<String> readFileToList(String path) throws IOException {
-        List<String> rowList = Collections.emptyList();
+        List<String> result = Collections.emptyList();
 
         File file = new File(path);
         log.info("exists: " + file.exists());
@@ -136,145 +140,125 @@ public class SchemaManager {
         log.info("can read: " + file.canRead());
 
         if (file.exists() && file.isFile() && file.canRead()) {
-            rowList = Files.readAllLines(Paths.get(path), Charset.forName("windows-1251"));
+            result = Files.readAllLines(Paths.get(path), Charset.forName("windows-1251"));
         }
-        return rowList;
-    }
-
-    public void unzipFile() {
-        String fileZip = "rtubase/src/main/resources/pd_files/d1110714.001";
-
-        File fz = new File(fileZip);
-        log.info("exists: " + String.valueOf(fz.exists()));
-        log.info("is dir: " + String.valueOf(fz.isDirectory()));
-        log.info("is file: " + String.valueOf(fz.isFile()));
-        log.info("can read: " + String.valueOf(fz.canRead()));
-
-        File destDir = new File("rtubase/src/main/resources/pd_files");
-        log.info("exists: " + String.valueOf(destDir.exists()));
-        log.info("is dir: " + String.valueOf(destDir.isDirectory()));
-        log.info("is file: " + String.valueOf(destDir.isFile()));
-        log.info("can read: " + String.valueOf(destDir.canRead()));
-
-        byte[] buffer = new byte[1024];
-
-        try {
-            FileInputStream fis = new FileInputStream(fz);
-            ZipInputStream zis = new ZipInputStream(fis);
-            ZipEntry zipEntry = zis.getNextEntry();
-            while (zipEntry != null) {
-                // ...
-                File newFile = newFile(destDir, zipEntry);
-                if (zipEntry.isDirectory()) {
-                    if (!newFile.isDirectory() && !newFile.mkdirs()) {
-                        throw new IOException("Failed to create directory " + newFile);
-                    }
-                } else {
-                    // fix for Windows-created archives
-                    File parent = newFile.getParentFile();
-                    if (!parent.isDirectory() && !parent.mkdirs()) {
-                        throw new IOException("Failed to create directory " + parent);
-                    }
-
-                    // write file content
-                    FileOutputStream fos = new FileOutputStream(newFile);
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) {
-                        fos.write(buffer, 0, len);
-                    }
-                    fos.close();
-                }
-                zipEntry = zis.getNextEntry();
-            }
-            zis.closeEntry();
-            zis.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
-        File destFile = new File(destinationDir, zipEntry.getName());
-
-        String destDirPath = destinationDir.getCanonicalPath();
-        String destFilePath = destFile.getCanonicalPath();
-
-        if (!destFilePath.startsWith(destDirPath + File.separator)) {
-            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
-        }
-
-        return destFile;
-    }
-
-    public void extractGzip(String sourceFilePath, String destinationFilePath) throws Exception {
-
-        byte[] buffer = new byte[1024];
-        FileInputStream fileIn = new FileInputStream(sourceFilePath);
-        GZIPInputStream gZIPInputStream = new GZIPInputStream(fileIn);
-        FileOutputStream fileOutputStream = new FileOutputStream(destinationFilePath);
-        int bytes_read;
-        while ((bytes_read = gZIPInputStream.read(buffer)) > 0) {
-            fileOutputStream.write(buffer, 0, bytes_read);
-        }
-        gZIPInputStream.close();
-        fileOutputStream.close();
+        return result;
     }
 
     @Transactional
-    public void restoreDevFromDFiles() throws Exception {
+    public void receiveDFile() throws Exception {
 
-//        log.info(updateSingleDev() + "");
-//        log.info(insertSingleDev() + "");
 
-//        createSingleDev();
         String compressedFilePath = "rtubase/src/main/resources/pd_files/d1110714.001";
         String extractedFilePath = "rtubase/src/main/resources/pd_files/d1110714";
+
+        File compressedFile = new File(compressedFilePath);
+        if (!compressedFile.exists() || !compressedFile.isFile() || !compressedFile.canRead()) {
+            throw new Exception("dms: Compressed D File not accessible");
+        }
 
         CompressUtils.extractGzip(compressedFilePath, extractedFilePath);
 
         File extractedFile = new File(extractedFilePath);
         if (!extractedFile.exists() || !extractedFile.isFile() || !extractedFile.canRead()) {
-            log.error("dms: file not accessible");
-            return;
+            throw new Exception("dms: Extracted D File not accessible");
         }
 
         List<DeviceDTO> deviceDTOList = new ArrayList<>();
         List<String> strRowList = readFileToList(extractedFilePath);
 
         String headerRow = strRowList.get(0);
-        if (!checkVersion(headerRow.substring(35, 42))) {
-            log.error("dms: version wrong");
-            return;
+        if (!isFileVersionActual(headerRow.substring(35, 42))) {
+            throw new Exception("dms: D File Version is wrong");
         }
 
-        strRowList.forEach(item -> {
-            deviceDTOList.add(DeviceDTO.stringify(item));
+        strRowList.forEach(item -> deviceDTOList.add(DeviceDTO.stringify(item)));
+
+        clearDataSourceDevTable(headerRow.substring(1, 5));
+
+        List<DeviceDTO> unreceivedDevList = addDeviceRecord(deviceDTOList);
+        log.info("dms: Unreceived Objects count: " + unreceivedDevList.size());
+
+        int stNum = deviceDTOList.size() - 1;
+        int stNumT = deviceDTOList.size() - unreceivedDevList.size() - 1;
+        if (updateDataSourceDevTransTable(headerRow.substring(0, 12), stNumT) == 0) {
+            insertToDataSourceDevTransTable(headerRow.substring(0, 12), stNum, stNumT);
+        }
+        log.info("END DATE -------" + new Date(System.currentTimeMillis()));
+        log.info("END TIME -------" + new Timestamp(System.currentTimeMillis()));
+
+        unreceivedDevList.forEach(item -> {
+            log.info("----UN id" + item.getId());
         });
 
-        removeDevice(headerRow.substring(1, 5));
-        addDeviceRecord(deviceDTOList);
     }
 
-    private boolean checkVersion(String version) {
+    private int updateDataSourceDevTransTable(String name, int stNumT) {
         return em.createNativeQuery(
-                        "select  value_c  from dock.val where name = 'VERSION'")
-                .getSingleResult().equals(version);
+                        " update drtu.dev_trans set " +
+                                " NAME_T = UPPER (:name_t), " +
+                                " STNUM_T = :stnum_t, " +
+                                " RTU_T = :rtu_t, " +
+                                " DATE_T = :date_t, " +
+                                " TIME_T = :time_t " +
+                                " where NAME = UPPER (:name) "
+                ).unwrap(org.hibernate.query.NativeQuery.class)
+                .setParameter("name_t", "t" + name)
+                .setParameter("stnum_t", stNumT)
+                .setParameter("rtu_t", RTU_T)
+                .setParameter("date_t", new Date(System.currentTimeMillis()))
+                .setParameter("time_t", new Timestamp(System.currentTimeMillis()))
+                .setParameter("name", name)
+                .executeUpdate();
     }
 
+    private int insertToDataSourceDevTransTable(String name, int stNum, int stNumT) {
+        return em.createNativeQuery(
+                        "insert into drtu.dev_trans (name, ftype, ps, stnum, date_create, name_t, stnum_t, rtu_t, date_t, time_t) values ( " +
+                                " UPPER (:name), " +
+                                " UPPER (:ftype), " +
+                                " UPPER (:ps), " +
+                                " :stnum, " +
+                                " :date_t, " +
+                                " UPPER(:name_t), " +
+                                " :stnum_t, " +
+                                " :rtu_t, " +
+                                " :date_t, " +
+                                " :time_t ) "
 
-    private void removeDevice(String objCode) {
+                ).unwrap(org.hibernate.query.NativeQuery.class)
+                .setParameter("name", name)
+                .setParameter("ftype", name.substring(0, 1))
+                .setParameter("ps", "R")
+                .setParameter("stnum", stNum)
+                .setParameter("date_t", new Date(System.currentTimeMillis()))
+                .setParameter("name_t", "t" + name)
+                .setParameter("stnum_t", stNumT)
+                .setParameter("rtu_t", RTU_T)
+                .setParameter("time_t", new Timestamp(System.currentTimeMillis()))
+                .executeUpdate();
+    }
+
+    private boolean isFileVersionActual(String version) {
+        List<?> result = em.createNativeQuery(
+                        "select value_c from dock.val where name = 'VERSION'")
+                .getResultList();
+        return (result.size() > 0 && result.get(0).equals(version));
+    }
+
+    private void clearDataSourceDevTable(String objCode) throws Exception {
+        if (objCode.length() != 4) throw new Exception("dms: Parameter Length is wrong");
         if (objCode.charAt(3) == '0') {
             em.createNativeQuery(
-                            "delete from drtu.dev where SUBSTR(obj_code , 1 , 3 ) =  '" +
-                                    objCode +
-                                    "'")
+                            "delete from drtu.dev where SUBSTR(obj_code, 1, 3 ) = :objCode"
+                    )
+                    .setParameter("objCode", objCode.substring(0, 3))
                     .executeUpdate();
         } else {
             em.createNativeQuery(
-                            "delete from drtu.dev where SUBSTR(obj_code , 1 , 4 ) =  '" +
-                                    objCode +
-                                    "'")
+                            "delete from drtu.dev where SUBSTR(obj_code, 1, 4) = :objCode"
+                    )
+                    .setParameter("objCode", objCode)
                     .executeUpdate();
         }
 
@@ -283,47 +267,38 @@ public class SchemaManager {
     private boolean isDeviceTypeExists(String typeId) {
         if (typeId == null || typeId.trim().equals("null") || typeId.trim().equals("")) return false;
         return em.createNativeQuery(
-                        "select 'X' from drtu.s_dev where id = TO_NUMBER (  '" +
-                                typeId +
-                                "' , '9999999999' ) ")
+                        "select 'X' from drtu.s_dev where id = TO_NUMBER (:typeId, '9999999999')"
+                )
+                .setParameter("typeId", typeId.trim())
                 .getResultList().size() > 0;
     }
 
     private boolean isLocationFree(String locationId) {
-        if (locationId == null || locationId.trim().equals("null") || locationId.trim().equals(""))
-            return true;
-        try {
-            return em.createNativeQuery(
-                            "select 'X' from drtu.dev where id_obj = TO_NUMBER('" +
-                                    locationId.trim() +
-                                    "', '99999999999999')")
-                    .getResultList().size() < 1;
-        } catch (Exception e) {
-            log.error("--------------------------" + locationId);
-            throw e;
-        }
+        if (locationId == null || locationId.trim().equals("null") || locationId.trim().equals("")) return true;
+        return em.createNativeQuery(
+                        "select 'X' from drtu.dev where id_obj = TO_NUMBER(:locationId, '99999999999999')"
+                )
+                .setParameter("locationId", locationId.trim())
+                .getResultList().size() < 1;
     }
 
-    private void addDeviceRecord(List<DeviceDTO> deviceDTOList) {
+    private List<DeviceDTO> addDeviceRecord(List<DeviceDTO> deviceDTOList) {
+        List<DeviceDTO> unreceivedDevList = new ArrayList<>();
         deviceDTOList.stream()
                 .filter(Objects::nonNull)
                 .forEach(item -> {
                     if (!isDeviceTypeExists(String.valueOf(item.getTypeId()))) {
+                        unreceivedDevList.add(item);
                         log.warn("device type not exist");
-                        return;
-                    }
-                    if (!isLocationFree(String.valueOf(item.getLocationId()))) {
+                    } else if (!isLocationFree(String.valueOf(item.getLocationId()))) {
+                        unreceivedDevList.add(item);
                         log.warn("Location not free");
-                        return;
-                    }
-                    if (updateDevice(item) < 1) {
+                    } else if (updateDevice(item) < 1) {
                         insertDevice(item);
                     }
                 });
+        return unreceivedDevList;
     }
-
-
-
 
 
     private Integer updateDevice(DeviceDTO deviceDTO) {
