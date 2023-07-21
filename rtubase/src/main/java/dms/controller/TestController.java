@@ -1,6 +1,7 @@
 package dms.controller;
 
 
+import dms.dao.ReceiveManager;
 import dms.dao.SchemaManager;
 import dms.filter.Filter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,9 @@ public class TestController {
 
     @Autowired
     SchemaManager sm;
+
+    @Autowired
+    ReceiveManager rm;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -139,7 +143,7 @@ public class TestController {
     @GetMapping(value = "/parse-d-file", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> parseDFile() throws Exception {
 
-        sm.receiveDFile();
+        rm.receiveDFile();
 
         return ResponseEntity
                 .ok()
