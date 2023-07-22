@@ -6,6 +6,7 @@ import lombok.Data;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,6 +33,16 @@ public class PDFile {
         });
     }
 
+    public List<Long> getIdList() {
+        List<Long> idList = new ArrayList<>();
+        specificContent.forEach(item -> idList.add(item.getId()));
+        return idList;
+    }
+
+    public void increaseNotProcessedRecordsQuantity(Integer quantity) {
+        metaData.notProcessedRecordsQuantity = metaData.notProcessedRecordsQuantity + quantity;
+    }
+
     @Data
     public class MetaData {
 
@@ -40,6 +51,7 @@ public class PDFile {
         private Timestamp timestamp;
         private String objectCode;
         private Integer recordsQuantity;
+        private Integer notProcessedRecordsQuantity = 0;
         private final String name;
         private final String type;
 
@@ -51,6 +63,7 @@ public class PDFile {
             timestamp = Timestamp.valueOf(LocalDateTime.parse(header.substring(22, 34), formatter));
             objectCode = header.substring(18, 22);
             recordsQuantity = Integer.parseInt(header.substring(12, 18).trim());
+
             name = header.substring(0, 12);
             switch (header.substring(0, 1)) {
                 case "p" -> type = "P";
