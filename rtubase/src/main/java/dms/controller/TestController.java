@@ -143,7 +143,7 @@ public class TestController {
     @GetMapping(value = "/parse-d-file", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> parseDFile() throws Exception {
 
-        rm.receiveDFile();
+        rm.receivePDFile();
 
         return ResponseEntity
                 .ok()

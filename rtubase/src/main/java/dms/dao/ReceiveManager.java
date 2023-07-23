@@ -3,8 +3,7 @@ package dms.dao;
 import dms.dto.DeviceDTO;
 import dms.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.type.DateType;
-import org.hibernate.type.LongType;
+import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -18,6 +17,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -34,10 +34,9 @@ public class ReceiveManager {
     StringBuilder logStr = new StringBuilder("\n");
 
     @Transactional
-    public void receiveDFile() throws Exception {
+    public void receivePDFile() throws Exception {
 
         logStr = new StringBuilder("\n");
-
         logStr.append("dms: Start receiving at: ")
                 .append(new Timestamp(System.currentTimeMillis()))
                 .append("\n");
@@ -61,7 +60,7 @@ public class ReceiveManager {
                         clearDevTable(pdFile.getMetaData().getObjectCode());
                         isDeviceTypeExists(pdFile);
                         isLocationFree(pdFile);
-                        pdFile.getSpecificContent().forEach(this::upsertDevice);
+                        upsertDevice(pdFile);
                         upsertDevTrans(pdFile);
                     }
                 }
@@ -178,57 +177,81 @@ public class ReceiveManager {
         removingItems.forEach(item -> pdFile.getSpecificContent().remove(item));
     }
 
-    private void upsertDevice(DeviceDTO deviceDTO) {
-        em.createNativeQuery(
-                        "insert into DRTU.DEV (ID, DEVID, NUM, MYEAR, D_TKIP, D_NKIP, T_ZAM, ID_OBJ, " +
-                                "OBJ_CODE, PS, OPCL, TID_PR, TID_RG, SCODE) " +
-                                "values ( " +
-                                "   :id, " +
-                                "   :devid, " +
-                                "   :num, " +
-                                "   :myear, " +
-                                "   :dtkip, " +
-                                "   :dnkip, " +
-                                "   :tzam, " +
-                                "   :idobj, " +
-                                "   :objcode, " +
-                                "   :ps, " +
-                                "   :opcl, " +
-                                "   :tidpr, " +
-                                "   :tidrg, " +
-                                "   :scode " +
-                                " ) on conflict (id) do " +
-                                " update set " +
-                                "    DEVID    = :devid, " +
-                                "    NUM      = :num, " +
-                                "    MYEAR    = :myear, " +
-                                "    D_TKIP   = :dtkip, " +
-                                "    D_NKIP   = :dnkip, " +
-                                "    T_ZAM    = :tzam, " +
-                                "    ID_OBJ   = :idobj, " +
-                                "    OBJ_CODE = :objcode, " +
-                                "    PS       = :ps, " +
-                                "    OPCL     = :opcl, " +
-                                "    TID_PR   = :tidpr, " +
-                                "    TID_RG   = :tidrg, " +
-                                "    SCODE    = :scode "
-                ).unwrap(org.hibernate.query.NativeQuery.class)
-                .setParameter("devid", deviceDTO.getTypeId())
-                .setParameter("num", deviceDTO.getNumber())
-                .setParameter("myear", deviceDTO.getReleaseYear())
-                .setParameter("dtkip", deviceDTO.getTestDate(), DateType.INSTANCE)
-                .setParameter("dnkip", deviceDTO.getNextTestDate(), DateType.INSTANCE)
-                .setParameter("tzam", deviceDTO.getReplacementPeriod())
-                .setParameter("idobj", deviceDTO.getLocationId(), LongType.INSTANCE)
-                .setParameter("objcode", deviceDTO.getFacilityId())
-                .setParameter("ps", deviceDTO.getStatus())
-                .setParameter("opcl", deviceDTO.getOpcl())
-                .setParameter("tidpr", deviceDTO.getTid_pr())
-                .setParameter("tidrg", deviceDTO.getTid_rg())
-                .setParameter("scode", deviceDTO.getScode())
-                .setParameter("id", deviceDTO.getId())
-                .executeUpdate();
+    private void upsertDevice(PDFile pdFile) {
+        Session session = em.unwrap(Session.class);
+        session.doWork(connection -> {
+            PreparedStatement pstmt = null;
+            try {
+                String sqlInsert = "insert into DRTU.DEV ( " +
+                        " ID, DEVID, NUM, MYEAR, D_TKIP, " +
+                        " D_NKIP, T_ZAM, ID_OBJ, OBJ_CODE, PS, " +
+                        " OPCL, TID_PR, TID_RG, SCODE " +
+                        " ) " +
+                        " values (?, ?, ?, ?, ?, " +
+                        " ?, ?, ?, ?, ?, " +
+                        " ?, ?, ?, ?) " +
+                        "on conflict (ID) do  update set " +
+                        "    DEVID    = ?, "+
+                        "    NUM      = ?, " +
+                        "    MYEAR    = ?, " +
+                        "    D_TKIP   = ?, " +
+                        "    D_NKIP   = ?, " +
+                        "    T_ZAM    = ?, " +
+                        "    ID_OBJ   = ?, " +
+                        "    OBJ_CODE = ?, " +
+                        "    PS       = ?, " +
+                        "    OPCL     = ?, " +
+                        "    TID_PR   = ?, " +
+                        "    TID_RG   = ?, " +
+                        "    SCODE    = ? "
+                        ;
+                pstmt = connection.prepareStatement(sqlInsert);
+                int i = 0;
+                for (DeviceDTO deviceDTO : pdFile.getSpecificContent()) {
+                    pstmt.setLong(1, deviceDTO.getId());
+                    pstmt.setLong(2, deviceDTO.getTypeId());
+                    pstmt.setString(3, deviceDTO.getNumber());
+                    pstmt.setString(4, deviceDTO.getReleaseYear());
+                    pstmt.setDate(5, deviceDTO.getTestDate());
 
+                    pstmt.setObject(6, deviceDTO.getNextTestDate());
+                    pstmt.setInt(7, deviceDTO.getReplacementPeriod());
+                    pstmt.setObject(8, deviceDTO.getLocationId());
+                    pstmt.setString(9, deviceDTO.getFacilityId());
+                    pstmt.setString(10, deviceDTO.getStatus());
+
+                    pstmt.setString(11, deviceDTO.getOpcl());
+                    pstmt.setString(12, deviceDTO.getTid_pr());
+                    pstmt.setString(13, deviceDTO.getTid_rg());
+                    pstmt.setString(14, deviceDTO.getScode());
+                    //for update
+                    pstmt.setLong(15, deviceDTO.getTypeId());
+                    pstmt.setString(16, deviceDTO.getNumber());
+                    pstmt.setString(17, deviceDTO.getReleaseYear());
+                    pstmt.setDate(18, deviceDTO.getTestDate());
+
+                    pstmt.setObject(19, deviceDTO.getNextTestDate());
+                    pstmt.setInt(20, deviceDTO.getReplacementPeriod());
+                    pstmt.setObject(21, deviceDTO.getLocationId());
+                    pstmt.setString(22, deviceDTO.getFacilityId());
+                    pstmt.setString(23, deviceDTO.getStatus());
+
+                    pstmt.setString(24, deviceDTO.getOpcl());
+                    pstmt.setString(25, deviceDTO.getTid_pr());
+                    pstmt.setString(26, deviceDTO.getTid_rg());
+                    pstmt.setString(27, deviceDTO.getScode());
+                    pstmt.addBatch();
+                    if (i % 1000 == 0) {
+                        pstmt.executeBatch();
+                    }
+                    i++;
+                }
+                pstmt.executeBatch();
+            } finally {
+                pstmt.close();
+            }
+        });
+        session.close();
 
     }
 
