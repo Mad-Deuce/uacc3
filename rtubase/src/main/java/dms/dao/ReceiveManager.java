@@ -1,6 +1,6 @@
 package dms.dao;
 
-import dms.dto.DeviceDTO;
+import dms.standing.data.dto.DObjDTO;
 import dms.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
@@ -36,6 +36,7 @@ public class ReceiveManager {
     @Transactional
     public void receivePDFile() throws Exception {
 
+
         logStr = new StringBuilder("\n");
         logStr.append("dms: Start receiving at: ")
                 .append(new Timestamp(System.currentTimeMillis()))
@@ -62,7 +63,13 @@ public class ReceiveManager {
                         isLocationFree(pdFile);
                         upsertDevice(pdFile);
                         upsertDevTrans(pdFile);
+                    } else if (pdFile.getMetaData().getType().equals("P")) {
+                        clearDevObjTable(pdFile.getMetaData().getObjectCode());
+                        HashSet<DObjDTO> facilitySet = upsertLocation(pdFile);
+                        upsertFacility(facilitySet);
+                        upsertDevTrans(pdFile);
                     }
+
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -125,14 +132,32 @@ public class ReceiveManager {
 
     }
 
+    private void clearDevObjTable(String objCode) throws Exception {
+        if (objCode.length() != 4) throw new Exception("dms: Parameter Length is wrong");
+        if (objCode.charAt(3) == '0') {
+            em.createNativeQuery(
+                            "delete from drtu.dev_obj where SUBSTR(obj_code, 1, 3 ) = :objCode"
+                    )
+                    .setParameter("objCode", objCode.substring(0, 3))
+                    .executeUpdate();
+        } else {
+            em.createNativeQuery(
+                            "delete from drtu.dev_obj where SUBSTR(obj_code, 1, 4) = :objCode"
+                    )
+                    .setParameter("objCode", objCode)
+                    .executeUpdate();
+        }
+
+    }
+
     private void isDeviceTypeExists(PDFile pdFile) {
-        List<DeviceDTO> removingItems = new ArrayList<>();
+        List<PDFile.DRowData> removingItems = new ArrayList<>();
         List typeIdList = em.createNativeQuery("select id from drtu.s_dev")
                 .setHint("org.hibernate.fetchSize", "2000")
                 .getResultList();
         HashSet hs = new HashSet(typeIdList);
-        pdFile.getSpecificContent().forEach(item -> {
-            if (!hs.contains(BigDecimal.valueOf(item.getTypeId()))) {
+        pdFile.getDContent().forEach(item -> {
+            if (!hs.contains(BigDecimal.valueOf(item.getDevId()))) {
                 removingItems.add(item);
                 logStr
                         .append("dms/error: File=")
@@ -148,24 +173,24 @@ public class ReceiveManager {
             }
         });
         pdFile.increaseNotProcessedRecordsQuantity(removingItems.size());
-        removingItems.forEach(item -> pdFile.getSpecificContent().remove(item));
+        removingItems.forEach(item -> pdFile.getDContent().remove(item));
     }
 
     private void isLocationFree(PDFile pdFile) {
-        List<DeviceDTO> removingItems = new ArrayList<>();
+        List<PDFile.DRowData> removingItems = new ArrayList<>();
         List idObjList = em.createNativeQuery("select id_obj from drtu.dev where id_obj is not null")
                 .setHint("org.hibernate.fetchSize", "2000")
                 .getResultList();
         HashSet hs = new HashSet(idObjList);
-        pdFile.getSpecificContent().forEach(item -> {
-            if (item.getLocationId() != null && hs.contains(BigDecimal.valueOf(item.getLocationId()))) {
+        pdFile.getDContent().forEach(item -> {
+            if (item.getIdObj() != null && hs.contains(BigDecimal.valueOf(item.getIdObj()))) {
                 removingItems.add(item);
                 logStr
                         .append("dms/error: File=")
                         .append(pdFile.getMetaData().getName())
                         .append("---")
                         .append("Location with Id=")
-                        .append(item.getLocationId())
+                        .append(item.getIdObj())
                         .append(" not free for device id=")
                         .append(item.getId())
                         .append("---")
@@ -174,7 +199,7 @@ public class ReceiveManager {
             }
         });
         pdFile.increaseNotProcessedRecordsQuantity(removingItems.size());
-        removingItems.forEach(item -> pdFile.getSpecificContent().remove(item));
+        removingItems.forEach(item -> pdFile.getDContent().remove(item));
     }
 
     private void upsertDevice(PDFile pdFile) {
@@ -191,7 +216,7 @@ public class ReceiveManager {
                         " ?, ?, ?, ?, ?, " +
                         " ?, ?, ?, ?) " +
                         "on conflict (ID) do  update set " +
-                        "    DEVID    = ?, "+
+                        "    DEVID    = ?, " +
                         "    NUM      = ?, " +
                         "    MYEAR    = ?, " +
                         "    D_TKIP   = ?, " +
@@ -203,43 +228,42 @@ public class ReceiveManager {
                         "    OPCL     = ?, " +
                         "    TID_PR   = ?, " +
                         "    TID_RG   = ?, " +
-                        "    SCODE    = ? "
-                        ;
+                        "    SCODE    = ? ";
                 pstmt = connection.prepareStatement(sqlInsert);
                 int i = 0;
-                for (DeviceDTO deviceDTO : pdFile.getSpecificContent()) {
-                    pstmt.setLong(1, deviceDTO.getId());
-                    pstmt.setLong(2, deviceDTO.getTypeId());
-                    pstmt.setString(3, deviceDTO.getNumber());
-                    pstmt.setString(4, deviceDTO.getReleaseYear());
-                    pstmt.setDate(5, deviceDTO.getTestDate());
+                for (PDFile.DRowData dRowData : pdFile.getDContent()) {
+                    pstmt.setLong(1, dRowData.getId());
+                    pstmt.setLong(2, dRowData.getDevId());
+                    pstmt.setString(3, dRowData.getNum());
+                    pstmt.setString(4, dRowData.getMYear());
+                    pstmt.setDate(5, dRowData.getDTKip());
 
-                    pstmt.setObject(6, deviceDTO.getNextTestDate());
-                    pstmt.setInt(7, deviceDTO.getReplacementPeriod());
-                    pstmt.setObject(8, deviceDTO.getLocationId());
-                    pstmt.setString(9, deviceDTO.getFacilityId());
-                    pstmt.setString(10, deviceDTO.getStatus());
+                    pstmt.setObject(6, dRowData.getDNKip());
+                    pstmt.setInt(7, dRowData.getTZam());
+                    pstmt.setObject(8, dRowData.getIdObj());
+                    pstmt.setString(9, dRowData.getObjCode());
+                    pstmt.setString(10, dRowData.getPs());
 
-                    pstmt.setString(11, deviceDTO.getOpcl());
-                    pstmt.setString(12, deviceDTO.getTid_pr());
-                    pstmt.setString(13, deviceDTO.getTid_rg());
-                    pstmt.setString(14, deviceDTO.getScode());
+                    pstmt.setString(11, dRowData.getOpcl());
+                    pstmt.setString(12, dRowData.getTIdPr());
+                    pstmt.setString(13, dRowData.getTIdRg());
+                    pstmt.setString(14, pdFile.getMetaData().getSCode());
                     //for update
-                    pstmt.setLong(15, deviceDTO.getTypeId());
-                    pstmt.setString(16, deviceDTO.getNumber());
-                    pstmt.setString(17, deviceDTO.getReleaseYear());
-                    pstmt.setDate(18, deviceDTO.getTestDate());
+                    pstmt.setLong(15, dRowData.getDevId());
+                    pstmt.setString(16, dRowData.getNum());
+                    pstmt.setString(17, dRowData.getMYear());
+                    pstmt.setDate(18, dRowData.getDTKip());
 
-                    pstmt.setObject(19, deviceDTO.getNextTestDate());
-                    pstmt.setInt(20, deviceDTO.getReplacementPeriod());
-                    pstmt.setObject(21, deviceDTO.getLocationId());
-                    pstmt.setString(22, deviceDTO.getFacilityId());
-                    pstmt.setString(23, deviceDTO.getStatus());
+                    pstmt.setObject(19, dRowData.getDNKip());
+                    pstmt.setInt(20, dRowData.getTZam());
+                    pstmt.setObject(21, dRowData.getIdObj());
+                    pstmt.setString(22, dRowData.getObjCode());
+                    pstmt.setString(23, dRowData.getPs());
 
-                    pstmt.setString(24, deviceDTO.getOpcl());
-                    pstmt.setString(25, deviceDTO.getTid_pr());
-                    pstmt.setString(26, deviceDTO.getTid_rg());
-                    pstmt.setString(27, deviceDTO.getScode());
+                    pstmt.setString(24, dRowData.getOpcl());
+                    pstmt.setString(25, dRowData.getTIdPr());
+                    pstmt.setString(26, dRowData.getTIdRg());
+                    pstmt.setString(27, pdFile.getMetaData().getSCode());
                     pstmt.addBatch();
                     if (i % 1000 == 0) {
                         pstmt.executeBatch();
@@ -253,6 +277,113 @@ public class ReceiveManager {
         });
         session.close();
 
+    }
+
+    private HashSet<DObjDTO> upsertLocation(PDFile pdFile) {
+        HashSet<DObjDTO> facilitySet = new HashSet<>();
+        Session session = em.unwrap(Session.class);
+        session.doWork(connection -> {
+            PreparedStatement pstmt = null;
+            try {
+                String sqlInsert = "insert into DRTU.DEV_OBJ ( " +
+                        " ID, LOCATE_T, LOCATE, REGION_T, REGION, " +
+                        " NPLACE, NSHEM, OBJ_CODE, OPCL, SCODE " +
+                        " ) " +
+                        " values (?, ?, ?, ?, ?, " +
+                        " ?, ?, ?, ?, ?) " +
+                        "on conflict (ID) do  update set " +
+                        "    LOCATE_T    = ?, " +
+                        "    LOCATE      = ?, " +
+                        "    REGION_T    = ?, " +
+                        "    REGION   = ?, " +
+                        "    NPLACE   = ?, " +
+                        "    NSHEM    = ?, " +
+                        "    OBJ_CODE   = ?, " +
+                        "    OPCL = ?, " +
+                        "    SCODE    = ? ";
+                pstmt = connection.prepareStatement(sqlInsert);
+                int i = 0;
+                for (PDFile.PRowData pRowData : pdFile.getPContent()) {
+                    pstmt.setLong(1, pRowData.getId());
+                    pstmt.setString(2, pRowData.getLocateT());
+                    pstmt.setString(3, pRowData.getLocate());
+                    pstmt.setString(4, pRowData.getRegionT());
+                    pstmt.setString(5, pRowData.getRegion());
+
+                    pstmt.setString(6, pRowData.getNPlace());
+                    pstmt.setString(7, pRowData.getNShem());
+                    pstmt.setString(8, pRowData.getObjCode());
+                    pstmt.setString(9, pRowData.getOpcl());
+                    pstmt.setString(10, pdFile.getMetaData().getSCode());
+
+                    pstmt.setString(11, pRowData.getLocateT());
+                    pstmt.setString(12, pRowData.getLocate());
+                    pstmt.setString(13, pRowData.getRegionT());
+                    pstmt.setString(14, pRowData.getRegion());
+
+                    pstmt.setString(15, pRowData.getNPlace());
+                    pstmt.setString(16, pRowData.getNShem());
+                    pstmt.setString(17, pRowData.getObjCode());
+                    pstmt.setString(18, pRowData.getOpcl());
+                    pstmt.setString(19, pdFile.getMetaData().getSCode());
+
+
+                    pstmt.addBatch();
+                    if (i % 1000 == 0) {
+                        pstmt.executeBatch();
+                    }
+                    i++;
+
+                    facilitySet.add(new DObjDTO(pRowData));
+                }
+                pstmt.executeBatch();
+            } finally {
+                pstmt.close();
+            }
+        });
+        session.close();
+        return facilitySet;
+    }
+
+    private void upsertFacility(HashSet<DObjDTO> facilitySet) {
+        Session session = em.unwrap(Session.class);
+        session.doWork(connection -> {
+            PreparedStatement pstmt = null;
+            try {
+                String sqlInsert = "insert into DRTU.D_OBJ ( " +
+                        " ID, KIND, CLS, NAME_OBJ, KOD_DOR, " +
+                        " KOD_DIST, KOD_RTU, KOD_OBKT, KOD_OBJ " +
+                        " ) " +
+                        " values (?, ?, ?, ?, ?, " +
+                        " ?, ?, ?, ?) " +
+                        "on conflict (ID) do  NOTHING ";
+                pstmt = connection.prepareStatement(sqlInsert);
+                int i = 0;
+                for (DObjDTO dObjDTO : facilitySet) {
+                    pstmt.setString(1, dObjDTO.getId());
+                    pstmt.setString(2, dObjDTO.getKind());
+                    pstmt.setString(3, dObjDTO.getCls());
+                    pstmt.setString(4, dObjDTO.getNameObj());
+                    pstmt.setString(5, dObjDTO.getKodDor());
+
+                    pstmt.setInt(6, dObjDTO.getKodDist());
+                    pstmt.setInt(7, dObjDTO.getKodRtu());
+                    pstmt.setInt(8, dObjDTO.getKodObkt());
+                    pstmt.setString(9, dObjDTO.getKodObj());
+
+                    pstmt.addBatch();
+                    if (i % 1000 == 0) {
+                        pstmt.executeBatch();
+                    }
+                    i++;
+
+                }
+                pstmt.executeBatch();
+            } finally {
+                pstmt.close();
+            }
+        });
+        session.close();
     }
 
     private void upsertDevTrans(PDFile pdFile) {
