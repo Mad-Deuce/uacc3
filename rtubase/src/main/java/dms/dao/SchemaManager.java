@@ -5,6 +5,8 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -12,6 +14,7 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -22,12 +25,13 @@ public class SchemaManager {
     @PersistenceContext
     private EntityManager em;
 
-    private final String DEFAULT_SCHEMA_NAME = "drtu";
+    public final String DRTU_SCHEMA_NAME = "drtu";
+    public final String DOCK_SCHEMA_NAME = "dock";
     //drtu_2023_04_22
-    private final String SCHEMA_NAME_REGEX = DEFAULT_SCHEMA_NAME + "_[12][01][0-9]{2}_[01][0-9]_[0-3][0-9]";
+    private final String SCHEMA_NAME_REGEX = DRTU_SCHEMA_NAME + "_[12][01][0-9]{2}_[01][0-9]_[0-3][0-9]";
 
     public void createDefaultSchema() {
-        createSchema(DEFAULT_SCHEMA_NAME);
+        createSchema(DRTU_SCHEMA_NAME);
     }
 
     public void createSchema(String schemaName) {
@@ -38,25 +42,22 @@ public class SchemaManager {
     }
 
     public void renameDefaultSchema(String newName) {
-        renameSchema(DEFAULT_SCHEMA_NAME, newName);
+        renameSchema(DRTU_SCHEMA_NAME, newName);
     }
 
     public void renameSchema(String oldName, String newName) {
-        em.createNativeQuery(
-                        "ALTER SCHEMA :oldName RENAME TO :newName"
-                ).setParameter("oldName", oldName)
-                .setParameter("newName", newName)
+        String queryString = String.format("ALTER SCHEMA %s RENAME TO %s", oldName, newName);
+        em.createNativeQuery(queryString)
                 .executeUpdate();
     }
 
     public void removeDefaultSchema() {
-        removeSchema(DEFAULT_SCHEMA_NAME);
+        removeSchema(DRTU_SCHEMA_NAME);
     }
 
     public void removeSchema(String schemaName) {
-        em.createNativeQuery(
-                        "DROP SCHEMA :schemaName CASCADE"
-                ).setParameter("schemaName", schemaName)
+        String queryString = String.format("DROP SCHEMA IF EXISTS %s CASCADE;", schemaName);
+        em.createNativeQuery(queryString)
                 .executeUpdate();
     }
 
@@ -122,5 +123,24 @@ public class SchemaManager {
         }
 
 
+    }
+
+    @Transactional
+    public void createDevicesMainView() {
+//        Connection connection = em.;
+//        ScriptUtils.executeSqlScript(connection, new ClassPathResource("sql/info/newInfo.sql"));
+
+        org.hibernate.Session session = em.unwrap(org.hibernate.Session.class);
+        session.doWork(connection -> {
+            ScriptUtils.executeSqlScript(connection, new ClassPathResource("sql/CreateDeviceMainView.sql"));
+        });
+        session.close();
+    }
+
+    public List<String> getSchemaNameList() {
+        return em.createNativeQuery(
+                        "SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE :schemaName"
+                ).setParameter("schemaName", DRTU_SCHEMA_NAME + "_%")
+                .getResultList();
     }
 }

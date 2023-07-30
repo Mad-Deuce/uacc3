@@ -26,7 +26,7 @@ public class SchemaServiceImpl implements SchemaService {
     final String INP_DIR_PATH = "rtubase/src/main/resources/pd_files";
     final String EXTRACT_DIR_PATH = "rtubase/src/main/resources/pd_files/extracted";
     final String RENAMED_DIR_PATH = "rtubase/src/main/resources/pd_files/renamed";
-    final String SUCCESS_DIR_PATH = "rtubase/src/main/resources/pd_files/success";
+    final String SUCCESS_DIR_PATH = "rtubase/src/main/resources/pd_files/processed";
     final String ERROR_DIR_PATH = "rtubase/src/main/resources/pd_files/error";
 
     @Override
@@ -35,7 +35,21 @@ public class SchemaServiceImpl implements SchemaService {
         List<File> sourceFiles = getFiles();
         List<File> extractedFiles = extractGzip(sourceFiles);
         List<File> renamedFiles = renameFiles(extractedFiles);
+
         HashMap<String, List<File>> groupedFiles = groupFileByDate(renamedFiles);
+
+        List<String> schemaNameList = sm.getSchemaNameList();
+        groupedFiles.forEach((key, fileList) -> {
+            if (!schemaNameList.contains(sm.DRTU_SCHEMA_NAME + key)) {
+                sm.removeSchema(sm.DRTU_SCHEMA_NAME);
+                sm.removeSchema(sm.DOCK_SCHEMA_NAME);
+                sm.restoreEmpty();
+                sm.createDevicesMainView();
+                rm.receivePDFile(fileList);
+                sm.renameSchema(sm.DRTU_SCHEMA_NAME, sm.DRTU_SCHEMA_NAME + key);
+            }
+        });
+
 
         log.info("------------------------------------------------");
         //manually check valid pdFiles name
@@ -56,7 +70,6 @@ public class SchemaServiceImpl implements SchemaService {
 
         //send notification to UI about exists freshest data
     }
-
 
 
     private List<File> getFiles() throws Exception {
@@ -94,13 +107,14 @@ public class SchemaServiceImpl implements SchemaService {
             gZIPInputStream.close();
             fileOutputStream.close();
             result.add(targetFile);
+            file.delete();
         }
 
         return result;
     }
 
     private List<File> renameFiles(List<File> fileList) throws IOException {
-        //  example: input filename d1011b21 => output filename d1011_2023-11-21
+        //  example: input filename d1011b21 => output filename d1011_2023_11_21
         List<File> result = new ArrayList<>();
         if (fileList.isEmpty()) return result;
 
@@ -118,6 +132,7 @@ public class SchemaServiceImpl implements SchemaService {
                 fileDate = toNearestFriday(fileDate);
             }
             String nameSuffix = "_" + fileDate;
+            nameSuffix = nameSuffix.replace("-", "_");
             String fileName = file.getName();
             String newFileName = fileName.substring(0, 5) + nameSuffix;
             File newFile = new File(RENAMED_DIR_PATH + "/" + newFileName);

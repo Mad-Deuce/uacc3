@@ -41,7 +41,6 @@ public class ReceiveManager {
     @Transactional
     public void receivePDFile() throws Exception {
 
-
         logStr = new StringBuilder("\n");
         logStr.append("dms: Start receiving at: ")
                 .append(new Timestamp(System.currentTimeMillis()))
@@ -59,6 +58,38 @@ public class ReceiveManager {
         });
 
         extractedFiles.forEach(item -> {
+            try {
+                PDFileModel pdFile = new PDFileModel(readFileToList(item.getPath()));
+                if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
+                    if (pdFile.getMetaData().getType().equals("D")) {
+                        clearDevTable(pdFile.getMetaData().getObjectCode());
+                        isDeviceTypeExists(pdFile);
+                        isLocationFree(pdFile);
+                        upsertDevice(pdFile);
+                        upsertDevTrans(pdFile);
+                    } else if (pdFile.getMetaData().getType().equals("P")) {
+                        clearDevObjTable(pdFile.getMetaData().getObjectCode());
+                        HashSet<DObjModel> facilitySet = upsertLocation(pdFile);
+                        upsertFacility(facilitySet);
+                        upsertDevTrans(pdFile);
+                    }
+                    item.delete();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        logStr.append("dms: End Receiving: ")
+                .append(new Timestamp(System.currentTimeMillis()))
+                .append("\n");
+        log.info(logStr.toString());
+    }
+
+    @Transactional
+    public void receivePDFile(List<File> fileList) {
+
+        fileList.forEach(item -> {
             try {
                 PDFileModel pdFile = new PDFileModel(readFileToList(item.getPath()));
                 if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
