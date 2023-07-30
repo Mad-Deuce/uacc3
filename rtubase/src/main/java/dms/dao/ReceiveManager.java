@@ -1,6 +1,9 @@
 package dms.dao;
 
-import dms.standing.data.dto.DObjDTO;
+import dms.model.DevModel;
+import dms.model.DevObjModel;
+import dms.model.PDFileModel;
+import dms.standing.data.model.DObjModel;
 import dms.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
@@ -19,6 +22,8 @@ import java.nio.file.Paths;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -55,7 +60,7 @@ public class ReceiveManager {
 
         extractedFiles.forEach(item -> {
             try {
-                PDFile pdFile = new PDFile(readFileToList(item.getPath()));
+                PDFileModel pdFile = new PDFileModel(readFileToList(item.getPath()));
                 if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
                     if (pdFile.getMetaData().getType().equals("D")) {
                         clearDevTable(pdFile.getMetaData().getObjectCode());
@@ -65,11 +70,11 @@ public class ReceiveManager {
                         upsertDevTrans(pdFile);
                     } else if (pdFile.getMetaData().getType().equals("P")) {
                         clearDevObjTable(pdFile.getMetaData().getObjectCode());
-                        HashSet<DObjDTO> facilitySet = upsertLocation(pdFile);
+                        HashSet<DObjModel> facilitySet = upsertLocation(pdFile);
                         upsertFacility(facilitySet);
                         upsertDevTrans(pdFile);
                     }
-
+                    item.delete();
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -82,7 +87,7 @@ public class ReceiveManager {
         log.info(logStr.toString());
     }
 
-    private List<File> getFileList() throws Exception {
+    public List<File> getFileList() throws Exception {
         FileFilter filter = f -> (f.isFile()
                 && f.getName().length() == 12
                 && f.getName().matches("[pd]\\d{4}\\w\\d{2}\\.\\d{3}"));
@@ -97,6 +102,50 @@ public class ReceiveManager {
         }
         return Arrays.stream(Objects.requireNonNull(dir.listFiles(filter))).toList();
     }
+
+
+    private HashSet<File> renameFiles(List<File> fileList) throws IOException {
+        //  example: input filename d1011b21 => output filename d1011_2023_11_21
+        if (fileList.isEmpty()) return null;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        HashSet<File> result = new HashSet<>();
+        List<File> unprocessedFile = new ArrayList<>();
+
+        for (File file : fileList) {
+            String header = Files.readAllLines(file.toPath(), Charset.forName("windows-1251")).get(0);
+            LocalDate fileDate = LocalDate.parse(header.substring(22, 30), formatter);
+            if (!isLastDayOfMonth(fileDate)) {
+                fileDate = toNearestFriday(fileDate);
+            }
+            String nameSuffix = "_" + fileDate;
+        }
+
+        return result;
+    }
+
+    private boolean isLastDayOfMonth(LocalDate inputDate) {
+        return inputDate.equals(inputDate.withDayOfMonth(inputDate.getMonth().length(inputDate.isLeapYear())));
+    }
+
+    private LocalDate toNearestFriday(LocalDate inputDate) {
+        int dayOfWeekNum = inputDate.getDayOfWeek().getValue();
+        int offset = ((dayOfWeekNum + 5) % 7) * -1;
+        return inputDate.plusDays(offset);
+    }
+
+
+    private static HashMap<String, HashSet<File>> groupFileByDate(HashSet<File> fileList) {
+        if (fileList.isEmpty()) return null;
+        HashMap<String, HashSet<File>> result = new HashMap<>();
+        fileList.forEach(item -> {
+            String key = item.getName().substring(5, 16);//  example: filename d1011_2023_11_21 => key _2023_11_21
+            if (!result.containsKey(key)) result.put(key, new HashSet<>());
+            result.get(key).add(item);
+        });
+        return result;
+    }
+
 
     private List<String> readFileToList(String path) throws IOException {
         List<String> result = Collections.emptyList();
@@ -150,8 +199,8 @@ public class ReceiveManager {
 
     }
 
-    private void isDeviceTypeExists(PDFile pdFile) {
-        List<PDFile.DRowData> removingItems = new ArrayList<>();
+    private void isDeviceTypeExists(PDFileModel pdFile) {
+        List<DevModel> removingItems = new ArrayList<>();
         List typeIdList = em.createNativeQuery("select id from drtu.s_dev")
                 .setHint("org.hibernate.fetchSize", "2000")
                 .getResultList();
@@ -176,8 +225,8 @@ public class ReceiveManager {
         removingItems.forEach(item -> pdFile.getDContent().remove(item));
     }
 
-    private void isLocationFree(PDFile pdFile) {
-        List<PDFile.DRowData> removingItems = new ArrayList<>();
+    private void isLocationFree(PDFileModel pdFile) {
+        List<DevModel> removingItems = new ArrayList<>();
         List idObjList = em.createNativeQuery("select id_obj from drtu.dev where id_obj is not null")
                 .setHint("org.hibernate.fetchSize", "2000")
                 .getResultList();
@@ -202,7 +251,7 @@ public class ReceiveManager {
         removingItems.forEach(item -> pdFile.getDContent().remove(item));
     }
 
-    private void upsertDevice(PDFile pdFile) {
+    private void upsertDevice(PDFileModel pdFile) {
         Session session = em.unwrap(Session.class);
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
@@ -231,7 +280,7 @@ public class ReceiveManager {
                         "    SCODE    = ? ";
                 pstmt = connection.prepareStatement(sqlInsert);
                 int i = 0;
-                for (PDFile.DRowData dRowData : pdFile.getDContent()) {
+                for (DevModel dRowData : pdFile.getDContent()) {
                     pstmt.setLong(1, dRowData.getId());
                     pstmt.setLong(2, dRowData.getDevId());
                     pstmt.setString(3, dRowData.getNum());
@@ -272,6 +321,7 @@ public class ReceiveManager {
                 }
                 pstmt.executeBatch();
             } finally {
+                assert pstmt != null;
                 pstmt.close();
             }
         });
@@ -279,8 +329,8 @@ public class ReceiveManager {
 
     }
 
-    private HashSet<DObjDTO> upsertLocation(PDFile pdFile) {
-        HashSet<DObjDTO> facilitySet = new HashSet<>();
+    private HashSet<DObjModel> upsertLocation(PDFileModel pdFile) {
+        HashSet<DObjModel> facilitySet = new HashSet<>();
         Session session = em.unwrap(Session.class);
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
@@ -303,7 +353,7 @@ public class ReceiveManager {
                         "    SCODE    = ? ";
                 pstmt = connection.prepareStatement(sqlInsert);
                 int i = 0;
-                for (PDFile.PRowData pRowData : pdFile.getPContent()) {
+                for (DevObjModel pRowData : pdFile.getPContent()) {
                     pstmt.setLong(1, pRowData.getId());
                     pstmt.setString(2, pRowData.getLocateT());
                     pstmt.setString(3, pRowData.getLocate());
@@ -334,10 +384,11 @@ public class ReceiveManager {
                     }
                     i++;
 
-                    facilitySet.add(new DObjDTO(pRowData));
+                    facilitySet.add(new DObjModel(pRowData));
                 }
                 pstmt.executeBatch();
             } finally {
+                assert pstmt != null;
                 pstmt.close();
             }
         });
@@ -345,7 +396,7 @@ public class ReceiveManager {
         return facilitySet;
     }
 
-    private void upsertFacility(HashSet<DObjDTO> facilitySet) {
+    private void upsertFacility(HashSet<DObjModel> facilitySet) {
         Session session = em.unwrap(Session.class);
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
@@ -359,17 +410,17 @@ public class ReceiveManager {
                         "on conflict (ID) do  NOTHING ";
                 pstmt = connection.prepareStatement(sqlInsert);
                 int i = 0;
-                for (DObjDTO dObjDTO : facilitySet) {
-                    pstmt.setString(1, dObjDTO.getId());
-                    pstmt.setString(2, dObjDTO.getKind());
-                    pstmt.setString(3, dObjDTO.getCls());
-                    pstmt.setString(4, dObjDTO.getNameObj());
-                    pstmt.setString(5, dObjDTO.getKodDor());
+                for (DObjModel dObjModel : facilitySet) {
+                    pstmt.setString(1, dObjModel.getId());
+                    pstmt.setString(2, dObjModel.getKind());
+                    pstmt.setString(3, dObjModel.getCls());
+                    pstmt.setString(4, dObjModel.getNameObj());
+                    pstmt.setString(5, dObjModel.getKodDor());
 
-                    pstmt.setInt(6, dObjDTO.getKodDist());
-                    pstmt.setInt(7, dObjDTO.getKodRtu());
-                    pstmt.setInt(8, dObjDTO.getKodObkt());
-                    pstmt.setString(9, dObjDTO.getKodObj());
+                    pstmt.setInt(6, dObjModel.getKodDist());
+                    pstmt.setInt(7, dObjModel.getKodRtu());
+                    pstmt.setInt(8, dObjModel.getKodObkt());
+                    pstmt.setString(9, dObjModel.getKodObj());
 
                     pstmt.addBatch();
                     if (i % 1000 == 0) {
@@ -380,14 +431,15 @@ public class ReceiveManager {
                 }
                 pstmt.executeBatch();
             } finally {
+                assert pstmt != null;
                 pstmt.close();
             }
         });
         session.close();
     }
 
-    private void upsertDevTrans(PDFile pdFile) {
-        PDFile.MetaData metaData = pdFile.getMetaData();
+    private void upsertDevTrans(PDFileModel pdFile) {
+        PDFileModel.MetaData metaData = pdFile.getMetaData();
         em.createNativeQuery(
                         " INSERT INTO drtu.dev_trans (NAME, FTYPE, PS, STNUM, DATE_CREATE, NAME_T, STNUM_T, " +
                                 " RTU_T, DATE_T, TIME_T) VALUES ( " +

@@ -54,18 +54,6 @@ public class TestController {
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/create-schema", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createSchema() {
-
-        sm.createSchema("test_schema");
-
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("New Schema Created");
-    }
-
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/rename-schema", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> renameSchema() {
 
