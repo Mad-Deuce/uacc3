@@ -143,4 +143,10 @@ public class SchemaManager {
                 ).setParameter("schemaName", DRTU_SCHEMA_NAME + "_%")
                 .getResultList();
     }
+
+    public List<String> getReceivedFileNameList(String schemaName) {
+        String queryString = String.format("SELECT name FROM %s.dev_trans", schemaName);
+        return em.createNativeQuery( queryString        )
+                .getResultList();
+    }
 }

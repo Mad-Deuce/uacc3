@@ -19,7 +19,7 @@ public class SchemaController {
     @GetMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createDefaultSchema() throws Exception {
 
-        ss.updateDBByPDFiles();
+        ss.updateDBByPDFilesAlt();
 
         return ResponseEntity
                 .ok()

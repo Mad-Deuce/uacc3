@@ -71,6 +71,44 @@ public class SchemaServiceImpl implements SchemaService {
         //send notification to UI about exists freshest data
     }
 
+    @Override
+    public void updateDBByPDFilesAlt() throws Exception {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        List<File> sourceFiles = getFiles();
+
+        List<String> schemaNameList = sm.getSchemaNameList();
+        for (File file : sourceFiles) {
+            File extractedFile = extractGzipAlt(file);
+            List<String> fileContent = Files
+                    .readAllLines(extractedFile.toPath(), Charset.forName("windows-1251"));
+            String fileHeader = fileContent.get(0);
+            LocalDate fileDate = LocalDate.parse(fileHeader.substring(22, 30), formatter);
+            if (!isLastDayOfMonth(fileDate)) {
+                fileDate = toNearestFriday(fileDate);
+            }
+            String schemaNameSuffix = ("_" + fileDate).replace("-", "_");
+            if (schemaNameList.contains(sm.DRTU_SCHEMA_NAME + schemaNameSuffix)) {
+                List<String> receivedFileNameList = sm.getReceivedFileNameList(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+                if (!receivedFileNameList.contains(file.getName())) {
+                    sm.removeSchema(sm.DRTU_SCHEMA_NAME);
+                    sm.renameSchema(sm.DRTU_SCHEMA_NAME + schemaNameSuffix, sm.DRTU_SCHEMA_NAME);
+                    sm.createDevicesMainView();
+                    rm.receivePDFileAlt(fileContent);
+                    sm.renameSchema(sm.DRTU_SCHEMA_NAME, sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+                }
+            } else {
+                sm.removeSchema(sm.DRTU_SCHEMA_NAME);
+                sm.removeSchema(sm.DOCK_SCHEMA_NAME);
+                sm.restoreEmpty();
+                sm.createDevicesMainView();
+                rm.receivePDFileAlt(fileContent);
+                sm.renameSchema(sm.DRTU_SCHEMA_NAME, sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+            }
+
+            extractedFile.delete();
+            file.delete();
+        }
+    }
 
     private List<File> getFiles() throws Exception {
         FileFilter filter = f -> (f.isFile()
@@ -84,13 +122,13 @@ public class SchemaServiceImpl implements SchemaService {
         return Arrays.stream(Objects.requireNonNull(dir.listFiles(filter))).toList();
     }
 
-    private List<File> extractGzip(List<File> sourceFileList) throws Exception {
+    private List<File> extractGzip(List<File> sourceFileList) throws IOException {
         List<File> result = new ArrayList<>();
         if (sourceFileList.isEmpty()) return result;
         String errorMessage = "dms: Directory for Extracted Files not accessible";
         File targetDir = new File(EXTRACT_DIR_PATH);
         if (!targetDir.exists()) {
-            if (!targetDir.mkdir()) throw new Exception(errorMessage);
+            if (!targetDir.mkdir()) throw new IOException(errorMessage);
         }
 
         for (File file : sourceFileList) {
@@ -109,8 +147,32 @@ public class SchemaServiceImpl implements SchemaService {
             result.add(targetFile);
             file.delete();
         }
-
         return result;
+
+    }
+
+    private File extractGzipAlt(File file) throws IOException {
+
+        String errorMessage = "dms: Directory for Extracted Files not accessible";
+        File targetDir = new File(EXTRACT_DIR_PATH);
+        if (!targetDir.exists()) {
+            if (!targetDir.mkdir()) throw new IOException(errorMessage);
+        }
+
+        File targetFile = new File(EXTRACT_DIR_PATH + "/" + file.getName().substring(0, file.getName().length() - 4));
+
+        byte[] buffer = new byte[1024];
+        FileInputStream fileIn = new FileInputStream(file);
+        GZIPInputStream gZIPInputStream = new GZIPInputStream(fileIn);
+        FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
+        int bytes_read;
+        while ((bytes_read = gZIPInputStream.read(buffer)) > 0) {
+            fileOutputStream.write(buffer, 0, bytes_read);
+        }
+        gZIPInputStream.close();
+        fileOutputStream.close();
+
+        return targetFile;
     }
 
     private List<File> renameFiles(List<File> fileList) throws IOException {

@@ -118,6 +118,38 @@ public class ReceiveManager {
         log.info(logStr.toString());
     }
 
+    @Transactional
+    public void receivePDFileAlt(List<String> fileContent) {
+
+//        fileList.forEach(item -> {
+            try {
+                PDFileModel pdFile = new PDFileModel(fileContent);
+                if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
+                    if (pdFile.getMetaData().getType().equals("D")) {
+                        clearDevTable(pdFile.getMetaData().getObjectCode());
+                        isDeviceTypeExists(pdFile);
+                        isLocationFree(pdFile);
+                        upsertDevice(pdFile);
+                        upsertDevTrans(pdFile);
+                    } else if (pdFile.getMetaData().getType().equals("P")) {
+                        clearDevObjTable(pdFile.getMetaData().getObjectCode());
+                        HashSet<DObjModel> facilitySet = upsertLocation(pdFile);
+                        upsertFacility(facilitySet);
+                        upsertDevTrans(pdFile);
+                    }
+//                    file.delete();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+//        });
+
+        logStr.append("dms: End Receiving: ")
+                .append(new Timestamp(System.currentTimeMillis()))
+                .append("\n");
+        log.info(logStr.toString());
+    }
+
     public List<File> getFileList() throws Exception {
         FileFilter filter = f -> (f.isFile()
                 && f.getName().length() == 12
