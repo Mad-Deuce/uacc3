@@ -19,7 +19,7 @@ import java.sql.Date;
 @ToString(of = {"type", "number", "releaseYear"})
 @NoArgsConstructor
 @Entity
-@Table(name = "dev", schema = "drtu_old", catalog = "rtubase")
+@Table(name = "dev", schema = "drtu_2023_06_09", catalog = "rtubase")
 public class DeviceEntity implements Serializable {
 
     @OneToOne(fetch = FetchType.EAGER)

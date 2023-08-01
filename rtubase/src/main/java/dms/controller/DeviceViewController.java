@@ -1,6 +1,7 @@
 package dms.controller;
 
 
+import dms.config.multitenant.TenantIdentifierResolver;
 import dms.dto.DeviceDTO;
 import dms.entity.DeviceViewMainEntity;
 import dms.filter.Filter;
@@ -45,6 +46,7 @@ public class DeviceViewController {
     @PostMapping(value = "/by-filter", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findDevicesByFilterSpec(Pageable pageable,
                                                      @RequestBody(required = false) List<Filter<Object>> filters) {
+
         Page<DeviceDTO> devices = deviceMapper.entityPageToDtoPage(deviceService
                 .findDevicesBySpecification(pageable, filters));
         return ResponseEntity

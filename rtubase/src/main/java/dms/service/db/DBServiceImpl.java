@@ -6,11 +6,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 
 @Service
@@ -59,6 +65,18 @@ public class DBServiceImpl implements DBService {
 
             file.delete();
         }
+    }
+
+    @Override
+    public List<LocalDate> getDatesOfExistingSchemas() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
+        List<LocalDate> result = new ArrayList<>();
+        List<String> schemaNameList = sm.getSchemaNameList();
+        schemaNameList.forEach(item -> {
+            LocalDate date = LocalDate.parse(item.substring(sm.DRTU_SCHEMA_NAME.length()), formatter);
+            result.add(date);
+        });
+        return result;
     }
 
     private List<File> getFiles() throws Exception {

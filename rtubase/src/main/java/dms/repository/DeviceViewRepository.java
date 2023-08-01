@@ -11,10 +11,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.lang.NonNull;
 
+import javax.transaction.Transactional;
+
 public interface DeviceViewRepository extends JpaRepository<DeviceViewMainEntity, Long>,
         JpaSpecificationExecutor<DeviceViewMainEntity> {
 
 
+//    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @NonNull
     Page<DeviceViewMainEntity> findAll(Specification specification, @NonNull Pageable pageable);
 }

@@ -11,7 +11,7 @@ import javax.persistence.*;
 @ToString(callSuper = true, of = {"subdivision", "codeStr", "name"})
 @NoArgsConstructor
 @Entity
-@Table(name = "d_obj", schema = "drtu_old", catalog = "rtubase")
+@Table(name = "d_obj", schema = "drtu_2023_06_09", catalog = "rtubase")
 @JsonDeserialize(as = LineFacilityEntity.class)
 public class LineFacilityEntity extends FacilityEntity {
 

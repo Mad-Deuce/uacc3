@@ -10,7 +10,7 @@ import javax.persistence.*;
 @ToString(of = {"id", "name"})
 @NoArgsConstructor
 @Entity
-@Table(name = "s_devgrp", schema = "drtu_old", catalog = "rtubase")
+@Table(name = "s_devgrp", schema = "drtu_2023_06_09", catalog = "rtubase")
 public class DeviceTypeGroupEntity {
 
     @Id

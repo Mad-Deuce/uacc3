@@ -11,7 +11,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "dev_obj", schema = "drtu_old", catalog = "rtubase")
+@Table(name = "dev_obj", schema = "drtu_2023_06_09", catalog = "rtubase")
 public class LocationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

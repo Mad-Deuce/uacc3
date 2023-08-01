@@ -47,7 +47,8 @@ public class DeviceViewServiceImpl implements DeviceViewService {
     @Override
     public Page<DeviceViewMainEntity> findDevicesBySpecification(Pageable pageable, List<Filter<Object>> filters) {
 
-        currentTenant.setCurrentTenant("dms");
+
+        currentTenant.setCurrentTenant("drtu_2023_07_28");
 
         return deviceRepository.findAll(getSpecification(filters), pageable);
     }
