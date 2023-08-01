@@ -27,32 +27,11 @@ public class SchemaManager {
 
     public final String DRTU_SCHEMA_NAME = "drtu";
     public final String DOCK_SCHEMA_NAME = "dock";
-    //drtu_2023_04_22
-    private final String SCHEMA_NAME_REGEX = DRTU_SCHEMA_NAME + "_[12][01][0-9]{2}_[01][0-9]_[0-3][0-9]";
-
-    public void createDefaultSchema() {
-        createSchema(DRTU_SCHEMA_NAME);
-    }
-
-    public void createSchema(String schemaName) {
-        em.createNativeQuery(
-                        "CREATE SCHEMA IF NOT EXISTS :schemaName AUTHORIZATION postgres"
-                ).setParameter("schemaName", schemaName)
-                .executeUpdate();
-    }
-
-    public void renameDefaultSchema(String newName) {
-        renameSchema(DRTU_SCHEMA_NAME, newName);
-    }
 
     public void renameSchema(String oldName, String newName) {
         String queryString = String.format("ALTER SCHEMA %s RENAME TO %s", oldName, newName);
         em.createNativeQuery(queryString)
                 .executeUpdate();
-    }
-
-    public void removeDefaultSchema() {
-        removeSchema(DRTU_SCHEMA_NAME);
     }
 
     public void removeSchema(String schemaName) {
@@ -104,13 +83,10 @@ public class SchemaManager {
                 }
             }
 
-
             while (channel.isConnected()) {
                 Thread.sleep(100);
             }
 
-//            String responseString = new String(responseStream.toByteArray());
-//            System.out.println(responseString);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -125,15 +101,11 @@ public class SchemaManager {
 
     }
 
-    @Transactional
     public void createDevicesMainView() {
-//        Connection connection = em.;
-//        ScriptUtils.executeSqlScript(connection, new ClassPathResource("sql/info/newInfo.sql"));
-
         org.hibernate.Session session = em.unwrap(org.hibernate.Session.class);
-        session.doWork(connection -> {
-            ScriptUtils.executeSqlScript(connection, new ClassPathResource("sql/CreateDeviceMainView.sql"));
-        });
+        session.doWork(connection ->
+                ScriptUtils.executeSqlScript(connection, new ClassPathResource("sql/CreateDeviceMainView.sql"))
+        );
         session.close();
     }
 
@@ -146,7 +118,7 @@ public class SchemaManager {
 
     public List<String> getReceivedFileNameList(String schemaName) {
         String queryString = String.format("SELECT name FROM %s.dev_trans", schemaName);
-        return em.createNativeQuery( queryString        )
+        return em.createNativeQuery(queryString)
                 .getResultList();
     }
 }

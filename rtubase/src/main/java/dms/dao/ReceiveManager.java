@@ -4,7 +4,6 @@ import dms.model.DevModel;
 import dms.model.DevObjModel;
 import dms.model.PDFileModel;
 import dms.standing.data.model.DObjModel;
-import dms.utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.springframework.stereotype.Component;
@@ -12,18 +11,10 @@ import org.springframework.stereotype.Component;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -34,94 +25,12 @@ public class ReceiveManager {
     private EntityManager em;
 
     final String RTU_T = "1000";
-    final String DIR_PATH = "rtubase/src/main/resources/pd_files";
 
     StringBuilder logStr = new StringBuilder("\n");
 
     @Transactional
-    public void receivePDFile() throws Exception {
-
-        logStr = new StringBuilder("\n");
-        logStr.append("dms: Start receiving at: ")
-                .append(new Timestamp(System.currentTimeMillis()))
-                .append("\n");
-
-        List<File> compressedFiles = getFileList();
-
-        List<File> extractedFiles = new ArrayList<>();
-        compressedFiles.forEach(item -> {
-            try {
-                extractedFiles.add(CompressUtils.extractGzip(item));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        extractedFiles.forEach(item -> {
-            try {
-                PDFileModel pdFile = new PDFileModel(readFileToList(item.getPath()));
-                if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
-                    if (pdFile.getMetaData().getType().equals("D")) {
-                        clearDevTable(pdFile.getMetaData().getObjectCode());
-                        isDeviceTypeExists(pdFile);
-                        isLocationFree(pdFile);
-                        upsertDevice(pdFile);
-                        upsertDevTrans(pdFile);
-                    } else if (pdFile.getMetaData().getType().equals("P")) {
-                        clearDevObjTable(pdFile.getMetaData().getObjectCode());
-                        HashSet<DObjModel> facilitySet = upsertLocation(pdFile);
-                        upsertFacility(facilitySet);
-                        upsertDevTrans(pdFile);
-                    }
-                    item.delete();
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        logStr.append("dms: End Receiving: ")
-                .append(new Timestamp(System.currentTimeMillis()))
-                .append("\n");
-        log.info(logStr.toString());
-    }
-
-    @Transactional
-    public void receivePDFile(List<File> fileList) {
-
-        fileList.forEach(item -> {
-            try {
-                PDFileModel pdFile = new PDFileModel(readFileToList(item.getPath()));
-                if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
-                    if (pdFile.getMetaData().getType().equals("D")) {
-                        clearDevTable(pdFile.getMetaData().getObjectCode());
-                        isDeviceTypeExists(pdFile);
-                        isLocationFree(pdFile);
-                        upsertDevice(pdFile);
-                        upsertDevTrans(pdFile);
-                    } else if (pdFile.getMetaData().getType().equals("P")) {
-                        clearDevObjTable(pdFile.getMetaData().getObjectCode());
-                        HashSet<DObjModel> facilitySet = upsertLocation(pdFile);
-                        upsertFacility(facilitySet);
-                        upsertDevTrans(pdFile);
-                    }
-                    item.delete();
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        logStr.append("dms: End Receiving: ")
-                .append(new Timestamp(System.currentTimeMillis()))
-                .append("\n");
-        log.info(logStr.toString());
-    }
-
-    @Transactional
     public void receivePDFileAlt(List<String> fileContent) {
 
-//        fileList.forEach(item -> {
             try {
                 PDFileModel pdFile = new PDFileModel(fileContent);
                 if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
@@ -137,86 +46,15 @@ public class ReceiveManager {
                         upsertFacility(facilitySet);
                         upsertDevTrans(pdFile);
                     }
-//                    file.delete();
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-//        });
 
         logStr.append("dms: End Receiving: ")
                 .append(new Timestamp(System.currentTimeMillis()))
                 .append("\n");
         log.info(logStr.toString());
-    }
-
-    public List<File> getFileList() throws Exception {
-        FileFilter filter = f -> (f.isFile()
-                && f.getName().length() == 12
-                && f.getName().matches("[pd]\\d{4}\\w\\d{2}\\.\\d{3}"));
-        String errorMessage = "dms: Directory for P,D Files not accessible";
-        File dir = new File(DIR_PATH);
-        if (!dir.exists() || !dir.isDirectory() || !dir.canRead()) {
-            logStr.append("Error: ")
-                    .append(errorMessage)
-                    .append("\n");
-            log.error(logStr.toString());
-            throw new Exception(errorMessage);
-        }
-        return Arrays.stream(Objects.requireNonNull(dir.listFiles(filter))).toList();
-    }
-
-
-    private HashSet<File> renameFiles(List<File> fileList) throws IOException {
-        //  example: input filename d1011b21 => output filename d1011_2023_11_21
-        if (fileList.isEmpty()) return null;
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-        HashSet<File> result = new HashSet<>();
-        List<File> unprocessedFile = new ArrayList<>();
-
-        for (File file : fileList) {
-            String header = Files.readAllLines(file.toPath(), Charset.forName("windows-1251")).get(0);
-            LocalDate fileDate = LocalDate.parse(header.substring(22, 30), formatter);
-            if (!isLastDayOfMonth(fileDate)) {
-                fileDate = toNearestFriday(fileDate);
-            }
-            String nameSuffix = "_" + fileDate;
-        }
-
-        return result;
-    }
-
-    private boolean isLastDayOfMonth(LocalDate inputDate) {
-        return inputDate.equals(inputDate.withDayOfMonth(inputDate.getMonth().length(inputDate.isLeapYear())));
-    }
-
-    private LocalDate toNearestFriday(LocalDate inputDate) {
-        int dayOfWeekNum = inputDate.getDayOfWeek().getValue();
-        int offset = ((dayOfWeekNum + 5) % 7) * -1;
-        return inputDate.plusDays(offset);
-    }
-
-
-    private static HashMap<String, HashSet<File>> groupFileByDate(HashSet<File> fileList) {
-        if (fileList.isEmpty()) return null;
-        HashMap<String, HashSet<File>> result = new HashMap<>();
-        fileList.forEach(item -> {
-            String key = item.getName().substring(5, 16);//  example: filename d1011_2023_11_21 => key _2023_11_21
-            if (!result.containsKey(key)) result.put(key, new HashSet<>());
-            result.get(key).add(item);
-        });
-        return result;
-    }
-
-
-    private List<String> readFileToList(String path) throws IOException {
-        List<String> result = Collections.emptyList();
-        File file = new File(path);
-        if (file.exists() && file.isFile() && file.canRead()) {
-            result = Files.readAllLines(Paths.get(path), Charset.forName("windows-1251"));
-        }
-        return result;
     }
 
     private boolean isFileVersionActual(String version) {

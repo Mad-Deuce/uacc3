@@ -1,8 +1,6 @@
 package dms.controller;
 
-import dms.dao.ReceiveManager;
-import dms.dao.SchemaManager;
-import dms.service.schema.SchemaService;
+import dms.service.db.DBService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,16 +8,16 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/db")
-public class SchemaController {
+public class DBController {
 
     @Autowired
-    SchemaService ss;
+    DBService ss;
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createDefaultSchema() throws Exception {
+    @GetMapping(value = "/receive-pd-files", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> receivePDFiles() throws Exception {
 
-        ss.updateDBByPDFilesAlt();
+        ss.receivePDFiles();
 
         return ResponseEntity
                 .ok()
