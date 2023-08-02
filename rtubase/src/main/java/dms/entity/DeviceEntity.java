@@ -19,7 +19,7 @@ import java.sql.Date;
 @ToString(of = {"type", "number", "releaseYear"})
 @NoArgsConstructor
 @Entity
-@Table(name = "dev", schema = "drtu_2023_06_09", catalog = "rtubase")
+@Table(name = "dev", catalog = "rtubase")
 public class DeviceEntity implements Serializable {
 
     @OneToOne(fetch = FetchType.EAGER)
@@ -60,7 +60,7 @@ public class DeviceEntity implements Serializable {
     @Formula(value = "case " +
             "when t_zam * 0.1 > 3 " +
             "then (d_nkip + date_trunc('second', (3 || 'month')::interval))::date " +
-            "else (d_nkip + date_trunc('second', (t_zam * 0.1 || 'month')::interval))::date " +
+            "else (d_nkip + date_trunc('second', ((t_zam * 0.1)::numeric(5) || 'month')::interval))::date " +
             "end")
     private Date extraNextTestDate;
 

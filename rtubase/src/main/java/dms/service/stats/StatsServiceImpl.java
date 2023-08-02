@@ -1,44 +1,61 @@
 package dms.service.stats;
 
 
+import dms.config.multitenant.TenantIdentifierResolver;
+import dms.dao.SchemaManager;
 import dms.dto.stats.OverdueDevicesStats;
-import dms.repository.DeviceRepository;
+import dms.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.Tuple;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
 @Slf4j
 @Service
 public class StatsServiceImpl implements StatsService {
-    private final DeviceRepository deviceRepository;
+
+    private final StatsRepository statsRepository;
+    private final TenantIdentifierResolver tenantIdentifierResolver;
+    private final SchemaManager sm;
 
     @Autowired
-    public StatsServiceImpl(DeviceRepository deviceRepository) {
-        this.deviceRepository = deviceRepository;
+    public StatsServiceImpl(StatsRepository statsRepository,
+                            TenantIdentifierResolver tenantIdentifierResolver,
+                            SchemaManager sm) {
+        this.statsRepository = statsRepository;
+        this.tenantIdentifierResolver = tenantIdentifierResolver;
+        this.sm = sm;
     }
 
 
     @Override
     public OverdueDevicesStats getOverdueDevicesStats() {
-        Date nowDate = new Date(System.currentTimeMillis());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
+        String currentSchemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
+        String strDate = currentSchemaName.substring(sm.DRTU_SCHEMA_NAME.length());
+        LocalDate chDate = LocalDate.parse(strDate, formatter);
+
+        Date checkDate = Date.valueOf(chDate);
+
         OverdueDevicesStats root = new OverdueDevicesStats("root");
         List<Tuple> tupleList;
 
-        tupleList = deviceRepository.getNormalDevicesStatsAlt(nowDate);
+        tupleList = statsRepository.getNormalDevicesStatsAlt(checkDate);
         root.fillFromTuple(tupleList);
 
-        tupleList = deviceRepository.getOverdueDevicesStatsAlt(nowDate);
+        tupleList = statsRepository.getOverdueDevicesStatsAlt(checkDate);
         root.fillFromTuple(tupleList);
 
-        tupleList = deviceRepository.getExtraOverdueDevicesStatsAlt(nowDate);
+        tupleList = statsRepository.getExtraOverdueDevicesStatsAlt(checkDate);
         root.fillFromTuple(tupleList);
 
-        tupleList = deviceRepository.getPassiveDevicesStatsAlt(nowDate);
+        tupleList = statsRepository.getPassiveDevicesStatsAlt(checkDate);
         root.fillFromTuple(tupleList);
 
         return root;

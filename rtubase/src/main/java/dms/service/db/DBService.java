@@ -8,4 +8,6 @@ public interface DBService {
     void receivePDFiles() throws Exception;
 
     List<LocalDate> getDatesOfExistingSchemas();
+
+    void setActiveSchemaDate(LocalDate schemaDate);
 }

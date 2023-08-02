@@ -14,6 +14,7 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -121,4 +122,5 @@ public class SchemaManager {
         return em.createNativeQuery(queryString)
                 .getResultList();
     }
+
 }

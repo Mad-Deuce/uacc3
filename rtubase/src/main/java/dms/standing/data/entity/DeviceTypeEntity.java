@@ -14,7 +14,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @Entity
 @Proxy(lazy=false)
-@Table(name = "s_dev", schema = "drtu_2023_06_09", catalog = "rtubase")
+@Table(name = "s_dev", catalog = "rtubase")
 public class DeviceTypeEntity {
 
     @Id

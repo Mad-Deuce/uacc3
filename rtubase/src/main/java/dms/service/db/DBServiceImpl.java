@@ -1,5 +1,6 @@
 package dms.service.db;
 
+import dms.config.multitenant.TenantIdentifierResolver;
 import dms.dao.ReceiveManager;
 import dms.dao.SchemaManager;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,8 @@ public class DBServiceImpl implements DBService {
     private SchemaManager sm;
     @Autowired
     private ReceiveManager rm;
+    @Autowired
+    private TenantIdentifierResolver currentTenant;
 
     final String INP_DIR_PATH = "rtubase/src/main/resources/pd_files";
 
@@ -77,6 +80,12 @@ public class DBServiceImpl implements DBService {
             result.add(date);
         });
         return result;
+    }
+
+    @Override
+    public void setActiveSchemaDate(LocalDate schemaDate) {
+        String schemaNameSuffix = ("_" + schemaDate).replace("-", "_");
+        currentTenant.setCurrentTenant(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
     }
 
     private List<File> getFiles() throws Exception {

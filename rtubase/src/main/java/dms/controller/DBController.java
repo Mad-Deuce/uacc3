@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -39,5 +41,20 @@ public class DBController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(result);
     }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
+    @PostMapping(value = "/schema/date", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> setActiveSchemaDate(@RequestBody HashMap<String, String> options) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        dbService.setActiveSchemaDate(LocalDate.parse(options.get("schemaDate"), formatter));
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("setActiveSchema");
+    }
+
 
 }

@@ -24,15 +24,11 @@ import java.util.stream.Collectors;
 public class DeviceViewServiceImpl implements DeviceViewService {
 
     @Autowired
-    TenantIdentifierResolver currentTenant;
-
-    @Autowired
-    TransactionTemplate txTemplate;
+    private TenantIdentifierResolver currentTenant;
 
     private final RtubaseAuthService rtubaseAuthService;
 
     private final DeviceViewRepository deviceRepository;
-
 
     public DeviceViewServiceImpl(RtubaseAuthService rtubaseAuthService, DeviceViewRepository deviceRepository) {
         this.rtubaseAuthService = rtubaseAuthService;
