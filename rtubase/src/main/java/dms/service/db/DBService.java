@@ -9,5 +9,7 @@ public interface DBService {
 
     List<LocalDate> getDatesOfExistingSchemas();
 
-    void setActiveSchemaDate(LocalDate schemaDate);
+    LocalDate getDateOfActiveSchema();
+
+    LocalDate setActiveSchemaDate(LocalDate schemaDate);
 }

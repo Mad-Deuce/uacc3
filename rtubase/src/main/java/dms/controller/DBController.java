@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class DBController {
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/schema/date", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/schema/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getDatesOfExistingSchemas() {
 
         List<LocalDate> result = dbService.getDatesOfExistingSchemas();
@@ -42,18 +41,30 @@ public class DBController {
                 .body(result);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
-    @PostMapping(value = "/schema/date", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> setActiveSchemaDate(@RequestBody HashMap<String, String> options) {
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/schema", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getActiveSchemaDate() {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        dbService.setActiveSchemaDate(LocalDate.parse(options.get("schemaDate"), formatter));
+        LocalDate result = dbService.getDateOfActiveSchema() ;
 
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body("setActiveSchema");
+                .body(result);
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
+    @PostMapping(value = "/schema", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> setActiveSchemaDate(@RequestBody HashMap<String, LocalDate> options) {
+
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        LocalDate result = dbService.setActiveSchemaDate(options.get("schemaDate"));
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result);
     }
 
 

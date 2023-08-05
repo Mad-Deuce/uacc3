@@ -83,9 +83,18 @@ public class DBServiceImpl implements DBService {
     }
 
     @Override
-    public void setActiveSchemaDate(LocalDate schemaDate) {
+    public LocalDate getDateOfActiveSchema() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
+        return LocalDate
+                .parse(currentTenant.resolveCurrentTenantIdentifier().substring(sm.DRTU_SCHEMA_NAME.length()), formatter);
+    }
+
+    @Override
+    public LocalDate setActiveSchemaDate(LocalDate schemaDate) {
         String schemaNameSuffix = ("_" + schemaDate).replace("-", "_");
-        currentTenant.setCurrentTenant(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+        if (sm.getSchemaNameList().contains(sm.DRTU_SCHEMA_NAME + schemaNameSuffix))
+            currentTenant.setCurrentTenant(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+        return getDateOfActiveSchema();
     }
 
     private List<File> getFiles() throws Exception {
