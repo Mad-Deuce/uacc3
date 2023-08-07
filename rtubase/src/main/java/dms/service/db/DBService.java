@@ -7,6 +7,8 @@ public interface DBService {
 
     void receivePDFiles() throws Exception;
 
+//    boolean isPDDirEmpty() throws Exception;
+
     List<LocalDate> getDatesOfExistingSchemas();
 
     LocalDate getDateOfActiveSchema();

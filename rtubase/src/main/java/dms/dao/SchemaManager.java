@@ -14,7 +14,6 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +42,7 @@ public class SchemaManager {
 
     public void restoreEmpty() {
         String command = "pg_restore -U postgres -w -d rtubase " +
-                "/vagrant/ansible/roles/postgresql/files/d20200602.backup";
+                "/vagrant/ansible/roles/postgresql/files/d20230324.backup";
 
         Session session = null;
         ChannelExec channel = null;

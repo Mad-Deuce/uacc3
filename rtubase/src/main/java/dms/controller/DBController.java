@@ -18,6 +18,18 @@ public class DBController {
     DBService dbService;
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/check-pd-dir", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> isPDDirEmpty() throws Exception {
+
+//        boolean result = dbService.isPDDirEmpty();
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(true);
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/receive-pd-files", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> receivePDFiles() throws Exception {
 
@@ -25,8 +37,10 @@ public class DBController {
 
         return ResponseEntity
                 .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("Files Received");
+//                .contentType(MediaType.TEXT_PLAIN)
+//                .body("Files Received")
+                .build()
+                ;
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
@@ -45,7 +59,7 @@ public class DBController {
     @GetMapping(value = "/schema", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getActiveSchemaDate() {
 
-        LocalDate result = dbService.getDateOfActiveSchema() ;
+        LocalDate result = dbService.getDateOfActiveSchema();
 
         return ResponseEntity
                 .ok()
@@ -56,8 +70,6 @@ public class DBController {
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.POST)
     @PostMapping(value = "/schema", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> setActiveSchemaDate(@RequestBody HashMap<String, LocalDate> options) {
-
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         LocalDate result = dbService.setActiveSchemaDate(options.get("schemaDate"));
 

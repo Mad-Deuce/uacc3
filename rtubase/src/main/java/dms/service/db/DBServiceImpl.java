@@ -5,8 +5,10 @@ import dms.dao.ReceiveManager;
 import dms.dao.SchemaManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -44,13 +46,15 @@ public class DBServiceImpl implements DBService {
             List<String> fileContent = extractGzip(file);
             String fileHeader = fileContent.get(0);
             LocalDate fileDate = LocalDate.parse(fileHeader.substring(22, 30), formatter);
+
             if (!isLastDayOfMonth(fileDate)) {
                 fileDate = toNearestFriday(fileDate);
             }
+
             String schemaNameSuffix = ("_" + fileDate).replace("-", "_");
             if (schemaNameList.contains(sm.DRTU_SCHEMA_NAME + schemaNameSuffix)) {
                 List<String> receivedFileNameList = sm.getReceivedFileNameList(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
-                if (!receivedFileNameList.contains(file.getName())) {
+                if (!receivedFileNameList.contains(fileHeader.substring(0, 12).toUpperCase())) {
                     sm.removeSchema(sm.DRTU_SCHEMA_NAME);
                     sm.renameSchema(sm.DRTU_SCHEMA_NAME + schemaNameSuffix, sm.DRTU_SCHEMA_NAME);
                     sm.createDevicesMainView();
@@ -68,6 +72,15 @@ public class DBServiceImpl implements DBService {
 
             file.delete();
         }
+    }
+
+    //    @Override
+    @PostConstruct
+    @Scheduled(initialDelay = 3000, fixedDelay = 30000)
+    public void isPDDirEmpty() throws Exception {
+        log.info("------------------check PD dir -----------------");
+        if (!getFiles().isEmpty()) receivePDFiles();
+//        return getFiles().isEmpty();
     }
 
     @Override
@@ -132,4 +145,5 @@ public class DBServiceImpl implements DBService {
         int offset = (((dayOfWeekNum + 4) % 7) - 2) * -1;
         return inputDate.plusDays(offset);
     }
+
 }
