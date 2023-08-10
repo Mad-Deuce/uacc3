@@ -72,20 +72,21 @@ public class OverdueDevicesStats {
     }
 
     public static void sumValue(OverdueDevicesStats item, Tuple tuple) {
+        int i = tuple.toArray().length - 1;
         if (tuple.get(0).toString().equals("normal_devices")) {
-            item.setNormalDevicesQuantity(item.getNormalDevicesQuantity() + tuple.get(10, Long.class));
+            item.setNormalDevicesQuantity(item.getNormalDevicesQuantity() + tuple.get(i, Long.class));
         }
 
         if (tuple.get(0).toString().equals("overdue_devices")) {
-            item.setOverdueDevicesQuantity(item.getOverdueDevicesQuantity() + tuple.get(10, Long.class));
+            item.setOverdueDevicesQuantity(item.getOverdueDevicesQuantity() + tuple.get(i, Long.class));
         }
 
         if (tuple.get(0).toString().equals("extra_overdue_devices")) {
-            item.setExtraOverdueDevicesQuantity(item.getExtraOverdueDevicesQuantity() + tuple.get(10, Long.class));
+            item.setExtraOverdueDevicesQuantity(item.getExtraOverdueDevicesQuantity() + tuple.get(i, Long.class));
         }
 
         if (tuple.get(0).toString().equals("passive_devices")) {
-            item.setPassiveDevicesQuantity(item.getPassiveDevicesQuantity() + tuple.get(10, Long.class));
+            item.setPassiveDevicesQuantity(item.getPassiveDevicesQuantity() + tuple.get(i, Long.class));
         }
     }
 
@@ -101,14 +102,15 @@ public class OverdueDevicesStats {
             idList.add(tuple.get(4).toString());
         }
 
-        if (tuple.get(7) != null) {
-            idList.add(tuple.get(7).toString());
-        }
+        if (tuple.toArray().length > 7) {
+            if (tuple.get(7) != null) {
+                idList.add(tuple.get(7).toString());
+            }
 
-        if (tuple.get(9) != null) {
-            idList.add(tuple.get(9).toString());
+            if (tuple.get(9) != null) {
+                idList.add(tuple.get(9).toString());
+            }
         }
-
         return idList;
     }
 

@@ -1,5 +1,6 @@
 package dms.config.multitenant;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class CustomConnectionProvider implements MultiTenantConnectionProvider, HibernatePropertiesCustomizer {
 
@@ -29,6 +31,7 @@ public class CustomConnectionProvider implements MultiTenantConnectionProvider, 
 
     @Override
     public Connection getConnection(String tenantIdentifier) throws SQLException {
+        log.info("-------------- Get Connection for tenant --" + tenantIdentifier);
         Connection connection = dataSource.getConnection();
         connection.setSchema(tenantIdentifier);
         return connection;
@@ -36,6 +39,7 @@ public class CustomConnectionProvider implements MultiTenantConnectionProvider, 
 
     @Override
     public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
+        log.info("-------------- Release Connection for tenant --" + connection.getSchema());
         connection.setSchema("drtu_2023_07_28");
         connection.close();
     }

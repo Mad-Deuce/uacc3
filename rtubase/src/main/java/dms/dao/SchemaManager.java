@@ -8,18 +8,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-@Transactional
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class SchemaManager {
 
     @PersistenceContext
@@ -122,4 +124,10 @@ public class SchemaManager {
                 .getResultList();
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void testCon(int i) throws SQLException {
+        System.out.println("------------------in test ------------------");
+        log.info("" + i);
+        System.out.println("------------------out test ------------------");
+    }
 }
