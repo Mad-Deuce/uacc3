@@ -47,8 +47,9 @@ public interface StatsRepository extends JpaRepository<DeviceEntity, Long>, JpaS
             "left join SubdivisionEntity sd on substring  (d.facility.id,1,3)=sd.id " +
             "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
             "and d.nextTestDate > :checkDate " +
+            "and d.facility.id LIKE :nodeId " +
             "group by 1,2,3,4,5,6")
-    List<Tuple> getNormalDevicesStatsShort(@Param("checkDate") Date checkDate);
+    List<Tuple> getNormalDevicesStatsShort(@Param("checkDate") Date checkDate, @Param("nodeId") String nodeId);
 
     @Query("SELECT 'overdue_devices', " +
             "rail.name, " +
@@ -85,8 +86,9 @@ public interface StatsRepository extends JpaRepository<DeviceEntity, Long>, JpaS
             "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
             "and d.nextTestDate <= :checkDate " +
             "and d.extraNextTestDate > :checkDate " +
+            "and d.facility.id LIKE :nodeId " +
             "group by 1,2,3,4,5,6")
-    List<Tuple> getOverdueDevicesStatsShort(@Param("checkDate") Date checkDate);
+    List<Tuple> getOverdueDevicesStatsShort(@Param("checkDate") Date checkDate, @Param("nodeId") String nodeId);
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     @Query("SELECT 'extra_overdue_devices', " +
@@ -122,8 +124,9 @@ public interface StatsRepository extends JpaRepository<DeviceEntity, Long>, JpaS
             "left join SubdivisionEntity sd on substring  (d.facility.id,1,3)=sd.id " +
             "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
             "and d.extraNextTestDate <= :checkDate " +
+            "and d.facility.id LIKE :nodeId " +
             "group by 1,2,3,4,5,6")
-    List<Tuple> getExtraOverdueDevicesStatsShort(@Param("checkDate") Date checkDate);
+    List<Tuple> getExtraOverdueDevicesStatsShort(@Param("checkDate") Date checkDate, @Param("nodeId") String nodeId);
 
     @Query("SELECT 'passive_devices', " +
             "rail.name, " +
@@ -156,7 +159,8 @@ public interface StatsRepository extends JpaRepository<DeviceEntity, Long>, JpaS
             "left join RailwayEntity rail on substring  (d.facility.id,1,1)=rail.id " +
             "left join SubdivisionEntity sd on substring  (d.facility.id,1,3)=sd.id " +
             "WHERE (d.status = '2' or d.status = '12' or d.status = '23') " +
+            "and d.facility.id LIKE :nodeId " +
             "group by 1,2,3,4,5,6")
-    List<Tuple> getPassiveDevicesStatsShort(@Param("checkDate") Date checkDate);
+    List<Tuple> getPassiveDevicesStatsShort(@Param("nodeId") String nodeId);
 }
 

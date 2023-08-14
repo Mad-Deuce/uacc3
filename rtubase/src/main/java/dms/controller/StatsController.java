@@ -43,14 +43,11 @@ public class StatsController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/map")
-    public ResponseEntity<?> getStatsMap() throws SQLException {
+    public ResponseEntity<?> getStatsMap(@RequestParam String nodeId) throws SQLException {
         StatsDTO statsDTO = new StatsDTO();
 
-//        OverdueDevicesStats overdueDevicesStats = statsService.getOverdueDevicesStats();
+        HashMap<LocalDate, OverdueDevicesStats> overdueDevicesStatsMap = statsService.getOverdueDevicesStatsMap(nodeId);
 
-        HashMap<LocalDate, OverdueDevicesStats> overdueDevicesStatsMap = statsService.getOverdueDevicesStatsMap();
-
-//        statsDTO.setOverdueDevicesStats(overdueDevicesStats);
         statsDTO.setOverdueDevicesStatsMap(overdueDevicesStatsMap);
 
         return ResponseEntity

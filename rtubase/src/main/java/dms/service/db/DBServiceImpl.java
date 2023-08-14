@@ -80,7 +80,6 @@ public class DBServiceImpl implements DBService {
     public void isPDDirEmpty() throws Exception {
         log.info("------------------check PD dir -----------------");
         if (!getFiles().isEmpty()) receivePDFiles();
-//        return getFiles().isEmpty();
     }
 
     @Override

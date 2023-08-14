@@ -42,10 +42,6 @@ public class DeviceViewServiceImpl implements DeviceViewService {
 
     @Override
     public Page<DeviceViewMainEntity> findDevicesBySpecification(Pageable pageable, List<Filter<Object>> filters) {
-
-
-        currentTenant.setCurrentTenant("drtu_2023_07_28");
-
         return deviceRepository.findAll(getSpecification(filters), pageable);
     }
 
@@ -132,7 +128,7 @@ public class DeviceViewServiceImpl implements DeviceViewService {
         String[] fGroup0 = {"railwayName", "subdivisionShortName", "subdivisionName", "rtdName", "facilityName",
                 "typeName", "typeGroupName", "status", "regionType", "locateType"};
         //       fGroup1 - field type [STRING], match modes [CONTAINS, START_WITH, END_WITH, EQUALS]
-        String[] fGroup1 = {"id", "number", "detail", "region", "locate", "placeNumber", "label", "locationDetail"};
+        String[] fGroup1 = {"id", "number", "detail", "region", "locate", "placeNumber", "label", "locationDetail", "railwayId"};
         //       fGroup2 - field type [STRING->INTEGER], match modes [IS, IS_NOT, AFTER, BEFORE]
         String[] fGroup2 = {"releaseYear"};
         //       fGroup3 - field type [DATE], match modes [DATE_IS, DATE_IS_NOT, DATE_AFTER, DATE_BEFORE]

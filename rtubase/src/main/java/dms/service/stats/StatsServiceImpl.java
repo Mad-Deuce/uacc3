@@ -69,11 +69,12 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public HashMap<LocalDate, OverdueDevicesStats> getOverdueDevicesStatsMap() {
+    public HashMap<LocalDate, OverdueDevicesStats> getOverdueDevicesStatsMap(String nodeId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
         HashMap<LocalDate, OverdueDevicesStats> result = new HashMap<>();
         List<String> schemaNameList = sm.getSchemaNameList();
         schemaNameList.sort(Comparator.naturalOrder());
+        String currentSchema = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
 
         schemaNameList.forEach(item -> {
             dsm.unbindSession();
@@ -82,28 +83,31 @@ public class StatsServiceImpl implements StatsService {
             System.out.println(tenantIdentifierResolver.resolveCurrentTenantIdentifier());
             String strDate = tenantIdentifierResolver.resolveCurrentTenantIdentifier().substring(sm.DRTU_SCHEMA_NAME.length());
             LocalDate chDate = LocalDate.parse(strDate, formatter);
-            result.put(chDate, getShortOverdueDevicesStats(chDate));
+            result.put(chDate, getShortOverdueDevicesStats(chDate, nodeId));
         });
+        dsm.unbindSession();
+        tenantIdentifierResolver.setCurrentTenant(currentSchema);
+        dsm.bindSession();
         return result;
     }
 
 
-    public OverdueDevicesStats getShortOverdueDevicesStats(LocalDate chDate) {
+    public OverdueDevicesStats getShortOverdueDevicesStats(LocalDate chDate, String nodeId) {
         Date checkDate = Date.valueOf(chDate);
 
-        OverdueDevicesStats root = new OverdueDevicesStats("root");
+        OverdueDevicesStats root = new OverdueDevicesStats(nodeId);
         List<Tuple> tupleList;
 
-        tupleList = statsRepository.getNormalDevicesStatsShort(checkDate);
+        tupleList = statsRepository.getNormalDevicesStatsShort(checkDate, nodeId + "%");
         root.fillFromTuple(tupleList);
 
-        tupleList = statsRepository.getOverdueDevicesStatsShort(checkDate);
+        tupleList = statsRepository.getOverdueDevicesStatsShort(checkDate, nodeId + "%");
         root.fillFromTuple(tupleList);
 
-        tupleList = statsRepository.getExtraOverdueDevicesStatsShort(checkDate);
+        tupleList = statsRepository.getExtraOverdueDevicesStatsShort(checkDate, nodeId + "%");
         root.fillFromTuple(tupleList);
 
-        tupleList = statsRepository.getPassiveDevicesStatsShort(checkDate);
+        tupleList = statsRepository.getPassiveDevicesStatsShort(nodeId + "%");
         root.fillFromTuple(tupleList);
 
         return root;
