@@ -8,4 +8,6 @@ import java.util.List;
 public interface SubdivisionRepository extends JpaRepository<SubdivisionEntity, String> {
 
     List<SubdivisionEntity> findAllByIdStartingWithOrderById(String parentId);
+
+    List<SubdivisionEntity> findByIdIn(List<String> idList);
 }

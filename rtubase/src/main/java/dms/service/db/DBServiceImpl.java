@@ -76,7 +76,7 @@ public class DBServiceImpl implements DBService {
 
     //    @Override
     @PostConstruct
-    @Scheduled(initialDelay = 3000, fixedDelay = 30000)
+    @Scheduled(initialDelay = 20000, fixedDelay = 30000)
     public void isPDDirEmpty() throws Exception {
         log.info("------------------check PD dir -----------------");
         if (!getFiles().isEmpty()) receivePDFiles();

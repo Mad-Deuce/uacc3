@@ -3,12 +3,17 @@ package dms.controller;
 
 import dms.dto.stats.OverdueDevicesStats;
 import dms.dto.stats.StatsDTO;
+import dms.report_generator.xls.OverdueDevicesStatsHistoryReportBuilder;
 import dms.service.stats.StatsService;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.*;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -19,10 +24,13 @@ import java.util.HashMap;
 public class StatsController {
 
     private final StatsService statsService;
+    private final OverdueDevicesStatsHistoryReportBuilder reportBuilder;
 
     @Autowired
-    public StatsController(StatsService statsService) {
+    public StatsController(StatsService statsService,
+                           OverdueDevicesStatsHistoryReportBuilder reportBuilder) {
         this.statsService = statsService;
+        this.reportBuilder = reportBuilder;
     }
 
 
@@ -42,6 +50,17 @@ public class StatsController {
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/save")
+    public ResponseEntity<?> saveCurrentSchemaStats() {
+
+        statsService.saveOverdueDevsStats();
+
+        return ResponseEntity
+                .ok()
+                .build();
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/map")
     public ResponseEntity<?> getStatsMap(@RequestParam String nodeId) throws SQLException {
         StatsDTO statsDTO = new StatsDTO();
@@ -54,6 +73,29 @@ public class StatsController {
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(statsDTO);
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/overdue-devices/history/export/xls")
+    public ResponseEntity<?> exportOverdueDevicesStatsHistory(@RequestParam String nodeId) throws SQLException, IOException {
+
+//        statsService.exportOverdueDevicesStatsHistory(nodeId);
+
+        Workbook workbook = reportBuilder.getOverdueDevicesStatsHistoryReport(statsService.getOverdueDevicesStatsMap(nodeId));
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        byte[] barray = bos.toByteArray();
+        workbook.close();
+        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(barray));
+
+        return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=rep_devices.xlsx")
+                .contentLength(barray.length)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+
     }
 
 }

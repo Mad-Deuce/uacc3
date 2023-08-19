@@ -162,5 +162,48 @@ public interface StatsRepository extends JpaRepository<DeviceEntity, Long>, JpaS
             "and d.facility.id LIKE :nodeId " +
             "group by 1,2,3,4,5,6")
     List<Tuple> getPassiveDevicesStatsShort(@Param("nodeId") String nodeId);
+
+    @Query(
+            "SELECT " +
+                    "DISTINCT SUBSTRING(d.facility.id, 1, 3) , " +
+                    "COUNT (d)" +
+                    "FROM DeviceEntity  d " +
+                    "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
+                    "AND d.nextTestDate > :checkDate " +
+                    "GROUP BY 1"
+    )
+    List<Tuple> getNormalDevicesQuantity(@Param("checkDate") Date checkDate);
+
+    @Query(
+            "SELECT " +
+                    "DISTINCT SUBSTRING(d.facility.id, 1, 3) , " +
+                    "COUNT (d)" +
+                    "FROM DeviceEntity  d " +
+                    "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
+                    "and d.nextTestDate <= :checkDate " +
+                    "GROUP BY 1"
+    )
+    List<Tuple> getExpiredDevicesQuantity(@Param("checkDate") Date checkDate);
+
+    @Query(
+            "SELECT " +
+                    "DISTINCT SUBSTRING(d.facility.id, 1, 3) , " +
+                    "COUNT (d)" +
+                    "FROM DeviceEntity  d " +
+                    "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
+                    "and d.extraNextTestDate <= :checkDate " +
+                    "GROUP BY 1"
+    )
+    List<Tuple> getExpiredWarrantyDevicesQuantity(@Param("checkDate") Date checkDate);
+
+    @Query(
+            "SELECT " +
+                    "DISTINCT SUBSTRING(d.facility.id, 1, 3) , " +
+                    "COUNT (d)" +
+                    "FROM DeviceEntity  d " +
+                    "WHERE (d.status = '2' or d.status = '12') " +
+                    "GROUP BY 1"
+    )
+    List<Tuple> getHidedDevicesQuantity(@Param("checkDate") Date checkDate);
 }
 
