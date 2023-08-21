@@ -79,7 +79,7 @@ public class StatsController {
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/overdue-devices/history/export/xls")
-    public ResponseEntity<?> exportOverdueDevicesStatsHistory(@RequestParam String nodeId) throws SQLException, IOException {
+    public ResponseEntity<?> exportOverdueDevicesStatsHistory(@RequestParam String nodeId) throws IOException {
 
         List<OverdueDevsStatsEntity> values = statsService.getOverdueDevsStatsEntityList(nodeId);
 

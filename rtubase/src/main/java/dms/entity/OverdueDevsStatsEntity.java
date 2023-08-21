@@ -51,4 +51,6 @@ public class OverdueDevsStatsEntity {
 //    @Column(name = "id", nullable = false)
 //    private long id;
 
+
 }
+
