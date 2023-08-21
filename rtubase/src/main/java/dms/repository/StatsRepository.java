@@ -165,45 +165,45 @@ public interface StatsRepository extends JpaRepository<DeviceEntity, Long>, JpaS
 
     @Query(
             "SELECT " +
-                    "DISTINCT SUBSTRING(d.facility.id, 1, 3) , " +
+                    "SUBSTRING(d.facility.id, 1, :i) , " +
                     "COUNT (d)" +
                     "FROM DeviceEntity  d " +
                     "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
                     "AND d.nextTestDate > :checkDate " +
                     "GROUP BY 1"
     )
-    List<Tuple> getNormalDevicesQuantity(@Param("checkDate") Date checkDate);
+    List<Tuple> getNormalDevicesQuantity(@Param("checkDate") Date checkDate, @Param("i") int i);
 
     @Query(
             "SELECT " +
-                    "DISTINCT SUBSTRING(d.facility.id, 1, 3) , " +
+                    "SUBSTRING(d.facility.id, 1, :i) , " +
                     "COUNT (d)" +
                     "FROM DeviceEntity  d " +
                     "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
                     "and d.nextTestDate <= :checkDate " +
                     "GROUP BY 1"
     )
-    List<Tuple> getExpiredDevicesQuantity(@Param("checkDate") Date checkDate);
+    List<Tuple> getExpiredDevicesQuantity(@Param("checkDate") Date checkDate, @Param("i") int i);
 
     @Query(
             "SELECT " +
-                    "DISTINCT SUBSTRING(d.facility.id, 1, 3) , " +
+                    "SUBSTRING(d.facility.id, 1, :i) , " +
                     "COUNT (d)" +
                     "FROM DeviceEntity  d " +
                     "WHERE (d.status = '11' or d.status = '21' or d.status = '32' or d.status = '51' or d.status = '52') " +
                     "and d.extraNextTestDate <= :checkDate " +
                     "GROUP BY 1"
     )
-    List<Tuple> getExpiredWarrantyDevicesQuantity(@Param("checkDate") Date checkDate);
+    List<Tuple> getExpiredWarrantyDevicesQuantity(@Param("checkDate") Date checkDate, @Param("i") int i);
 
     @Query(
             "SELECT " +
-                    "DISTINCT SUBSTRING(d.facility.id, 1, 3) , " +
+                    "SUBSTRING(d.facility.id, 1, :i) , " +
                     "COUNT (d)" +
                     "FROM DeviceEntity  d " +
                     "WHERE (d.status = '2' or d.status = '12') " +
                     "GROUP BY 1"
     )
-    List<Tuple> getHidedDevicesQuantity(@Param("checkDate") Date checkDate);
+    List<Tuple> getHidedDevicesQuantity(@Param("i") int i);
 }
 

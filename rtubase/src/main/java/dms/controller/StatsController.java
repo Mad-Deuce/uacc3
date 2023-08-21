@@ -3,10 +3,10 @@ package dms.controller;
 
 import dms.dto.stats.OverdueDevicesStats;
 import dms.dto.stats.StatsDTO;
+import dms.entity.OverdueDevsStatsEntity;
 import dms.report_generator.xls.OverdueDevicesStatsHistoryReportBuilder;
 import dms.service.stats.StatsService;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
@@ -17,6 +17,7 @@ import java.io.*;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 
 
 @RestController
@@ -49,11 +50,12 @@ public class StatsController {
                 .body(statsDTO);
     }
 
+    @Deprecated
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/save")
     public ResponseEntity<?> saveCurrentSchemaStats() {
 
-        statsService.saveOverdueDevsStats();
+        statsService.saveAllSchemaOverdueDevsStats();
 
         return ResponseEntity
                 .ok()
@@ -79,9 +81,9 @@ public class StatsController {
     @GetMapping(value = "/overdue-devices/history/export/xls")
     public ResponseEntity<?> exportOverdueDevicesStatsHistory(@RequestParam String nodeId) throws SQLException, IOException {
 
-//        statsService.exportOverdueDevicesStatsHistory(nodeId);
+        List<OverdueDevsStatsEntity> values = statsService.getOverdueDevsStatsEntityList(nodeId);
 
-        Workbook workbook = reportBuilder.getOverdueDevicesStatsHistoryReport(statsService.getOverdueDevicesStatsMap(nodeId));
+        Workbook workbook = reportBuilder.getOverdueDevicesStatsHistoryReport(values);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         workbook.write(bos);

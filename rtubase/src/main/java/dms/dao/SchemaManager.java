@@ -15,7 +15,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -124,10 +123,4 @@ public class SchemaManager {
                 .getResultList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void testCon(int i) throws SQLException {
-        System.out.println("------------------in test ------------------");
-        log.info("" + i);
-        System.out.println("------------------out test ------------------");
-    }
 }

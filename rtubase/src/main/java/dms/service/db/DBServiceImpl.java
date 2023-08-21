@@ -3,6 +3,7 @@ package dms.service.db;
 import dms.config.multitenant.TenantIdentifierResolver;
 import dms.dao.ReceiveManager;
 import dms.dao.SchemaManager;
+import dms.service.stats.StatsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,14 +27,22 @@ import java.util.zip.GZIPInputStream;
 @Slf4j
 public class DBServiceImpl implements DBService {
 
+
+    private final DatabaseSessionManager dbSessionManager;
     @Autowired
-    private SchemaManager sm;
+    private StatsService statsService;
     @Autowired
-    private ReceiveManager rm;
+    private  SchemaManager sm;
     @Autowired
-    private TenantIdentifierResolver currentTenant;
+    private  ReceiveManager rm;
+    @Autowired
+    private  TenantIdentifierResolver currentTenant;
 
     final String INP_DIR_PATH = "rtubase/src/main/resources/pd_files";
+
+    public DBServiceImpl(DatabaseSessionManager dbSessionManager) {
+        this.dbSessionManager = dbSessionManager;
+    }
 
     @Override
     public void receivePDFiles() throws Exception {
@@ -69,12 +78,14 @@ public class DBServiceImpl implements DBService {
                 rm.receivePDFileAlt(fileContent);
                 sm.renameSchema(sm.DRTU_SCHEMA_NAME, sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
             }
-
+//            dbSessionManager.unbindSession();
+            currentTenant.setCurrentTenant(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+//            dbSessionManager.bindSession();
+            statsService.saveCurrentSchemaOverdueDevsStats();
             file.delete();
         }
     }
 
-    //    @Override
     @PostConstruct
     @Scheduled(initialDelay = 20000, fixedDelay = 30000)
     public void isPDDirEmpty() throws Exception {

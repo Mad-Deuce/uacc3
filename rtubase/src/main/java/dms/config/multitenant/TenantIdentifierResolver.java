@@ -1,5 +1,6 @@
 package dms.config.multitenant;
 
+import dms.service.db.DatabaseSessionManager;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.springframework.beans.factory.InitializingBean;
@@ -10,19 +11,14 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver, HibernatePropertiesCustomizer, InitializingBean {
 
-    //    private String currentTenant = "public";
     private String currentTenant;
     @Autowired
     DataSource dataSource;
@@ -47,7 +43,7 @@ public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
         List<String> result = jdbcTemplate
@@ -60,24 +56,5 @@ public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver
                     }
                 });
         currentTenant = result.get(0);
-
-//        Connection connection = dataSource.getConnection();
-//        Statement statement = connection.createStatement();
-//        ResultSet resultSet = statement.executeQuery("SELECT schema_name FROM information_schema.schemata ");
-//
-//        List<String> result = new ArrayList<>();
-//        while (resultSet.next()) {
-//
-//            String name = resultSet.getString(1);
-//            if (name.startsWith("drtu_")) {
-//
-//                result.add(name);
-//            }
-//        }
-//        result.sort(Comparator.naturalOrder());
-//        currentTenant = result.get(result.size() - 1);
-//        System.out.println();
-//        connection.close();
-//        statement.close();
     }
 }

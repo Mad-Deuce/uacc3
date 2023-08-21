@@ -8,7 +8,9 @@ import dms.entity.OverdueDevsStatsEntity;
 import dms.repository.OverdueDevsStatsRepository;
 import dms.repository.StatsRepository;
 import dms.service.db.DatabaseSessionManager;
+import dms.standing.data.entity.RailwayEntity;
 import dms.standing.data.entity.SubdivisionEntity;
+import dms.standing.data.repository.RailwayRepository;
 import dms.standing.data.repository.SubdivisionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,10 @@ import javax.persistence.Tuple;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -28,6 +33,8 @@ public class StatsServiceImpl implements StatsService {
 
     private final DatabaseSessionManager dsm;
 
+
+    private final RailwayRepository railwayRepository;
     private final SubdivisionRepository subdivisionRepository;
     private final StatsRepository statsRepository;
     private final OverdueDevsStatsRepository overdueDevsStatsRepository;
@@ -35,20 +42,22 @@ public class StatsServiceImpl implements StatsService {
     private final SchemaManager sm;
 
     @Autowired
-    public StatsServiceImpl(DatabaseSessionManager dsm,
-                            SubdivisionRepository subdivisionRepository,
-                            StatsRepository statsRepository,
-                            OverdueDevsStatsRepository overdueDevsStatsRepository,
-                            TenantIdentifierResolver tenantIdentifierResolver,
-                            SchemaManager sm) {
+    public StatsServiceImpl(
+            DatabaseSessionManager dsm,
+            RailwayRepository railwayRepository,
+            SubdivisionRepository subdivisionRepository,
+            StatsRepository statsRepository,
+            OverdueDevsStatsRepository overdueDevsStatsRepository,
+            TenantIdentifierResolver tenantIdentifierResolver,
+            SchemaManager sm) {
         this.dsm = dsm;
+        this.railwayRepository = railwayRepository;
         this.subdivisionRepository = subdivisionRepository;
         this.statsRepository = statsRepository;
         this.overdueDevsStatsRepository = overdueDevsStatsRepository;
         this.tenantIdentifierResolver = tenantIdentifierResolver;
         this.sm = sm;
     }
-
 
     @Override
     public OverdueDevicesStats getOverdueDevicesStats() {
@@ -74,7 +83,7 @@ public class StatsServiceImpl implements StatsService {
         tupleList = statsRepository.getPassiveDevicesStats(checkDate);
         root.fillFromTuple(tupleList);
 
-        saveOverdueDevsStats();
+        saveCurrentSchemaOverdueDevsStats();
 
         return root;
     }
@@ -126,75 +135,94 @@ public class StatsServiceImpl implements StatsService {
         return root;
     }
 
-    private List<OverdueDevsStatsEntity> getOverdueDevsStatsEntityList(OverdueDevicesStats overdueDevicesStats, LocalDate checkDate) {
-        if (overdueDevicesStats == null
-                || (overdueDevicesStats.getId().length() > 3 && !overdueDevicesStats.getId().equals("root")))
-            return null;
-        List<OverdueDevsStatsEntity> result = new ArrayList<>();
-        OverdueDevsStatsEntity entity = new OverdueDevsStatsEntity();
-        entity.setObjectId(overdueDevicesStats.getId());
-        entity.setStatsDate(checkDate);
-        entity.setNormDevsQuantity(overdueDevicesStats.getNormalDevicesQuantity());
-        entity.setPassDevsQuantity(overdueDevicesStats.getPassiveDevicesQuantity());
-        entity.setExpDevsQuantity(overdueDevicesStats.getOverdueDevicesQuantity());
-        entity.setExpWarrantyDevsQuantity(overdueDevicesStats.getExtraOverdueDevicesQuantity());
-        result.add(entity);
-        if (!overdueDevicesStats.getChildren().isEmpty()) {
-            overdueDevicesStats.getChildren().forEach(v -> {
-                List<OverdueDevsStatsEntity> res = getOverdueDevsStatsEntityList(v, checkDate);
-                if (res != null) result.addAll(res);
-
-            });
-        }
-        return result;
+    @Override
+    public List<OverdueDevsStatsEntity> getOverdueDevsStatsEntityList(String parentId) {
+        List<OverdueDevsStatsEntity> result = overdueDevsStatsRepository.findByObjectIdStartsWith(parentId);
+        return result.stream().filter(item ->
+                        item.getObjectId().equals("1")
+                                || item.getObjectId().equals("101")
+                                || item.getObjectId().equals("102")
+                                || item.getObjectId().equals("104")
+                                || item.getObjectId().equals("106")
+                                || item.getObjectId().equals("107")
+                                || item.getObjectId().equals("111"))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void saveOverdueDevsStats() {
+    public void saveAllSchemaOverdueDevsStats() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
+//        HashMap<LocalDate, OverdueDevicesStats> result = new HashMap<>();
+        List<String> schemaNameList = sm.getSchemaNameList();
+        schemaNameList.sort(Comparator.naturalOrder());
+//        String currentSchema = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
+
+        schemaNameList.forEach(item -> {
+            dsm.unbindSession();
+            tenantIdentifierResolver.setCurrentTenant(item);
+            saveCurrentSchemaOverdueDevsStats();
+            dsm.bindSession();
+//            System.out.println(tenantIdentifierResolver.resolveCurrentTenantIdentifier());
+//            String strDate = tenantIdentifierResolver.resolveCurrentTenantIdentifier().substring(sm.DRTU_SCHEMA_NAME.length());
+//            LocalDate chDate = LocalDate.parse(strDate, formatter);
+//            result.put(chDate, getShortOverdueDevicesStats(chDate, nId));
+        });
+//        dsm.unbindSession();
+//        tenantIdentifierResolver.setCurrentTenant(currentSchema);
+//        dsm.bindSession();
+//        return result;
+    }
+
+    @Override
+    public void saveCurrentSchemaOverdueDevsStats() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
         String currentSchemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
         String strDate = currentSchemaName.substring(sm.DRTU_SCHEMA_NAME.length());
         LocalDate chDate = LocalDate.parse(strDate, formatter);
-        List<OverdueDevsStatsEntity> overdueDevsStatsEntityList = getOverdueDevsStatsEntityList(chDate);
+        List<OverdueDevsStatsEntity> overdueDevsStatsEntityList = collectOverdueDevsStatsEntityList(chDate);
         overdueDevsStatsRepository.saveAllAndFlush(overdueDevsStatsEntityList);
-//        overdueDevsStatsEntityList.forEach(overdueDevsStatsEntity -> {
-//
-//        });
     }
 
-    private List<OverdueDevsStatsEntity> getOverdueDevsStatsEntityList(LocalDate checkDate) {
+    private List<OverdueDevsStatsEntity> collectOverdueDevsStatsEntityList(LocalDate checkDate) {
         HashMap<String, OverdueDevsStatsEntity> resultMap = new HashMap<>();
 
-        List<SubdivisionEntity> subdivisionEntityList =
-                subdivisionRepository.findByIdIn(new ArrayList<>(Arrays.asList("101", "102", "104", "106", "107", "111")));
-        addObjectNameToEntityMap(resultMap, subdivisionEntityList, checkDate);
+        Map<String, Long> nDevsQuantityMap = toDevicesQuantityMap(statsRepository.getNormalDevicesQuantity(Date.valueOf(checkDate), 0));
+        nDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getNormalDevicesQuantity(Date.valueOf(checkDate), 1)));
+        nDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getNormalDevicesQuantity(Date.valueOf(checkDate), 3)));
 
-        Map<String, Long> nDevsQuantityMap =
-                toDevicesQuantityMap(statsRepository.getNormalDevicesQuantity(Date.valueOf(checkDate)));
+        Map<String, Long> expDevsQuantityMap = toDevicesQuantityMap(statsRepository.getExpiredDevicesQuantity(Date.valueOf(checkDate), 0));
+        expDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getExpiredDevicesQuantity(Date.valueOf(checkDate), 1)));
+        expDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getExpiredDevicesQuantity(Date.valueOf(checkDate), 3)));
+
+        Map<String, Long> expWarrantyDevsQuantityMap = toDevicesQuantityMap(statsRepository.getExpiredWarrantyDevicesQuantity(Date.valueOf(checkDate), 0));
+        expWarrantyDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getExpiredWarrantyDevicesQuantity(Date.valueOf(checkDate), 1)));
+        expWarrantyDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getExpiredWarrantyDevicesQuantity(Date.valueOf(checkDate), 3)));
+
+        Map<String, Long> hidedDevsQuantityMap = toDevicesQuantityMap(statsRepository.getHidedDevicesQuantity(0));
+        hidedDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getHidedDevicesQuantity(1)));
+        hidedDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getHidedDevicesQuantity(3)));
+
         addStatsValueToEntityMap(resultMap, nDevsQuantityMap, checkDate, 1);
-
-        Map<String, Long> expDevsQuantityMap =
-                toDevicesQuantityMap(statsRepository.getExpiredDevicesQuantity(Date.valueOf(checkDate)));
         addStatsValueToEntityMap(resultMap, expDevsQuantityMap, checkDate, 2);
-
-        Map<String, Long> expWarrantyDevsQuantityMap =
-                toDevicesQuantityMap(statsRepository.getExpiredWarrantyDevicesQuantity(Date.valueOf(checkDate)));
         addStatsValueToEntityMap(resultMap, expWarrantyDevsQuantityMap, checkDate, 3);
-
-        Map<String, Long> hidedDevsQuantityMap =
-                toDevicesQuantityMap(statsRepository.getHidedDevicesQuantity(Date.valueOf(checkDate)));
         addStatsValueToEntityMap(resultMap, hidedDevsQuantityMap, checkDate, 4);
+
+        Map<String, String> objectNameMap = getObjectNameMap();
+        addObjectNameToEntityMap(resultMap, objectNameMap, checkDate);
 
         return resultMap.values().stream().toList();
     }
 
-    private Map<String, Long> toDevicesQuantityMap(List<Tuple> tupleList) {
-        return tupleList.stream()
-                .collect(Collectors.toMap(
-                                tuple -> (String) tuple.get(0),
-                                tuple -> (Long) tuple.get(1)
-                        )
-                );
+    Map<String, String> getObjectNameMap() {
+        HashMap<String, String> resultMap = new HashMap<>();
+        List<SubdivisionEntity> subdivisionEntityList = subdivisionRepository.findAll();
+        List<RailwayEntity> railwayEntityList = railwayRepository.findAll();
+        resultMap.put("root", "UZ");
+        resultMap.putAll(subdivisionEntityList.stream()
+                .collect(Collectors.toMap(SubdivisionEntity::getId, SubdivisionEntity::getShortName)));
+        resultMap.putAll(railwayEntityList.stream()
+                .collect(Collectors.toMap(RailwayEntity::getId, RailwayEntity::getName)));
+        return resultMap;
     }
 
     private void addStatsValueToEntityMap(HashMap<String, OverdueDevsStatsEntity> resultMap,
@@ -202,6 +230,13 @@ public class StatsServiceImpl implements StatsService {
                                           LocalDate checkDate,
                                           int i) {
         devicesQuantityMap.forEach((k, v) -> {
+            OverdueDevsStatsEntity parentEntity = resultMap.get(k.substring(0, 1));
+            if (parentEntity == null) {
+                parentEntity = new OverdueDevsStatsEntity();
+                resultMap.put(k.substring(0, 1), parentEntity);
+                parentEntity.setObjectId(k.substring(0, 1));
+                parentEntity.setStatsDate(checkDate);
+            }
             OverdueDevsStatsEntity entity = resultMap.get(k);
             if (entity == null) {
                 entity = new OverdueDevsStatsEntity();
@@ -210,33 +245,56 @@ public class StatsServiceImpl implements StatsService {
                 entity.setStatsDate(checkDate);
             }
             switch (i) {
-                case 1:
+                case 1 -> {
                     entity.setNormDevsQuantity(v);
-                case 2:
+                    parentEntity.setNormDevsQuantity(parentEntity.getNormDevsQuantity() == null ? v
+                            : parentEntity.getNormDevsQuantity() + v);
+                }
+                case 2 -> {
                     entity.setExpDevsQuantity(v);
-                case 3:
+                    parentEntity.setExpDevsQuantity(parentEntity.getExpDevsQuantity() == null ? v
+                            : parentEntity.getExpDevsQuantity() + v);
+                }
+                case 3 -> {
                     entity.setExpWarrantyDevsQuantity(v);
-                case 4:
+                    parentEntity.setExpWarrantyDevsQuantity(parentEntity.getExpWarrantyDevsQuantity() == null ? v
+                            : parentEntity.getExpWarrantyDevsQuantity() + v);
+                }
+                case 4 -> {
                     entity.setPassDevsQuantity(v);
+                    parentEntity.setPassDevsQuantity(parentEntity.getPassDevsQuantity() == null ? v
+                            : parentEntity.getPassDevsQuantity() + v);
+                }
+                default -> throw new RuntimeException();
             }
 
         });
     }
 
     private void addObjectNameToEntityMap(HashMap<String, OverdueDevsStatsEntity> resultMap,
-                                          List<SubdivisionEntity> sdList,
+                                          Map<String, String> objectNameMap,
                                           LocalDate checkDate
     ) {
-        sdList.forEach((v) -> {
-            OverdueDevsStatsEntity entity = resultMap.get(v.getId());
+        objectNameMap.forEach((k, v) -> {
+            OverdueDevsStatsEntity entity = resultMap.get(k);
             if (entity == null) {
                 entity = new OverdueDevsStatsEntity();
-                resultMap.put(v.getId(), entity);
-                entity.setObjectId(v.getId());
+                resultMap.put(k, entity);
+                entity.setObjectId(k);
                 entity.setStatsDate(checkDate);
             }
-            entity.setObjectName(v.getShortName());
-
+            entity.setObjectName(v);
         });
     }
+
+    private Map<String, Long> toDevicesQuantityMap(List<Tuple> tupleList) {
+        return tupleList.stream()
+                .collect(Collectors.toMap(
+                                tuple -> (tuple.get(0).equals("") ? "root" : (String) tuple.get(0)),
+                                tuple -> (Long) tuple.get(1)
+                        )
+                );
+    }
+
+
 }

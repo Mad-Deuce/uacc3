@@ -2,17 +2,20 @@ package dms.service.stats;
 
 
 import dms.dto.stats.OverdueDevicesStats;
+import dms.entity.OverdueDevsStatsEntity;
 
-import javax.transaction.Transactional;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 
 public interface StatsService {
 
     OverdueDevicesStats getOverdueDevicesStats();
 
-     void saveOverdueDevsStats();
+    public void saveAllSchemaOverdueDevsStats();
+     void saveCurrentSchemaOverdueDevsStats();
     HashMap<LocalDate, OverdueDevicesStats> getOverdueDevicesStatsMap(String nodeId) throws SQLException;
 
+    List<OverdueDevsStatsEntity> getOverdueDevsStatsEntityList(String parentId);
 }
