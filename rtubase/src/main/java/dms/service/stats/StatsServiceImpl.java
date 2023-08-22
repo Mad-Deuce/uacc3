@@ -139,8 +139,7 @@ public class StatsServiceImpl implements StatsService {
     public List<OverdueDevsStatsEntity> getOverdueDevsStatsEntityList(String parentId) {
         List<OverdueDevsStatsEntity> result = overdueDevsStatsRepository.findByObjectIdStartsWith(parentId);
         return result.stream().filter(item ->
-                        item.getObjectId().equals("1")
-                                || item.getObjectId().equals("101")
+                        item.getObjectId().equals("101")
                                 || item.getObjectId().equals("102")
                                 || item.getObjectId().equals("104")
                                 || item.getObjectId().equals("106")
