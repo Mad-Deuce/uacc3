@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 @Component
@@ -33,6 +34,7 @@ public class OverdueDevicesStatsHistoryReportBuilder {
 
     private Map<String, OverdueDevicesStatsHistoryReportModel> convertToReportModel(List<OverdueDevsStatsEntity> inpData) {
         Map<String, OverdueDevicesStatsHistoryReportModel> result = new TreeMap<>();
+        Map<LocalDate, Long> standardDateMap = new TreeMap<>();
         for (OverdueDevsStatsEntity inpItem : inpData) {
             OverdueDevicesStatsHistoryReportModel rowModel = result.get(inpItem.getObjectId());
             if (rowModel == null) {
@@ -43,210 +45,166 @@ public class OverdueDevicesStatsHistoryReportBuilder {
                 rowModel.setExpiredDevicesQuantity(new TreeMap<>());
                 rowModel.setExpiredWarrantyDevicesQuantity(new TreeMap<>());
             }
+            standardDateMap.put(inpItem.getStatsDate(), 0L);
             rowModel.getExpiredDevicesQuantity().put(inpItem.getStatsDate(), inpItem.getExpDevsQuantity());
             rowModel.getExpiredWarrantyDevicesQuantity().put(inpItem.getStatsDate(), inpItem.getExpWarrantyDevsQuantity());
         }
-
+        checkComplete(result, standardDateMap);
         return result;
     }
 
-    private void fillSheet(Sheet sheet, Map<String, OverdueDevicesStatsHistoryReportModel> inpData) {
+    private void checkComplete(Map<String, OverdueDevicesStatsHistoryReportModel> result, Map<LocalDate, Long> standardDateMap) {
+        for (OverdueDevicesStatsHistoryReportModel item : result.values()) {
+            for (LocalDate key : standardDateMap.keySet()) {
+                item.getExpiredDevicesQuantity().putIfAbsent(key, null);
+                item.getExpiredWarrantyDevicesQuantity().putIfAbsent(key, null);
+            }
+        }
+    }
+
+    private void fillHeaders(Sheet sheet, Set<LocalDate> labels, int startRowIndex, String header1Label) {
+        CellStyle headerStyle0 = getHeaderStyle0(sheet);
         CellStyle headerStyle1 = getHeaderStyle1(sheet);
         CellStyle headerStyle2 = getHeaderStyle2(sheet);
         CellStyle headerStyle3 = getHeaderStyle3(sheet);
-        CellStyle headerStyle0 = getHeaderStyle0(sheet);
-        CellStyle dataStyle1 = getDataStyle1(sheet);
 
-        int headerRowIndex1 = 0;
-        int dataRowIndex1 = HEADER_ROWS_QUANTITY;
-        int totalRowIndex1 = HEADER_ROWS_QUANTITY + inpData.size();
+        int columnIndex = 1;
 
-        int headerRowIndex2 = HEADER_ROWS_QUANTITY + inpData.size() + 1;
-        int dataRowIndex2 = 2 * HEADER_ROWS_QUANTITY + inpData.size() + 1;
-        int totalRowIndex2 = 2 * HEADER_ROWS_QUANTITY + 2 * inpData.size() + 1;
-
-        Row headerRow11 = sheet.createRow(headerRowIndex1);
-        Row headerRow12 = sheet.createRow(headerRowIndex1 + 1);
-        Row headerRow13 = sheet.createRow(headerRowIndex1 + 2);
-        Row dataRow1;
-        Row totalRow1 = sheet.createRow(totalRowIndex1);
-
-        Row headerRow21 = sheet.createRow(headerRowIndex2);
-        Row headerRow22 = sheet.createRow(headerRowIndex2 + 1);
-        Row headerRow23 = sheet.createRow(headerRowIndex2 + 2);
-        Row dataRow2;
-        Row totalRow2 = sheet.createRow(totalRowIndex2);
+        Row headerRow1 = sheet.createRow(startRowIndex);
+        Row headerRow2 = sheet.createRow(startRowIndex + 1);
+        Row headerRow3 = sheet.createRow(startRowIndex + 2);
 
         Cell headerCell;
+
+        headerCell = headerRow1.createCell(0);
+        headerCell.setCellValue("Структурний підрозділ");
+        sheet.addMergedRegion(new CellRangeAddress(startRowIndex, startRowIndex + HEADER_ROWS_QUANTITY - 1,
+                0, 0));
+        headerCell.setCellStyle(headerStyle0);
+        setAllBorderToMergedRegion(sheet, headerCell);
+
+        for (LocalDate label : labels) {
+            headerCell = headerRow1.createCell(columnIndex);
+            headerCell.setCellValue(header1Label);
+            headerCell.setCellStyle(headerStyle1);
+            setYBorderToMergedRegion(headerCell);
+            if (!isPartOfMergedRegion(headerCell)) {
+                sheet.addMergedRegion(new CellRangeAddress(startRowIndex, startRowIndex,
+                        columnIndex,
+                        columnIndex + (
+                                (labels.size() * 2 - columnIndex) / 15 >= 1
+                                        ? 15
+                                        : (labels.size() * 2 - columnIndex) % 15
+                        )
+                ));
+            }
+
+            headerCell = headerRow2.createCell(columnIndex);
+            headerCell.setCellValue("Станом на");
+            headerCell.setCellStyle(headerStyle2);
+            headerCell = headerRow2.createCell(columnIndex + 1);
+            headerCell.setCellStyle(headerStyle2);
+            if (!isPartOfMergedRegion(headerCell)) {
+                sheet.addMergedRegion(new CellRangeAddress(startRowIndex + 1, startRowIndex + 1,
+                        columnIndex, columnIndex + 1));
+            }
+
+            headerCell = headerRow3.createCell(columnIndex);
+            headerCell.setCellValue(label);
+            headerCell.setCellStyle(headerStyle3);
+            headerCell = headerRow3.createCell(columnIndex + 1);
+            headerCell.setCellStyle(headerStyle3);
+            if (!isPartOfMergedRegion(headerCell)) {
+                sheet.addMergedRegion(new CellRangeAddress(startRowIndex + 2, startRowIndex + 2,
+                        columnIndex, columnIndex + 1));
+            }
+            columnIndex = columnIndex + 2;
+        }
+    }
+
+    private void fillBody(Sheet sheet, Map<String, OverdueDevicesStatsHistoryReportModel> inpData, int startRowIndex, int options) {
+        CellStyle dataStyle1 = getDataStyle1(sheet);
+        CellStyle headerStyle0 = getHeaderStyle0(sheet);
+
+        int dataRowIndex = startRowIndex;
+        Row dataRow;
         Cell dataCell;
-        Cell totalCell;
-
-
-        headerCell = headerRow11.createCell(0);
-        headerCell.setCellValue("Структурний підрозділ");
-        sheet.addMergedRegion(new CellRangeAddress(headerRowIndex1, dataRowIndex1 - 1, 0, 0));
-        headerCell.setCellStyle(headerStyle0);
-        setAllBorderToMergedRegion(sheet, headerCell);
-        headerCell = headerRow21.createCell(0);
-        headerCell.setCellValue("Структурний підрозділ");
-        sheet.addMergedRegion(new CellRangeAddress(headerRowIndex2, dataRowIndex2 - 1, 0, 0));
-        headerCell.setCellStyle(headerStyle0);
-        setAllBorderToMergedRegion(sheet, headerCell);
-
-        totalCell = totalRow1.createCell(0);
-        totalCell.setCellValue("Ш");
-        totalCell.setCellStyle(headerStyle0);
-        totalCell = totalRow2.createCell(0);
-        totalCell.setCellValue("Ш");
-        totalCell.setCellStyle(headerStyle0);
 
         for (OverdueDevicesStatsHistoryReportModel statsItem : inpData.values()) {
 
-            dataRow1 = sheet.createRow(dataRowIndex1);
-            headerCell = dataRow1.createCell(0);
-            headerCell.setCellValue(statsItem.getObjectName());
-            headerCell.setCellStyle(headerStyle0);
+            dataRow = sheet.createRow(dataRowIndex);
+            dataCell = dataRow.createCell(0);
+            dataCell.setCellValue(statsItem.getObjectName());
+            dataCell.setCellStyle(headerStyle0);
 
             int columnIndex = 1;
-            for (LocalDate key : statsItem.getExpiredWarrantyDevicesQuantity().keySet()) {
+            Set<LocalDate> keySet;
+            Long value;
+            if (options == 0) keySet = statsItem.getExpiredDevicesQuantity().keySet();
+            else keySet = statsItem.getExpiredWarrantyDevicesQuantity().keySet();
 
-                headerCell = headerRow11.createCell(columnIndex);
-                headerCell.setCellValue("З урахуванням гарантійного терміну придатності");
-                headerCell.setCellStyle(headerStyle1);
-                setHorizontalBorderToMergedRegion(sheet, headerCell);
-                if (!isMergedCell(sheet, headerRowIndex1, columnIndex)) {
-                    sheet.addMergedRegion(new CellRangeAddress(
-                            headerRowIndex1,
-                            headerRowIndex1,
-                            columnIndex,
-                            columnIndex + 15));
-                }
+            for (LocalDate key : keySet) {
 
-                headerCell = headerRow12.createCell(columnIndex);
-                headerCell.setCellValue("Станом на");
-                headerCell.setCellStyle(headerStyle2);
-                headerCell = headerRow12.createCell(columnIndex + 1);
-                headerCell.setCellStyle(headerStyle2);
-                if (!isMergedCell(sheet, headerRowIndex1 + 1, columnIndex)) {
-                    sheet.addMergedRegion(new CellRangeAddress(
-                            headerRowIndex1 + 1,
-                            headerRowIndex1 + 1,
-                            columnIndex,
-                            columnIndex + 1));
-                }
-
-                headerCell = headerRow13.createCell(columnIndex);
-                headerCell.setCellValue(key);
-                headerCell.setCellStyle(headerStyle3);
-                headerCell = headerRow13.createCell(columnIndex + 1);
-                headerCell.setCellStyle(headerStyle3);
-                if (!isMergedCell(sheet, headerRowIndex1 + 2, columnIndex)) {
-                    sheet.addMergedRegion(new CellRangeAddress(
-                            headerRowIndex1 + 2,
-                            headerRowIndex1 + 2,
-                            columnIndex,
-                            columnIndex + 1));
-                }
-
-                dataCell = dataRow1.createCell(columnIndex);
+                dataCell = dataRow.createCell(columnIndex);
                 dataCell.setCellStyle(headerStyle0);
-                Long value = statsItem.getExpiredWarrantyDevicesQuantity().get(key);
+                if (options == 0) value = statsItem.getExpiredDevicesQuantity().get(key);
+                else value = statsItem.getExpiredWarrantyDevicesQuantity().get(key);
                 if (value != null) dataCell.setCellValue(value);
-//                dataCell.setCellValue(value == null ? 0 : value);
 
-
-                dataCell = dataRow1.createCell(columnIndex + 1);
+                dataCell = dataRow.createCell(columnIndex + 1);
                 dataCell.setCellStyle(dataStyle1);
                 addConditionalFormatting(sheet, dataCell);
-                if (columnIndex > 1) dataCell.setCellFormula(getIfFormula(dataRowIndex1, columnIndex));
-
-                totalCell = totalRow1.createCell(columnIndex);
-                totalCell.setCellStyle(headerStyle0);
-                totalCell.setCellFormula(getSumFormula(HEADER_ROWS_QUANTITY + 1, totalRowIndex1, columnIndex));
-
-
-                totalCell = totalRow1.createCell(columnIndex + 1);
-                totalCell.setCellStyle(dataStyle1);
-                addConditionalFormatting(sheet, totalCell);
-                if (columnIndex > 1) totalCell.setCellFormula(getIfFormula(totalRowIndex1, columnIndex));
+                if (columnIndex > 1) dataCell.setCellFormula(getIfFormula(dataRowIndex, columnIndex));
 
                 columnIndex = columnIndex + 2;
             }
+            dataRowIndex++;
+        }
+    }
 
+    private void fillTotal(Sheet sheet, int totalRowIndex, int startDataRowIndex, int columnQuantity) {
+        CellStyle headerStyle0 = getHeaderStyle0(sheet);
+        CellStyle dataStyle1 = getDataStyle1(sheet);
 
-            dataRow2 = sheet.createRow(dataRowIndex2);
-            headerCell = dataRow2.createCell(0);
-            headerCell.setCellValue(statsItem.getObjectName());
-            headerCell.setCellStyle(headerStyle0);
+        Row totalRow = sheet.createRow(totalRowIndex);
+        Cell totalCell;
 
-            columnIndex = 1;
-            for (LocalDate key : statsItem.getExpiredDevicesQuantity().keySet()) {
+        totalCell = totalRow.createCell(0);
+        totalCell.setCellValue("Ш");
+        totalCell.setCellStyle(headerStyle0);
 
-                headerCell = headerRow21.createCell(columnIndex);
-                headerCell.setCellValue("Без урахуванням гарантійного терміну придатності");
-                headerCell.setCellStyle(headerStyle1);
-                setHorizontalBorderToMergedRegion(sheet, headerCell);
-                if (!isMergedCell(sheet, headerRowIndex2, columnIndex)) {
-                    sheet.addMergedRegion(new CellRangeAddress(
-                            headerRowIndex2,
-                            headerRowIndex2,
-                            columnIndex,
-                            columnIndex + 15));
-                }
+        for (int i = 1; i < columnQuantity; i = i + 2) {
 
-                headerCell = headerRow22.createCell(columnIndex);
-                headerCell.setCellValue("Станом на");
-                headerCell.setCellStyle(headerStyle2);
-                headerCell = headerRow22.createCell(columnIndex + 1);
-                headerCell.setCellStyle(headerStyle2);
-                if (!isMergedCell(sheet, headerRowIndex2 + 1, columnIndex)) {
-                    sheet.addMergedRegion(new CellRangeAddress(
-                            headerRowIndex2 + 1,
-                            headerRowIndex2 + 1,
-                            columnIndex,
-                            columnIndex + 1));
-                }
+            totalCell = totalRow.createCell(i);
+            totalCell.setCellStyle(headerStyle0);
+            totalCell.setCellFormula(getSumFormula(startDataRowIndex, totalRowIndex, i));
 
+            totalCell = totalRow.createCell(i + 1);
+            totalCell.setCellStyle(dataStyle1);
+            addConditionalFormatting(sheet, totalCell);
+            if (i > 1) totalCell.setCellFormula(getIfFormula(totalRowIndex, i));
+        }
+    }
 
-                headerCell = headerRow23.createCell(columnIndex);
-                headerCell.setCellValue(key);
-                headerCell.setCellStyle(headerStyle3);
-                headerCell = headerRow23.createCell(columnIndex + 1);
-                headerCell.setCellStyle(headerStyle3);
-                if (!isMergedCell(sheet, headerRowIndex2 + 2, columnIndex)) {
-                    sheet.addMergedRegion(new CellRangeAddress(
-                            headerRowIndex2 + 2,
-                            headerRowIndex2 + 2,
-                            columnIndex,
-                            columnIndex + 1));
-                }
+    private void fillSheet(Sheet sheet, Map<String, OverdueDevicesStatsHistoryReportModel> inpData) {
+        String firstKey = inpData.keySet().stream().findFirst().orElse("");
+        OverdueDevicesStatsHistoryReportModel firstItem = inpData.get(firstKey);
+        if (firstItem != null) {
+            Set<LocalDate> labels = firstItem.getExpiredDevicesQuantity().keySet();
+            fillHeaders(sheet, labels, 0,
+                    "З урахуванням гарантійного терміну придатності");
+            fillHeaders(sheet, labels, HEADER_ROWS_QUANTITY + inpData.size() + 1,
+                    "Без урахування гарантійного терміну придатності");
 
+            fillBody(sheet, inpData, HEADER_ROWS_QUANTITY, 0);
+            fillBody(sheet, inpData, HEADER_ROWS_QUANTITY * 2 + inpData.size() + 1, 1);
 
-                dataCell = dataRow2.createCell(columnIndex);
-                dataCell.setCellStyle(headerStyle0);
-                Long value = statsItem.getExpiredDevicesQuantity().get(key);
-                if (value != null) dataCell.setCellValue(value);
-//                dataCell.setCellValue(value == null ? 0 : value);
-
-
-                dataCell = dataRow2.createCell(columnIndex + 1);
-                dataCell.setCellStyle(dataStyle1);
-                addConditionalFormatting(sheet, dataCell);
-                if (columnIndex > 1) dataCell.setCellFormula(getIfFormula(dataRowIndex2, columnIndex));
-
-                totalCell = totalRow2.createCell(columnIndex);
-                totalCell.setCellStyle(headerStyle0);
-                totalCell.setCellFormula(getSumFormula(2 * HEADER_ROWS_QUANTITY + inpData.size() + 2, totalRowIndex2, columnIndex));
-
-                totalCell = totalRow2.createCell(columnIndex + 1);
-                totalCell.setCellStyle(dataStyle1);
-                addConditionalFormatting(sheet, totalCell);
-                if (columnIndex > 1) totalCell.setCellFormula(getIfFormula(totalRowIndex2, columnIndex));
-
-                columnIndex = columnIndex + 2;
-            }
-            dataRowIndex1++;
-            dataRowIndex2++;
+            fillTotal(sheet, HEADER_ROWS_QUANTITY + inpData.size(),
+                    HEADER_ROWS_QUANTITY + 1,
+                    firstItem.getExpiredDevicesQuantity().size() * 2);
+            fillTotal(sheet, (HEADER_ROWS_QUANTITY + inpData.size()) * 2 + 1,
+                    HEADER_ROWS_QUANTITY * 2 + inpData.size() + 2,
+                    firstItem.getExpiredWarrantyDevicesQuantity().size() * 2);
         }
 
     }
@@ -274,8 +232,6 @@ public class OverdueDevicesStatsHistoryReportBuilder {
         CellRangeAddress[] regions = new CellRangeAddress[]{CellRangeAddress.valueOf(cell.getAddress().formatAsString())};
 
         sheetCF.addConditionalFormatting(regions, cfRules);
-
-
     }
 
     private CellStyle getHeaderStyle3(Sheet sheet) {
@@ -313,7 +269,8 @@ public class OverdueDevicesStatsHistoryReportBuilder {
 
     private CellStyle getHeaderStyle1(Sheet sheet) {
         CellStyle result = sheet.getWorkbook().createCellStyle();
-        result.setAlignment(HorizontalAlignment.CENTER);
+        result.setAlignment(HorizontalAlignment.LEFT);
+        result.setIndention((short) 5);
         Font styleFont = sheet.getWorkbook().createFont();
         styleFont.setFontName("Times New Roman");
         styleFont.setBold(true);
@@ -375,6 +332,16 @@ public class OverdueDevicesStatsHistoryReportBuilder {
         return false;
     }
 
+    private boolean isPartOfMergedRegion(Cell cell) {
+        Sheet sheet = cell.getSheet();
+        for (CellRangeAddress mergedCell : sheet.getMergedRegions()) {
+            if (mergedCell.isInRange(cell)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void setAllBorderToMergedRegion(Sheet sheet, Cell cell) {
         int numberOfMergedRegions = sheet.getNumMergedRegions();
         for (int i = 0; i < numberOfMergedRegions; i++) {
@@ -388,7 +355,8 @@ public class OverdueDevicesStatsHistoryReportBuilder {
         }
     }
 
-    private void setHorizontalBorderToMergedRegion(Sheet sheet, Cell cell) {
+    private void setYBorderToMergedRegion(Cell cell) {
+        Sheet sheet = cell.getSheet();
         int numberOfMergedRegions = sheet.getNumMergedRegions();
         for (int i = 0; i < numberOfMergedRegions; i++) {
             CellRangeAddress mergedCell = sheet.getMergedRegion(i);
