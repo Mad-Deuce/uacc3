@@ -13,7 +13,7 @@ public interface StatsService {
 
     OverdueDevicesStats getOverdueDevicesStats();
 
-    public void saveAllSchemaOverdueDevsStats();
+     void saveAllSchemaOverdueDevsStats();
      void saveCurrentSchemaOverdueDevsStats();
     HashMap<LocalDate, OverdueDevicesStats> getOverdueDevicesStatsMap(String nodeId) throws SQLException;
 

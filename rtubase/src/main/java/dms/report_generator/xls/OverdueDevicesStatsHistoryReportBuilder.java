@@ -27,7 +27,7 @@ public class OverdueDevicesStatsHistoryReportBuilder {
         Map<String, OverdueDevicesStatsHistoryReportModel> values = convertToReportModel(inpData);
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("stats");
-        format(sheet);
+        setColumnWidth(sheet);
         fillSheet(sheet, values);
         return workbook;
     }
@@ -46,8 +46,8 @@ public class OverdueDevicesStatsHistoryReportBuilder {
                 rowModel.setExpiredWarrantyDevicesQuantity(new TreeMap<>());
             }
             standardDateMap.put(inpItem.getStatsDate(), 0L);
-            rowModel.getExpiredDevicesQuantity().put(inpItem.getStatsDate(), inpItem.getExpDevsQuantity());
-            rowModel.getExpiredWarrantyDevicesQuantity().put(inpItem.getStatsDate(), inpItem.getExpWarrantyDevsQuantity());
+            rowModel.getExpiredDevicesQuantity().put(inpItem.getStatsDate(), inpItem.getExpiredDevicesQuantity());
+            rowModel.getExpiredWarrantyDevicesQuantity().put(inpItem.getStatsDate(), inpItem.getExpiredWarrantyDevicesQuantity());
         }
         checkComplete(result, standardDateMap);
         return result;
@@ -88,7 +88,7 @@ public class OverdueDevicesStatsHistoryReportBuilder {
             headerCell.setCellValue(header1Label);
             headerCell.setCellStyle(headerStyle1);
             setYBorderToMergedRegion(headerCell);
-            if (!isPartOfMergedRegion(headerCell)) {
+            if (isNotPartOfMergedRegion(headerCell)) {
                 sheet.addMergedRegion(new CellRangeAddress(startRowIndex, startRowIndex,
                         columnIndex,
                         columnIndex + (
@@ -104,7 +104,7 @@ public class OverdueDevicesStatsHistoryReportBuilder {
             headerCell.setCellStyle(headerStyle2);
             headerCell = headerRow2.createCell(columnIndex + 1);
             headerCell.setCellStyle(headerStyle2);
-            if (!isPartOfMergedRegion(headerCell)) {
+            if (isNotPartOfMergedRegion(headerCell)) {
                 sheet.addMergedRegion(new CellRangeAddress(startRowIndex + 1, startRowIndex + 1,
                         columnIndex, columnIndex + 1));
             }
@@ -114,7 +114,7 @@ public class OverdueDevicesStatsHistoryReportBuilder {
             headerCell.setCellStyle(headerStyle3);
             headerCell = headerRow3.createCell(columnIndex + 1);
             headerCell.setCellStyle(headerStyle3);
-            if (!isPartOfMergedRegion(headerCell)) {
+            if (isNotPartOfMergedRegion(headerCell)) {
                 sheet.addMergedRegion(new CellRangeAddress(startRowIndex + 2, startRowIndex + 2,
                         columnIndex, columnIndex + 1));
             }
@@ -321,25 +321,14 @@ public class OverdueDevicesStatsHistoryReportBuilder {
         return result;
     }
 
-    private boolean isMergedCell(Sheet sheet, int rowNumber, int columnNumber) {
-        int numberOfMergedRegions = sheet.getNumMergedRegions();
-        for (int i = 0; i < numberOfMergedRegions; i++) {
-            CellRangeAddress mergedCell = sheet.getMergedRegion(i);
-            if (mergedCell.isInRange(rowNumber, columnNumber)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isPartOfMergedRegion(Cell cell) {
+    private boolean isNotPartOfMergedRegion(Cell cell) {
         Sheet sheet = cell.getSheet();
         for (CellRangeAddress mergedCell : sheet.getMergedRegions()) {
             if (mergedCell.isInRange(cell)) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     private void setAllBorderToMergedRegion(Sheet sheet, Cell cell) {
@@ -393,11 +382,6 @@ public class OverdueDevicesStatsHistoryReportBuilder {
                 CellReference.convertNumToColString(columnIndex - 2) +
                 (rowIndex + 1) +
                 ",))";
-    }
-
-
-    private void format(Sheet sheet) {
-        setColumnWidth(sheet);
     }
 
     private void setColumnWidth(Sheet sheet) {

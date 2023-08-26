@@ -20,10 +20,7 @@ import javax.persistence.Tuple;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -83,7 +80,7 @@ public class StatsServiceImpl implements StatsService {
         tupleList = statsRepository.getPassiveDevicesStats(checkDate);
         root.fillFromTuple(tupleList);
 
-        saveCurrentSchemaOverdueDevsStats();
+//        saveCurrentSchemaOverdueDevsStats();
 
         return root;
     }
@@ -159,17 +156,9 @@ public class StatsServiceImpl implements StatsService {
         schemaNameList.forEach(item -> {
             dsm.unbindSession();
             tenantIdentifierResolver.setCurrentTenant(item);
-            saveCurrentSchemaOverdueDevsStats();
             dsm.bindSession();
-//            System.out.println(tenantIdentifierResolver.resolveCurrentTenantIdentifier());
-//            String strDate = tenantIdentifierResolver.resolveCurrentTenantIdentifier().substring(sm.DRTU_SCHEMA_NAME.length());
-//            LocalDate chDate = LocalDate.parse(strDate, formatter);
-//            result.put(chDate, getShortOverdueDevicesStats(chDate, nId));
+            saveCurrentSchemaOverdueDevsStats();
         });
-//        dsm.unbindSession();
-//        tenantIdentifierResolver.setCurrentTenant(currentSchema);
-//        dsm.bindSession();
-//        return result;
     }
 
     @Override
@@ -183,7 +172,7 @@ public class StatsServiceImpl implements StatsService {
     }
 
     private List<OverdueDevsStatsEntity> collectOverdueDevsStatsEntityList(LocalDate checkDate) {
-        HashMap<String, OverdueDevsStatsEntity> resultMap = new HashMap<>();
+        TreeMap<String, OverdueDevsStatsEntity> resultMap = new TreeMap<>();
 
         Map<String, Long> nDevsQuantityMap = toDevicesQuantityMap(statsRepository.getNormalDevicesQuantity(Date.valueOf(checkDate), 0));
         nDevsQuantityMap.putAll(toDevicesQuantityMap(statsRepository.getNormalDevicesQuantity(Date.valueOf(checkDate), 1)));
@@ -224,7 +213,7 @@ public class StatsServiceImpl implements StatsService {
         return resultMap;
     }
 
-    private void addStatsValueToEntityMap(HashMap<String, OverdueDevsStatsEntity> resultMap,
+    private void addStatsValueToEntityMap(TreeMap<String, OverdueDevsStatsEntity> resultMap,
                                           Map<String, Long> devicesQuantityMap,
                                           LocalDate checkDate,
                                           int i) {
@@ -245,24 +234,24 @@ public class StatsServiceImpl implements StatsService {
             }
             switch (i) {
                 case 1 -> {
-                    entity.setNormDevsQuantity(v);
-                    parentEntity.setNormDevsQuantity(parentEntity.getNormDevsQuantity() == null ? v
-                            : parentEntity.getNormDevsQuantity() + v);
+                    entity.setNormalDevicesQuantity(v);
+                    parentEntity.setNormalDevicesQuantity(parentEntity.getNormalDevicesQuantity() == null ? v
+                            : parentEntity.getNormalDevicesQuantity() + v);
                 }
                 case 2 -> {
-                    entity.setExpDevsQuantity(v);
-                    parentEntity.setExpDevsQuantity(parentEntity.getExpDevsQuantity() == null ? v
-                            : parentEntity.getExpDevsQuantity() + v);
+                    entity.setExpiredDevicesQuantity(v);
+                    parentEntity.setExpiredDevicesQuantity(parentEntity.getExpiredDevicesQuantity() == null ? v
+                            : parentEntity.getExpiredDevicesQuantity() + v);
                 }
                 case 3 -> {
-                    entity.setExpWarrantyDevsQuantity(v);
-                    parentEntity.setExpWarrantyDevsQuantity(parentEntity.getExpWarrantyDevsQuantity() == null ? v
-                            : parentEntity.getExpWarrantyDevsQuantity() + v);
+                    entity.setExpiredWarrantyDevicesQuantity(v);
+                    parentEntity.setExpiredWarrantyDevicesQuantity(parentEntity.getExpiredWarrantyDevicesQuantity() == null ? v
+                            : parentEntity.getExpiredWarrantyDevicesQuantity() + v);
                 }
                 case 4 -> {
-                    entity.setPassDevsQuantity(v);
-                    parentEntity.setPassDevsQuantity(parentEntity.getPassDevsQuantity() == null ? v
-                            : parentEntity.getPassDevsQuantity() + v);
+                    entity.setPassiveDevicesQuantity(v);
+                    parentEntity.setPassiveDevicesQuantity(parentEntity.getPassiveDevicesQuantity() == null ? v
+                            : parentEntity.getPassiveDevicesQuantity() + v);
                 }
                 default -> throw new RuntimeException();
             }
@@ -270,7 +259,7 @@ public class StatsServiceImpl implements StatsService {
         });
     }
 
-    private void addObjectNameToEntityMap(HashMap<String, OverdueDevsStatsEntity> resultMap,
+    private void addObjectNameToEntityMap(TreeMap<String, OverdueDevsStatsEntity> resultMap,
                                           Map<String, String> objectNameMap,
                                           LocalDate checkDate
     ) {

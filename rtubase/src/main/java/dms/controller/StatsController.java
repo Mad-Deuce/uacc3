@@ -1,6 +1,7 @@
 package dms.controller;
 
 
+import dms.dto.stats.ExpiredDevicesStatsDto;
 import dms.dto.stats.OverdueDevicesStats;
 import dms.dto.stats.StatsDTO;
 import dms.entity.OverdueDevsStatsEntity;
@@ -13,11 +14,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -100,4 +104,16 @@ public class StatsController {
 
     }
 
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/expired-devices")
+    public ResponseEntity<?> getExpiredDevicesStats(@RequestParam String nodeId) {
+
+        List<OverdueDevsStatsEntity> entityList = statsService.getOverdueDevsStatsEntityList(nodeId);
+        Map<String, ExpiredDevicesStatsDto> dtoMap = ExpiredDevicesStatsDto.toDtoList(entityList);
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(dtoMap.values());
+    }
 }

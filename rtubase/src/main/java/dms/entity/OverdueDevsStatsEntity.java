@@ -2,12 +2,8 @@ package dms.entity;
 
 import dms.entity.id.OverdueDevsStatsEntityId;
 import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.time.LocalDate;
 
 @Data
@@ -32,19 +28,19 @@ public class OverdueDevsStatsEntity {
 
     @Basic
     @Column(name = "norm_devs_quantity", nullable = false, columnDefinition = "int4")
-    private Long normDevsQuantity;
+    private Long normalDevicesQuantity;
 
     @Basic
     @Column(name = "pass_devs_quantity", nullable = false, columnDefinition = "int4")
-    private Long passDevsQuantity;
+    private Long passiveDevicesQuantity;
 
     @Basic
     @Column(name = "exp_devs_quantity", nullable = false, columnDefinition = "int4")
-    private Long expDevsQuantity;
+    private Long expiredDevicesQuantity;
 
     @Basic
     @Column(name = "exp_warranty_devs_quantity", nullable = false, columnDefinition = "int4")
-    private Long expWarrantyDevsQuantity;
+    private Long expiredWarrantyDevicesQuantity;
 
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Id
