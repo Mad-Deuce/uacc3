@@ -38,7 +38,7 @@ public class StatsController {
         this.reportBuilder = reportBuilder;
     }
 
-
+    @Deprecated
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/")
     public ResponseEntity<?> getStats() {
@@ -66,6 +66,7 @@ public class StatsController {
                 .build();
     }
 
+    @Deprecated
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/map")
     public ResponseEntity<?> getStatsMap(@RequestParam String nodeId) throws SQLException {
@@ -82,10 +83,10 @@ public class StatsController {
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/overdue-devices/history/export/xls")
-    public ResponseEntity<?> exportOverdueDevicesStatsHistory(@RequestParam String nodeId) throws IOException {
+    @GetMapping(value = "/expired-devices/export/xls")
+    public ResponseEntity<?> exportExpiredDevicesStats(@RequestParam String nodeId) throws IOException {
 
-        List<OverdueDevsStatsEntity> values = statsService.getOverdueDevsStatsEntityList(nodeId);
+        List<OverdueDevsStatsEntity> values = statsService.getOverdueDevicesStatsEntityList(nodeId);
 
         Workbook workbook = reportBuilder.getOverdueDevicesStatsHistoryReport(values);
 
@@ -108,7 +109,7 @@ public class StatsController {
     @GetMapping(value = "/expired-devices")
     public ResponseEntity<?> getExpiredDevicesStats(@RequestParam String nodeId) {
 
-        List<OverdueDevsStatsEntity> entityList = statsService.getOverdueDevsStatsEntityList(nodeId);
+        List<OverdueDevsStatsEntity> entityList = statsService.getOverdueDevicesStatsEntityList(nodeId);
         Map<String, ExpiredDevicesStatsDto> dtoMap = ExpiredDevicesStatsDto.toDtoList(entityList);
 
         return ResponseEntity
@@ -116,4 +117,18 @@ public class StatsController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(dtoMap.values());
     }
+
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/expired-devices/{schemaDate}")
+    public ResponseEntity<?> getExpiredDevicesStats(@RequestParam String nodeId, @PathVariable("schemaDate") String schemaDateStr) {
+        LocalDate schemaDate = LocalDate.parse(schemaDateStr);
+        List<OverdueDevsStatsEntity> entityList = statsService.getOverdueDevicesStatsEntityList(nodeId, schemaDate);
+        Map<String, ExpiredDevicesStatsDto> dtoMap = ExpiredDevicesStatsDto.toDtoList(entityList);
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(dtoMap.values());
+    }
+
 }

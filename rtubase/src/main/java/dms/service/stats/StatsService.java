@@ -13,9 +13,13 @@ public interface StatsService {
 
     OverdueDevicesStats getOverdueDevicesStats();
 
-     void saveAllSchemaOverdueDevsStats();
-     void saveCurrentSchemaOverdueDevsStats();
+    void saveAllSchemaOverdueDevsStats();
+
+    void saveCurrentSchemaOverdueDevsStats();
+
     HashMap<LocalDate, OverdueDevicesStats> getOverdueDevicesStatsMap(String nodeId) throws SQLException;
 
-    List<OverdueDevsStatsEntity> getOverdueDevsStatsEntityList(String parentId);
+    List<OverdueDevsStatsEntity> getOverdueDevicesStatsEntityList(String parentId);
+
+    List<OverdueDevsStatsEntity> getOverdueDevicesStatsEntityList(String parentId, LocalDate schemaDate);
 }

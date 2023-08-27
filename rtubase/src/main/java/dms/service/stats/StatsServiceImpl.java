@@ -133,7 +133,7 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<OverdueDevsStatsEntity> getOverdueDevsStatsEntityList(String parentId) {
+    public List<OverdueDevsStatsEntity> getOverdueDevicesStatsEntityList(String parentId) {
         List<OverdueDevsStatsEntity> result = overdueDevsStatsRepository.findByObjectIdStartsWith(parentId);
         return result.stream().filter(item ->
                         item.getObjectId().equals("101")
@@ -144,6 +144,15 @@ public class StatsServiceImpl implements StatsService {
                                 || item.getObjectId().equals("111"))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<OverdueDevsStatsEntity> getOverdueDevicesStatsEntityList(String parentId, LocalDate schemaDate) {
+        List<OverdueDevsStatsEntity> result = getOverdueDevicesStatsEntityList(parentId);
+        return result.stream()
+                .filter(item -> item.getStatsDate().equals(schemaDate))
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public void saveAllSchemaOverdueDevsStats() {

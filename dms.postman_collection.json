@@ -455,6 +455,154 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "stats map",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/stats/expired-devices",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"stats",
+										"expired-devices"
+									],
+									"query": [
+										{
+											"key": "cls",
+											"value": "131",
+											"disabled": true
+										},
+										{
+											"key": "rootId",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "stats export",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/stats/overdue-devices/history/export/xls?nodeId=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"stats",
+										"overdue-devices",
+										"history",
+										"export",
+										"xls"
+									],
+									"query": [
+										{
+											"key": "cls",
+											"value": "131",
+											"disabled": true
+										},
+										{
+											"key": "rootId",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "nodeId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Save Stats To DB",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/stats/save",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"stats",
+										"save"
+									],
+									"query": [
+										{
+											"key": "cls",
+											"value": "131",
+											"disabled": true
+										},
+										{
+											"key": "rootId",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				}
@@ -742,6 +890,46 @@
 								"db",
 								"schema",
 								"date"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Active Schema Date",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{dms_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"schemaDate\": \"_2023-07-14\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/db/schema",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"db",
+								"schema"
 							]
 						}
 					},
