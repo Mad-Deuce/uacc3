@@ -38,48 +38,15 @@ public class StatsController {
         this.reportBuilder = reportBuilder;
     }
 
-    @Deprecated
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/")
-    public ResponseEntity<?> getStats() {
-        StatsDTO statsDTO = new StatsDTO();
-
-        OverdueDevicesStats overdueDevicesStats = statsService.getOverdueDevicesStats();
-
-        statsDTO.setOverdueDevicesStats(overdueDevicesStats);
-
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(statsDTO);
-    }
-
-    @Deprecated
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/save")
-    public ResponseEntity<?> saveCurrentSchemaStats() {
+    @GetMapping(value = "/collect")
+    public ResponseEntity<?> collectSchemaStats() {
 
         statsService.saveAllSchemaOverdueDevsStats();
 
         return ResponseEntity
                 .ok()
                 .build();
-    }
-
-    @Deprecated
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/map")
-    public ResponseEntity<?> getStatsMap(@RequestParam String nodeId) throws SQLException {
-        StatsDTO statsDTO = new StatsDTO();
-
-        HashMap<LocalDate, OverdueDevicesStats> overdueDevicesStatsMap = statsService.getOverdueDevicesStatsMap(nodeId);
-
-        statsDTO.setOverdueDevicesStatsMap(overdueDevicesStatsMap);
-
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(statsDTO);
     }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
