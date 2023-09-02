@@ -30,7 +30,6 @@ public class StatsServiceImpl implements StatsService {
 
     private final DatabaseSessionManager dsm;
 
-
     private final RailwayRepository railwayRepository;
     private final SubdivisionRepository subdivisionRepository;
     private final StatsRepository statsRepository;

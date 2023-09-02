@@ -15,6 +15,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -108,6 +110,14 @@ public class SchemaManager {
                 ScriptUtils.executeSqlScript(connection, new ClassPathResource("sql/CreateDeviceMainView.sql"))
         );
         session.close();
+    }
+
+    public String getSchemaNameListByDate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
+        String dateString = date.format(formatter);
+        List<String> schemaNameList = getSchemaNameList();
+        return schemaNameList.stream().filter(value -> value.equals(DRTU_SCHEMA_NAME + dateString))
+                .findFirst().orElse(null);
     }
 
     public List<String> getSchemaNameList() {
