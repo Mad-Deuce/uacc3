@@ -8,6 +8,7 @@ import dms.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -37,6 +38,7 @@ public class SecurityConfig {
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http,
@@ -68,12 +70,18 @@ public class SecurityConfig {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+
                 .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**",
+                        "/fonts/**", "/scss/**", "/index.html", "/", "/home", "/login").permitAll()
                 .antMatchers(LOGIN_ENDPOINT).permitAll()
                 .antMatchers("/api/railways/").permitAll()
                 .antMatchers("/api/railways/*").permitAll()
                 .antMatchers("/api/railways/**").permitAll()
-                .anyRequest().authenticated()
+//                .anyRequest().authenticated()
+//                .and().formLogin()
+//                .loginPage("/login").permitAll()
                 .and()
                 .httpBasic()
                 .and()

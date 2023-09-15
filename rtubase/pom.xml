@@ -191,7 +191,8 @@
                             <outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>../dms-uz-angular/dist/dms-uz-angular</directory>
+                                    <directory>D:/02-Projects/21-IntIdea/dms-uz-angular/dist/dms-uz-angular</directory>
+<!--                                    <directory>../dms-uz-angular/dist/dms-uz-angular</directory>-->
                                 </resource>
                             </resources>
                         </configuration>

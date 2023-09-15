@@ -6,6 +6,7 @@ import dms.dao.SchemaManager;
 import dms.service.stats.StatsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,9 @@ public class DBServiceImpl implements DBService {
     @Autowired
     private  TenantIdentifierResolver currentTenant;
 
-    final String INP_DIR_PATH = "rtubase/src/main/resources/pd_files";
+//    final String INP_DIR_PATH = "rtubase/src/main/resources/pd_files";
+    @Value("${user.home.path}")
+    private String INP_DIR_PATH;
 
     public DBServiceImpl(DatabaseSessionManager dbSessionManager) {
         this.dbSessionManager = dbSessionManager;
@@ -90,6 +93,7 @@ public class DBServiceImpl implements DBService {
     @Scheduled(initialDelay = 20000, fixedDelay = 30000)
     public void isPDDirEmpty() throws Exception {
         log.info("------------------check PD dir -----------------");
+        log.info(INP_DIR_PATH);
         if (!getFiles().isEmpty()) receivePDFiles();
     }
 
