@@ -1,0 +1,61 @@
+---
+
+- name: "Install"
+  apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+  loop: [ 'postgresql','postgresql-contrib' ]
+
+- name: "Copy postgresql.conf (ansible version)"
+  template:
+    src: "files/postgresql.conf"
+    dest: "/etc/postgresql/{{ pg_version }}/main/postgresql.conf"
+
+- name: "Copy pg_hba.conf (ansible version)"
+  template:
+    src: "files/pg_hba.conf.j2"
+    dest: "/etc/postgresql/{{ pg_version }}/main/pg_hba.conf"
+
+- name: "exec sql script"
+  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/postgres.sql"
+
+- name: "Grant user postgres access to databases sales and logistics from ipv6 localhost ::1/128 using peer authentication"
+  postgresql_pg_hba:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    contype: host
+    users: postgres
+    source: 192.168.1.111
+    databases: all
+    method: trust
+    create: false
+
+- name: "restart postgresql"
+  service: name=postgresql state=restarted
+
+- name: "restore db"
+  shell: sudo pg_restore -U postgres -w -d rtubase /vagrant/ansible/roles/postgresql/files/d20230324.backup
+  ignore_errors: true
+
+- name: "Grant user postgres "
+  postgresql_pg_hba:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    contype: local
+    users: postgres
+    source: 192.168.1.111
+    databases: all
+    method: md5
+    create: false
+
+- name: "Grant user postgres "
+  postgresql_pg_hba:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    contype: local
+    users: all
+    source: 0.0.0.0/0
+    databases: all
+    method: md5
+    create: false
+
+- name: "exec sql script: add view"
+  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"
+
+- name: "exec sql script: add stats_schema"
+  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/add_stats_schema.sql"

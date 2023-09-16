@@ -1,0 +1,4 @@
+---
+
+- name: "Install"
+  apt: name=mc update_cache=yes state=latest force_apt_get=yes

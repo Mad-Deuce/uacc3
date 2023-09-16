@@ -1,0 +1,19 @@
+https://serverpilot.io/docs/how-to-enable-ssh-password-authentication/
+To enable SSH password authentication, you must SSH in as root to edit this file:
+
+/etc/ssh/sshd_config
+
+Then, change the line
+
+PasswordAuthentication no
+
+to
+
+PasswordAuthentication yes
+
+After making that change, restart the SSH service by running the following command as root:
+
+sudo service ssh restart
+
+to change password:
+sudo passwd postgres

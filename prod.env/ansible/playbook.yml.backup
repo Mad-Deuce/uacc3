@@ -1,0 +1,113 @@
+---
+
+- hosts: ubuntu
+  name: "Install mc, apache, php, postgresql, ftp, laravel"
+  become: true
+  become_method: sudo
+  become_user: root
+  vars_files:
+    - vars/default.yml
+#  vars:
+#    ansible_python_interpreter: "/usr/bin/python3"
+
+  tasks:
+    - name: "mc - Install"
+      apt: name=mc update_cache=yes state=latest force_apt_get=yes
+
+  tasks:
+    - name: "Apache - Install"
+      apt: name=apache2 update_cache=yes state=latest force_apt_get=yes
+
+    - name: "Apache - Enable mod"
+      apache2_module: name={{ item }} state=present
+      loop: ['expires', 'headers', 'rewrite', 'ssl']
+
+    - name: "Apache - Turn on and set them to run on boot"
+      service: name=apache2 state=started enabled=yes
+      notify: restart apache
+
+    - name: "Apache - Create document root"
+      file:
+        path: "/var/www/{{ http_host }}"
+        state: directory
+
+    - name: "Apache - Set up virtualhost"
+      template:
+        src: "files/apache.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ http_conf }}"
+      notify: restart apache
+
+    - name: "Apache - Enable new site"
+      shell: /usr/sbin/a2ensite {{ http_conf }}
+      notify: restart apache
+
+    - name: "Apache - Disable default site"
+      shell: /usr/sbin/a2dissite 000-default.conf
+      when: disable_default
+      notify: restart apache
+
+    - name: "Apache - Copy test index.html"
+      template:
+        src: "files/index.html"
+        dest: "/var/www/{{ http_host }}/index.html"
+      notify: restart apache
+
+
+#  tasks:
+#    - name: Install packages
+#      apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+#      loop: [ 'bash', 'openssl', 'libssl-dev', 'libssl-doc', 'postgresql', 'postgresql-contrib', 'libpq-dev', 'python3-psycopg2', 'mc' ]
+#
+#    - name: Set timezone to Europe/Kiev
+#      timezone:
+#        name: Europe/Kiev
+#
+#    - name: Ensure the PostgreSQL service is running
+#      service: name=postgresql state=started enabled=yes
+#
+#    - name: Deploy SSH Key
+#      authorized_key: user=vagrant key="{{ lookup('file', '/vagrant/pd-master-1.pub') }}" state=present
+#
+#    - name: Ensure database is created
+#      become_user: postgres
+#      postgresql_db: name='vagrant'
+#        encoding='UTF-8'
+#        lc_collate='en_US.UTF-8'
+#        lc_ctype='en_US.UTF-8'
+#        template='template0'
+#        state=present
+#
+#    - name: Ensure user has access to the database
+#      become_user: postgres
+#      postgresql_user: db='vagrant'
+#        name='vagrant'
+#        password='vagrant'
+#        priv=ALL
+#        state=present
+#
+#    - name: Grant all users access to all databases from any hosts using md5 authentication.
+#      postgresql_pg_hba:
+#        dest: /etc/postgresql/10/main/pg_hba.conf
+#        contype: host
+#        users: all
+#        source: 0.0.0.0/0
+#        databases: all
+#        method: md5
+#        create: true
+#      notify:
+#        - restart postgresql
+#
+#    - name: postgresql should listen on all ports
+#      lineinfile:
+#        dest=/etc/postgresql/10/main/postgresql.conf
+#        regexp="^listen_addresses"
+#        line="listen_addresses = '*'" state=present
+#      notify:
+#        - restart postgresql
+#
+#  handlers:
+#    - name: restart postgresql
+#      service: name=postgresql state=restarted
+  handlers:
+    - name: restart apache
+      service: name=apache2 state=restarted
