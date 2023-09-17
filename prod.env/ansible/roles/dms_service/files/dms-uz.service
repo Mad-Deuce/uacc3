@@ -1,0 +1,22 @@
+[Unit]
+Description=-----------DMS-UZ Java REST Service
+[Service]
+User=ubuntu
+# The configuration file application.properties should be here:
+
+#change this to your workspace
+WorkingDirectory=/home/ubuntu
+
+#path to executable.
+#executable is a bash script which calls jar file
+#ExecStart=/home/ubuntu/dms-uz.sh start
+#ExecStart=/usr/bin/java -version
+ExecStart=/usr/bin/java -jar dms-uz-rtubase-1.0-SNAPSHOT.jar
+
+SuccessExitStatus=143
+TimeoutStopSec=15
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,12 +1,9 @@
 ---
 
-- name: "All roles"
+- name: "Dms Service Only"
   hosts: ubuntu
   gather_facts: false
   roles:
-    - mc
-    - postgresql
-    - java
     - dms_service
   become: true
   become_method: sudo

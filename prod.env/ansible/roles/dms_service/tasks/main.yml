@@ -1,0 +1,37 @@
+---
+
+- name: "Copy dms-uz.service file to server"
+  copy:
+    src: "files/dms-uz.service"
+    dest: "/etc/systemd/system/dms-uz.service"
+
+- name: "Copy *.jar file to server"
+  copy:
+    src: "files/dms-uz-rtubase-1.0-SNAPSHOT.jar"
+    dest: "/home/ubuntu/dms-uz-rtubase-1.0-SNAPSHOT.jar"
+
+- name: "Copy Bash Script file to server"
+  copy:
+    src: "files/dms-uz.sh"
+    dest: "/home/ubuntu/dms-uz.sh"
+    mode: 755
+
+
+#
+#- name: Just force systemd to reread configs (2.4 and above)
+#  ansible.builtin.systemd:
+#    daemon_reload: true
+
+
+- name: Run a user service when XDG_RUNTIME_DIR is not set on remote login
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: dms-uz
+    state: started
+
+#- name: Start service dms
+#  service:
+#    name: dms-uz
+##    pattern: /usr/bin/foo
+#    enabled: true
+##    state: started
