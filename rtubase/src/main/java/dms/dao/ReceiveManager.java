@@ -68,13 +68,13 @@ public class ReceiveManager {
         if (objCode.length() != 4) throw new Exception("dms: Parameter Length is wrong");
         if (objCode.charAt(3) == '0') {
             em.createNativeQuery(
-                            "delete from drtu.dev where SUBSTR(obj_code, 1, 3 ) = :objCode"
+                            "delete from drtu_2023_07_07.dev where SUBSTR(obj_code, 1, 3 ) = :objCode"
                     )
                     .setParameter("objCode", objCode.substring(0, 3))
                     .executeUpdate();
         } else {
             em.createNativeQuery(
-                            "delete from drtu.dev where SUBSTR(obj_code, 1, 4) = :objCode"
+                            "delete from drtu_2023_07_07.dev where SUBSTR(obj_code, 1, 4) = :objCode"
                     )
                     .setParameter("objCode", objCode)
                     .executeUpdate();
@@ -86,13 +86,13 @@ public class ReceiveManager {
         if (objCode.length() != 4) throw new Exception("dms: Parameter Length is wrong");
         if (objCode.charAt(3) == '0') {
             em.createNativeQuery(
-                            "delete from drtu.dev_obj where SUBSTR(obj_code, 1, 3 ) = :objCode"
+                            "delete from drtu_2023_07_07.dev_obj where SUBSTR(obj_code, 1, 3 ) = :objCode"
                     )
                     .setParameter("objCode", objCode.substring(0, 3))
                     .executeUpdate();
         } else {
             em.createNativeQuery(
-                            "delete from drtu.dev_obj where SUBSTR(obj_code, 1, 4) = :objCode"
+                            "delete from drtu_2023_07_07.dev_obj where SUBSTR(obj_code, 1, 4) = :objCode"
                     )
                     .setParameter("objCode", objCode)
                     .executeUpdate();
@@ -102,7 +102,7 @@ public class ReceiveManager {
 
     private void isDeviceTypeExists(PDFileModel pdFile) {
         List<DevModel> removingItems = new ArrayList<>();
-        List typeIdList = em.createNativeQuery("select id from drtu.s_dev")
+        List typeIdList = em.createNativeQuery("select id from drtu_2023_07_07.s_dev")
                 .setHint("org.hibernate.fetchSize", "2000")
                 .getResultList();
         HashSet hs = new HashSet(typeIdList);
@@ -128,7 +128,7 @@ public class ReceiveManager {
 
     private void isLocationFree(PDFileModel pdFile) {
         List<DevModel> removingItems = new ArrayList<>();
-        List idObjList = em.createNativeQuery("select id_obj from drtu.dev where id_obj is not null")
+        List idObjList = em.createNativeQuery("select id_obj from drtu_2023_07_07.dev where id_obj is not null")
                 .setHint("org.hibernate.fetchSize", "2000")
                 .getResultList();
         HashSet hs = new HashSet(idObjList);
@@ -157,7 +157,7 @@ public class ReceiveManager {
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
             try {
-                String sqlInsert = "insert into DRTU.DEV ( " +
+                String sqlInsert = "insert into drtu_2023_07_07.DEV ( " +
                         " ID, DEVID, NUM, MYEAR, D_TKIP, " +
                         " D_NKIP, T_ZAM, ID_OBJ, OBJ_CODE, PS, " +
                         " OPCL, TID_PR, TID_RG, SCODE " +
@@ -236,7 +236,7 @@ public class ReceiveManager {
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
             try {
-                String sqlInsert = "insert into DRTU.DEV_OBJ ( " +
+                String sqlInsert = "insert into drtu_2023_07_07.DEV_OBJ ( " +
                         " ID, LOCATE_T, LOCATE, REGION_T, REGION, " +
                         " NPLACE, NSHEM, OBJ_CODE, OPCL, SCODE " +
                         " ) " +
@@ -302,7 +302,7 @@ public class ReceiveManager {
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
             try {
-                String sqlInsert = "insert into DRTU.D_OBJ ( " +
+                String sqlInsert = "insert into drtu_2023_07_07.D_OBJ ( " +
                         " ID, KIND, CLS, NAME_OBJ, KOD_DOR, " +
                         " KOD_DIST, KOD_RTU, KOD_OBKT, KOD_OBJ " +
                         " ) " +
@@ -342,7 +342,7 @@ public class ReceiveManager {
     private void upsertDevTrans(PDFileModel pdFile) {
         PDFileModel.MetaData metaData = pdFile.getMetaData();
         em.createNativeQuery(
-                        " INSERT INTO drtu.dev_trans (NAME, FTYPE, PS, STNUM, DATE_CREATE, NAME_T, STNUM_T, " +
+                        " INSERT INTO drtu_2023_07_07.dev_trans (NAME, FTYPE, PS, STNUM, DATE_CREATE, NAME_T, STNUM_T, " +
                                 " RTU_T, DATE_T, TIME_T) VALUES ( " +
                                 " UPPER (:name), " +
                                 " UPPER (:ftype), " +

@@ -6,6 +6,7 @@
   roles:
     - mc
     - postgresql
+    - java
   become: true
   become_method: sudo
   become_user: root

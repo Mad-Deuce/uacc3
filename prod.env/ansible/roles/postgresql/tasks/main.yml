@@ -14,15 +14,15 @@
     src: "files/pg_hba.conf.j2"
     dest: "/etc/postgresql/{{ pg_version }}/main/pg_hba.conf"
 
-- name: "exec sql script"
-  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/postgres.sql"
+- name: "exec sql script: create database"
+  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/create_database.sql"
 
 - name: "Grant user postgres access to databases sales and logistics from ipv6 localhost ::1/128 using peer authentication"
   postgresql_pg_hba:
     dest: /etc/postgresql/14/main/pg_hba.conf
     contype: host
-    users: postgres
-    source: 192.168.1.111
+    users: all
+    source: 0.0.0.0/0
     databases: all
     method: trust
     create: false
@@ -54,8 +54,21 @@
     method: md5
     create: false
 
+
 - name: "exec sql script: add view"
-  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"
+
+- name: "exec sql script: rename drtu schema"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/rename_drtu_schema.sql"
 
 - name: "exec sql script: add stats_schema"
-  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/add_stats_schema.sql"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_stats_schema.sql"
+
+- name: "exec sql script: add auth tables"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_auth_tables.sql"
+
+- name: "exec sql script: add auth tables records"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_auth_tables_records.sql"
+
+
+

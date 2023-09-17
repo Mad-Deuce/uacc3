@@ -1,8 +1,5 @@
-CREATE SCHEMA IF NOT EXISTS dms;
-comment on schema dms is 'Device Management System';
-alter schema dms owner to postgres;
 
-create or replace view drtu.v$devices_main
+create or replace view rtubase.drtu.v$devices_main
             (id, type_id, type_name, type_group_id, type_group_name, number, release_year, test_date, next_test_date,
              extra_next_test_date, replacement_period, status, detail, railway_id, railway_name, subdivision_id,
              subdivision_short_name, rtd_id, rtd_name, facility_id, facility_name, location_id, label, region,
@@ -17,7 +14,7 @@ SELECT dev.id,
        dev.myear                                      AS release_year,
        dev.d_tkip                                     AS test_date,
        dev.d_nkip                                     AS next_test_date,
-       drtu_old.zam10(dev.d_nkip, dev.t_zam, '1'::"char") AS extra_next_test_date,
+       drtu.zam10(dev.d_nkip, dev.t_zam, '1'::"char") AS extra_next_test_date,
        dev.t_zam                                      AS replacement_period,
        dev.ps                                         AS status,
        dev.detail,
@@ -38,14 +35,14 @@ SELECT dev.id,
        dev_obj.nplace                                 AS place_number,
        dev_obj.detail                                 AS location_detail
 FROM drtu.dev
-         LEFT JOIN drtu_old.d_obj ON dev.obj_code::text = d_obj.id::text
-         LEFT JOIN drtu_old.d_rtu ON "substring"(dev.obj_code::text, 1, 4) = d_rtu.id::text
-         LEFT JOIN drtu_old.d_dist ON "substring"(dev.obj_code::text, 1, 3) = d_dist.id::text
-         LEFT JOIN drtu_old.d_rail ON "substring"(dev.obj_code::text, 1, 1) = d_rail.id::text
-         LEFT JOIN drtu_old.s_dev ON dev.devid = s_dev.id
-         LEFT JOIN drtu_old.s_devgrp ON s_dev.grid = s_devgrp.grid
-         LEFT JOIN drtu_old.dev_obj ON dev.id_obj = dev_obj.id;
+         LEFT JOIN drtu.d_obj ON dev.obj_code::text = d_obj.id::text
+         LEFT JOIN drtu.d_rtu ON "substring"(dev.obj_code::text, 1, 4) = d_rtu.id::text
+         LEFT JOIN drtu.d_dist ON "substring"(dev.obj_code::text, 1, 3) = d_dist.id::text
+         LEFT JOIN drtu.d_rail ON "substring"(dev.obj_code::text, 1, 1) = d_rail.id::text
+         LEFT JOIN drtu.s_dev ON dev.devid = s_dev.id
+         LEFT JOIN drtu.s_devgrp ON s_dev.grid = s_devgrp.grid
+         LEFT JOIN drtu.dev_obj ON dev.id_obj = dev_obj.id;
 ;
 
-alter table drtu.v$devices_main
+alter table rtubase.drtu.v$devices_main
     owner to postgres;
