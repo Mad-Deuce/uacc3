@@ -55,6 +55,54 @@
 					"response": []
 				},
 				{
+					"name": "login-admin Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();\r",
+									"pm.globals.set(\"dms_token\",response.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"admin\",\r\n    \"password\": \"user\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://192.168.50.50:8080/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"192",
+								"168",
+								"50",
+								"50"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "login-operator1021",
 					"event": [
 						{
@@ -473,7 +521,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/stats/expired-devices",
+									"raw": "http://localhost:8080/api/stats/expired-devices?nodeId=1",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -486,9 +534,52 @@
 									],
 									"query": [
 										{
-											"key": "cls",
-											"value": "131",
+											"key": "nodeId",
+											"value": "1"
+										},
+										{
+											"key": "rootId",
+											"value": "1",
 											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "stats by date",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/stats/expired-devices/2023-08-18?nodeId=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"stats",
+										"expired-devices",
+										"2023-08-18"
+									],
+									"query": [
+										{
+											"key": "nodeId",
+											"value": "1"
 										},
 										{
 											"key": "rootId",
@@ -930,6 +1021,105 @@
 								"api",
 								"db",
 								"schema"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "files",
+			"item": [
+				{
+					"name": "upload",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": [
+										"/J:/01 - АРМ РТД/3-REPLICATE FILES ШЧ/2023/2023-09-15/d1011915.001",
+										"/J:/01 - АРМ РТД/3-REPLICATE FILES ШЧ/2023/2023-09-15/d1110915.001",
+										"/J:/01 - АРМ РТД/3-REPLICATE FILES ШЧ/2023/2023-09-15/p1011915.001",
+										"/J:/01 - АРМ РТД/3-REPLICATE FILES ШЧ/2023/2023-09-15/p1110915.001"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/files/upload",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"files",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "files list",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": [
+										"device_dto_for_create.json",
+										"rails.xlsx"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/files/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"files",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "file",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/files/device_dto_for_create.json",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"files",
+								"device_dto_for_create.json"
 							]
 						}
 					},

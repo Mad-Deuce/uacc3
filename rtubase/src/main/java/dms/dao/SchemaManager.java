@@ -100,8 +100,6 @@ public class SchemaManager {
                 channel.disconnect();
             }
         }
-
-
     }
 
     public void createDevicesMainView() {
