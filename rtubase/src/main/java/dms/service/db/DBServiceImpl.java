@@ -29,22 +29,44 @@ import java.util.zip.GZIPInputStream;
 public class DBServiceImpl implements DBService {
 
 
-    private final DatabaseSessionManager dbSessionManager;
     @Autowired
     private StatsService statsService;
     @Autowired
-    private  SchemaManager sm;
+    private SchemaManager sm;
     @Autowired
-    private  ReceiveManager rm;
+    private ReceiveManager rm;
     @Autowired
-    private  TenantIdentifierResolver currentTenant;
+    private TenantIdentifierResolver currentTenant;
 
-//    final String INP_DIR_PATH = "rtubase/src/main/resources/pd_files";
-    @Value("${user.home.path}")
-    private String INP_DIR_PATH;
+    //    final String INP_DIR_PATH = "rtubase/src/main/resources/pd_files";
+//    @Value("${user.home.path}")
+//    private String INP_DIR_PATH;
+    @Value("${dms.upload.path}")
+    private String UPLOAD_DIR_PATH_PARTS;
+//    private final Path root = Paths.get("uploads");
 
-    public DBServiceImpl(DatabaseSessionManager dbSessionManager) {
-        this.dbSessionManager = dbSessionManager;
+    private File getUploadDir() throws Exception {
+        String errorMessage = "dms: Directory for P,D Files not accessible";
+        File upload_dir = null;
+        List<String> pathParts = Arrays.stream(UPLOAD_DIR_PATH_PARTS.split(",")).toList();
+        for (String part : pathParts) {
+            if (upload_dir == null) {
+                upload_dir = new File(part);
+            } else {
+                upload_dir = new File(upload_dir, part);
+            }
+        }
+
+        assert upload_dir != null;
+        if (!upload_dir.exists()) {
+            upload_dir.mkdirs();
+        }
+
+        if (!upload_dir.isDirectory() || !upload_dir.canRead()) {
+            throw new Exception(errorMessage);
+        }
+
+        return upload_dir;
     }
 
     @Override
@@ -93,7 +115,10 @@ public class DBServiceImpl implements DBService {
     @Scheduled(initialDelay = 20000, fixedDelay = 30000)
     public void isPDDirEmpty() throws Exception {
         log.info("------------------check PD dir -----------------");
-        log.info(INP_DIR_PATH);
+//        log.info(INP_DIR_PATH);
+//        getUploadDir();
+//        log.info(UPLOAD_DIR_PATH);
+//        log.info(root.toAbsolutePath().toString());
         if (!getFiles().isEmpty()) receivePDFiles();
     }
 
@@ -128,11 +153,17 @@ public class DBServiceImpl implements DBService {
         FileFilter filter = f -> (f.isFile()
                 && f.getName().length() == 12
                 && f.getName().matches("[pd]\\d{4}\\w\\d{2}\\.\\d{3}"));
-        String errorMessage = "dms: Directory for P,D Files not accessible";
-        File dir = new File(INP_DIR_PATH);
-        if (!dir.exists() || !dir.isDirectory() || !dir.canRead()) {
-            throw new Exception(errorMessage);
-        }
+//        String errorMessage = "dms: Directory for P,D Files not accessible";
+//        File dir = new File(INP_DIR_PATH);
+        File dir = getUploadDir();
+
+//        if (!dir.exists()) {
+////            Files.createDirectory(root);
+//            dir.mkdirs();
+//        }
+//        if (!dir.exists() || !dir.isDirectory() || !dir.canRead()) {
+//            throw new Exception(errorMessage);
+//        }
         return Arrays.stream(Objects.requireNonNull(dir.listFiles(filter))).toList();
     }
 

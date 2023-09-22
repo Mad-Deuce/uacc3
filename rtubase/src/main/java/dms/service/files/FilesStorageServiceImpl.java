@@ -1,5 +1,7 @@
 package dms.service.files;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -11,26 +13,48 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class FilesStorageServiceImpl implements FilesStorageService {
 
-    private final Path root = Paths.get("uploads");
+    @Value("${dms.upload.path}")
+    private String UPLOAD_DIR_PATH_PARTS;
+
+    private Path root;
 
     @Override
     public void init() {
         try {
-            Files.createDirectory(root);
+            root = getUploadDirPath();
+            if (!root.toFile().exists()) Files.createDirectory(root);
         } catch (IOException e) {
             throw new RuntimeException("Could not initialize folder for upload!");
         }
     }
 
+    private Path getUploadDirPath() {
+        Path upload_dir_path = null;
+        List<String> pathParts = Arrays.stream(UPLOAD_DIR_PATH_PARTS.split(",")).toList();
+        for (String part : pathParts) {
+            if (upload_dir_path == null) {
+                upload_dir_path = Paths.get(part);
+            } else {
+                upload_dir_path = Paths.get(upload_dir_path.toAbsolutePath().toString(), part);
+            }
+        }
+
+        return upload_dir_path;
+    }
+
     @Override
     public void save(MultipartFile file) {
         try {
-            Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
+            Files.copy(file.getInputStream(), this.root.resolve(Objects.requireNonNull(file.getOriginalFilename())));
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }

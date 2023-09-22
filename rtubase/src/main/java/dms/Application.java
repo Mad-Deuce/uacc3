@@ -20,8 +20,7 @@ public class Application implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... arg) throws Exception {
-        storageService.deleteAll();
+    public void run(String... arg)  {
         storageService.init();
     }
 
