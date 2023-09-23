@@ -53,6 +53,17 @@ public class TestController {
                 .body(filters);
     }
 
+    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+    @GetMapping(value = "/clone-schema", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> cloneSchema() {
+
+        sm.cloneSchema("dock","dock_clone");
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body('k');
+    }
 
 
 }

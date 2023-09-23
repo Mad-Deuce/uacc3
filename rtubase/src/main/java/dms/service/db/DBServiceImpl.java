@@ -38,12 +38,9 @@ public class DBServiceImpl implements DBService {
     @Autowired
     private TenantIdentifierResolver currentTenant;
 
-    //    final String INP_DIR_PATH = "rtubase/src/main/resources/pd_files";
-//    @Value("${user.home.path}")
-//    private String INP_DIR_PATH;
+
     @Value("${dms.upload.path}")
     private String UPLOAD_DIR_PATH_PARTS;
-//    private final Path root = Paths.get("uploads");
 
     private File getUploadDir() throws Exception {
         String errorMessage = "dms: Directory for P,D Files not accessible";
@@ -115,10 +112,6 @@ public class DBServiceImpl implements DBService {
     @Scheduled(initialDelay = 20000, fixedDelay = 30000)
     public void isPDDirEmpty() throws Exception {
         log.info("------------------check PD dir -----------------");
-//        log.info(INP_DIR_PATH);
-//        getUploadDir();
-//        log.info(UPLOAD_DIR_PATH);
-//        log.info(root.toAbsolutePath().toString());
         if (!getFiles().isEmpty()) receivePDFiles();
     }
 
@@ -153,17 +146,7 @@ public class DBServiceImpl implements DBService {
         FileFilter filter = f -> (f.isFile()
                 && f.getName().length() == 12
                 && f.getName().matches("[pd]\\d{4}\\w\\d{2}\\.\\d{3}"));
-//        String errorMessage = "dms: Directory for P,D Files not accessible";
-//        File dir = new File(INP_DIR_PATH);
         File dir = getUploadDir();
-
-//        if (!dir.exists()) {
-////            Files.createDirectory(root);
-//            dir.mkdirs();
-//        }
-//        if (!dir.exists() || !dir.isDirectory() || !dir.canRead()) {
-//            throw new Exception(errorMessage);
-//        }
         return Arrays.stream(Objects.requireNonNull(dir.listFiles(filter))).toList();
     }
 

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -131,4 +132,112 @@ public class SchemaManager {
                 .getResultList();
     }
 
+    public void cloneSchema(String sourceSchemaName, String targetSchemaName) {
+        String message = String.format("source schema %s does not exist!", sourceSchemaName);
+        if (!isSchemaExists(sourceSchemaName)) throw new RuntimeException(message);
+        message = String.format("target schema %s already exists!", targetSchemaName);
+        if (isSchemaExists(targetSchemaName)) {
+            removeSchema(targetSchemaName);
+//            throw new RuntimeException(message);
+        }
+        createSchema(targetSchemaName);
+        copySequences(sourceSchemaName, targetSchemaName);
+        copyTables(sourceSchemaName, targetSchemaName, true);
+    }
+
+    private boolean isSchemaExists(String schemaName) {
+        List<String> schemaNameList = em.createNativeQuery(
+                        "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :schemaName"
+                ).setParameter("schemaName", schemaName)
+                .getResultList();
+        return !schemaNameList.isEmpty();
+    }
+
+    private void createSchema(String schemaName) {
+        String queryString = String.format("CREATE SCHEMA %s AUTHORIZATION postgres", schemaName);
+        em.createNativeQuery(queryString)
+                .executeUpdate();
+    }
+
+    private void copySequences(String sourceSchemaName, String targetSchemaName) {
+        List<Tuple> schemaNameList = em.createNativeQuery(
+                        "SELECT * FROM information_schema.sequences WHERE sequence_schema = :sourceSchemaName",
+                        Tuple.class)
+                .setParameter("sourceSchemaName", sourceSchemaName)
+                .getResultList();
+
+        schemaNameList.forEach(value -> {
+            String queryString = String.format("CREATE SEQUENCE IF NOT EXISTS %s INCREMENT BY %s MINVALUE %s " +
+                            "MAXVALUE %s START WITH %s NO CYCLE ",
+                    targetSchemaName + "." + value.get(2),
+                    value.get(10),
+                    value.get(8),
+                    value.get(9),
+                    value.get(7));
+            em.createNativeQuery(queryString)
+                    .executeUpdate();
+        });
+
+        log.info("fffff");
+    }
+
+    private void copyTables(String sourceSchemaName, String targetSchemaName, boolean copyData) {
+        String queryString1 = String.format("SELECT CAST(TABLE_NAME AS text) FROM information_schema.tables " +
+                        "WHERE table_schema = '%s' AND table_type = 'BASE TABLE'",
+                sourceSchemaName);
+        List<String> tableNameList = em.createNativeQuery(queryString1)
+                .getResultList();
+        tableNameList.forEach(tableName -> {
+            String sourceTableName = sourceSchemaName + "." + tableName;
+            String targetTableName = targetSchemaName + "." + tableName;
+            String queryString = String.format("CREATE TABLE %s (LIKE %s INCLUDING ALL)",
+                    targetTableName,
+                    sourceTableName);
+            em.createNativeQuery(queryString)
+                    .executeUpdate();
+
+            if (copyData) {
+                queryString = String.format("INSERT INTO %s SELECT * FROM %s",
+                        targetTableName,
+                        sourceTableName);
+                em.createNativeQuery(queryString)
+                        .executeUpdate();
+            }
+
+            queryString = String.format("SELECT CAST(column_name AS text),  " +
+                            "REPLACE(CAST(column_default AS text), '%s', '%s') " +
+                            "FROM information_schema.COLUMNS " +
+                            "WHERE table_schema = '%s' AND TABLE_NAME = '%s' " +
+                            "AND column_default LIKE 'nextval(%%%s%%)'",
+                    sourceSchemaName,
+                    targetSchemaName,
+                    targetSchemaName,
+                    tableName,
+                    sourceSchemaName);
+            List<Tuple> tupleList = em.createNativeQuery(queryString, Tuple.class)
+                    .getResultList();
+            tupleList.forEach(tuple -> {
+                em.createNativeQuery("ALTER TABLE :table ALTER COLUMN :column SET DEFAULT :default")
+                        .setParameter("table", targetTableName)
+                        .setParameter("column", tuple.get(0))
+                        .setParameter("default", tuple.get(1))
+                        .executeUpdate();
+            });
+
+        });
+
+
+    }
 }
+
+
+//    FOR column_, default_ IN
+//        SELECT column_name::text,
+//        REPLACE(column_default::text, source_schema, dest_schema)
+//        FROM information_schema.COLUMNS
+//        WHERE table_schema = dest_schema
+//        AND TABLE_NAME = object
+//        AND column_default LIKE 'nextval(%' || quote_ident(source_schema) || '%::regclass)'
+//        LOOP
+//        EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
+//        END LOOP;
