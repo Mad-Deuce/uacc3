@@ -142,7 +142,9 @@ public class SchemaManager {
         }
         createSchema(targetSchemaName);
         copySequences(sourceSchemaName, targetSchemaName);
-        copyTables(sourceSchemaName, targetSchemaName, true);
+        copyTables(sourceSchemaName, targetSchemaName, false);
+        copyConstraints(sourceSchemaName, targetSchemaName);
+        copyViews(sourceSchemaName, targetSchemaName);
     }
 
     private boolean isSchemaExists(String schemaName) {
@@ -228,16 +230,53 @@ public class SchemaManager {
 
 
     }
+
+    private void copyConstraints(String sourceSchemaName, String targetSchemaName) {
+        List<String> oidList = em.createNativeQuery(
+                        "SELECT oid FROM pg_namespace WHERE nspname = :sourceSchemaName"
+                )
+                .setParameter("sourceSchemaName", sourceSchemaName)
+                .getResultList();
+
+        List<Tuple> constraintList = em.createNativeQuery(
+                        "SELECT rn.relname, ct.conname, ct.oid " +
+                                "FROM pg_constraint ct " +
+                                "JOIN pg_class rn ON rn.oid = ct.conrelid " +
+                                "WHERE " +
+                                "CAST(ct.connamespace AS text) = CAST(:connamespace AS text) " +
+                                "AND rn.relkind = 'r' AND ct.contype = 'f'"
+                )
+                .setParameter("connamespace", oidList.get(0))
+                .getResultList();
+
+        constraintList.forEach(tuple -> {
+            String queryString = String.format("ALTER TABLE %s.%s ADD CONSTRAINT %s %s",
+                    targetSchemaName, tuple.get(0),
+                    tuple.get(1), tuple.get(2));
+            em.createNativeQuery(queryString)
+                    .executeUpdate();
+        });
+    }
+
+    private void copyViews(String sourceSchemaName, String targetSchemaName) {
+        String queryString1 = String.format(" SELECT CAST(TABLE_NAME AS text), view_definition " +
+                        " FROM information_schema.views " +
+                        " WHERE table_schema = '%s' ",
+                sourceSchemaName);
+        List<Tuple> viewList = em.createNativeQuery(queryString1, Tuple.class)
+                .getResultList();
+        viewList.forEach(tuple1 -> {
+            String vName = targetSchemaName + "." + tuple1.get(0);
+            String vDef = tuple1.get(1).toString();
+            vDef = vDef.replaceAll(":", "\\\\:");
+            String queryString = String.format("CREATE OR REPLACE VIEW %s AS %s",
+                    vName, vDef);
+            em.createNativeQuery(queryString)
+                    .executeUpdate();
+
+        });
+    }
 }
 
 
-//    FOR column_, default_ IN
-//        SELECT column_name::text,
-//        REPLACE(column_default::text, source_schema, dest_schema)
-//        FROM information_schema.COLUMNS
-//        WHERE table_schema = dest_schema
-//        AND TABLE_NAME = object
-//        AND column_default LIKE 'nextval(%' || quote_ident(source_schema) || '%::regclass)'
-//        LOOP
-//        EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
-//        END LOOP;
+

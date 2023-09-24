@@ -857,6 +857,37 @@
 					"response": []
 				},
 				{
+					"name": "Clone Schema",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{dms_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/test/clone-schema",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"test",
+								"clone-schema"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Read File",
 					"request": {
 						"auth": {
@@ -1043,10 +1074,8 @@
 									"key": "files",
 									"type": "file",
 									"src": [
-										"/J:/01 - АРМ РТД/3-REPLICATE FILES ШЧ/2023/2023-09-15/d1011915.001",
-										"/J:/01 - АРМ РТД/3-REPLICATE FILES ШЧ/2023/2023-09-15/d1110915.001",
-										"/J:/01 - АРМ РТД/3-REPLICATE FILES ШЧ/2023/2023-09-15/p1011915.001",
-										"/J:/01 - АРМ РТД/3-REPLICATE FILES ШЧ/2023/2023-09-15/p1110915.001"
+										"device_dto_for_create.json",
+										"rails.xlsx"
 									]
 								}
 							]
