@@ -145,6 +145,7 @@ public class SchemaManager {
         copyTables(sourceSchemaName, targetSchemaName, false);
         copyConstraints(sourceSchemaName, targetSchemaName);
         copyViews(sourceSchemaName, targetSchemaName);
+//        copyFunctions(sourceSchemaName, targetSchemaName);
     }
 
     private boolean isSchemaExists(String schemaName) {
@@ -275,6 +276,37 @@ public class SchemaManager {
                     .executeUpdate();
 
         });
+    }
+
+    private void copyFunctions(String sourceSchemaName, String targetSchemaName) {
+        String srcOid = em.createNativeQuery(
+                        "SELECT oid FROM pg_namespace WHERE nspname = :sourceSchemaName"
+                )
+                .setParameter("sourceSchemaName", sourceSchemaName)
+                .getSingleResult().toString();
+
+        List<String> oidList = em.createNativeQuery(
+                        "SELECT CAST(oid AS text) " +
+                                "FROM pg_proc " +
+                                "WHERE CAST(pronamespace AS text) = CAST(:pronamespace AS text)"
+                )
+                .setParameter("pronamespace", srcOid)
+                .getResultList();
+
+        oidList.forEach(oid -> {
+            String func = em.createNativeQuery(
+                            "SELECT pg_get_functiondef(CAST(:func_oid AS oid))"
+                    )
+                    .setParameter("func_oid", oid)
+                    .getSingleResult().toString();
+            func = func.replaceAll(sourceSchemaName, targetSchemaName);
+            func = func.replaceAll(":", "\\\\:");
+            em.createNativeQuery(func)
+                    .executeUpdate();
+
+        });
+
+
     }
 }
 
