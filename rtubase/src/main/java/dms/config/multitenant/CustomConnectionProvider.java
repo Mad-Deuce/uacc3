@@ -21,7 +21,7 @@ public class CustomConnectionProvider implements MultiTenantConnectionProvider, 
 
     @Override
     public Connection getAnyConnection() throws SQLException {
-        return getConnection("drtu_2023_07_28");
+        return getConnection("drtu");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class CustomConnectionProvider implements MultiTenantConnectionProvider, 
     @Override
     public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
         log.info("-------------- Release Connection for tenant --" + connection.getSchema());
-        connection.setSchema("drtu_2023_07_28");
+        connection.setSchema("drtu");
         connection.close();
     }
 

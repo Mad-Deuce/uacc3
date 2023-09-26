@@ -1,7 +1,5 @@
 package dms.config.multitenant;
 
-import dms.dao.SchemaManager;
-import dms.service.db.DatabaseSessionManager;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.springframework.beans.factory.InitializingBean;
@@ -24,8 +22,6 @@ public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver
     @Autowired
     DataSource dataSource;
 
-//    @Autowired
-//    SchemaManager schemaManager;
 
     public void setCurrentTenant(String tenant) {
         currentTenant = tenant;
@@ -59,12 +55,11 @@ public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver
                         return rs.getString(1);
                     }
                 });
-//        if (result.isEmpty()){
-////            schemaManager.cloneSchema(schemaManager.DRTU_SCHEMA_NAME, "drtu_1900_01_01");
-//            currentTenant="drtu_1900_01_01";
-//        } else {
+        if (result.isEmpty()) {
+            currentTenant = "drtu";
+        } else {
             currentTenant = result.get(0);
-//        }
+        }
 
     }
 }
