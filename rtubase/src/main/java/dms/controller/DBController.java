@@ -29,19 +29,19 @@ public class DBController {
                 .body(true);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
-    @GetMapping(value = "/receive-pd-files", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> receivePDFiles() throws Exception {
-
-        dbService.receivePDFiles();
-
-        return ResponseEntity
-                .ok()
-//                .contentType(MediaType.TEXT_PLAIN)
-//                .body("Files Received")
-                .build()
-                ;
-    }
+//    @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
+//    @GetMapping(value = "/receive-pd-files", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<?> receivePDFiles() throws Exception {
+//
+//        dbService.receivePDFiles();
+//
+//        return ResponseEntity
+//                .ok()
+////                .contentType(MediaType.TEXT_PLAIN)
+////                .body("Files Received")
+//                .build()
+//                ;
+//    }
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/schema/all", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -15,7 +15,9 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -26,138 +28,128 @@ public class ReceiveManager {
 
     final String RTU_T = "1000";
 
-    StringBuilder logStr = new StringBuilder("\n");
+    public final String DRTU_SCHEMA_TEMP_NAME = "temp_drtu";
 
+    //    todo - need to refactor with
     @Transactional
-    public void receivePDFileAlt(List<String> fileContent) {
-
-            try {
-                PDFileModel pdFile = new PDFileModel(fileContent);
-                if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
-                    if (pdFile.getMetaData().getType().equals("D")) {
-                        clearDevTable(pdFile.getMetaData().getObjectCode());
-                        isDeviceTypeExists(pdFile);
-                        isLocationFree(pdFile);
-                        upsertDevice(pdFile);
-                        upsertDevTrans(pdFile);
-                    } else if (pdFile.getMetaData().getType().equals("P")) {
-                        clearDevObjTable(pdFile.getMetaData().getObjectCode());
-                        HashSet<DObjModel> facilitySet = upsertLocation(pdFile);
-                        upsertFacility(facilitySet);
-                        upsertDevTrans(pdFile);
-                    }
+    public void receivePDFiles(List<String> fileContent) {
+        if (!isTemporaryDrtuSchemaExists()) throw new RuntimeException("Temporary Drtu Schema Not Exists");
+        try {
+            PDFileModel pdFile = new PDFileModel(fileContent);
+            if (isFileVersionActual(pdFile.getMetaData().getVersion())) {
+                if (pdFile.getMetaData().getType().equals("D")) {
+                    deleteRowsFromDevByObjCode(pdFile.getMetaData().getObjectCode());
+                    isDeviceTypeExists(pdFile);
+                    isLocationFree(pdFile);
+                    upsertDevice(pdFile);
+                    upsertDevTrans(pdFile);
+                } else if (pdFile.getMetaData().getType().equals("P")) {
+                    deleteRowsFromDevObjByObjCode(pdFile.getMetaData().getObjectCode());
+                    HashSet<DObjModel> facilitySet = upsertLocation(pdFile);
+                    upsertFacility(facilitySet);
+                    upsertDevTrans(pdFile);
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        logStr.append("dms: End Receiving: ")
-                .append(new Timestamp(System.currentTimeMillis()))
-                .append("\n");
-        log.info(logStr.toString());
+    private boolean isTemporaryDrtuSchemaExists() {
+        String queryString = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '%s'";
+        queryString = String.format(queryString, DRTU_SCHEMA_TEMP_NAME);
+        List<String> schemaNameList = em.createNativeQuery(queryString).getResultList();
+        return !schemaNameList.isEmpty();
     }
 
     private boolean isFileVersionActual(String version) {
-        List<?> result = em.createNativeQuery(
-                        "select value_c from dock.val where name = 'VERSION'")
-                .getResultList();
+        String queryString = "SELECT value_c FROM dock.val WHERE name = 'VERSION'";
+        List<?> result = em.createNativeQuery(queryString).getResultList();
         return (result.size() > 0 && result.get(0).equals(version));
     }
 
-    private void clearDevTable(String objCode) throws Exception {
+    //todo - change drtu_2023_07_07
+    private void deleteRowsFromDevByObjCode(String objCode) throws Exception {
+        String queryString;
         if (objCode.length() != 4) throw new Exception("dms: Parameter Length is wrong");
         if (objCode.charAt(3) == '0') {
-            em.createNativeQuery(
-                            "delete from drtu_2023_07_07.dev where SUBSTR(obj_code, 1, 3 ) = :objCode"
-                    )
-                    .setParameter("objCode", objCode.substring(0, 3))
-                    .executeUpdate();
+            queryString = "DELETE FROM %s WHERE SUBSTR(obj_code, 1, 3 ) = '%s'";
+            queryString = String.format(queryString,
+                    DRTU_SCHEMA_TEMP_NAME + ".dev",
+                    objCode.substring(0, 3));
         } else {
-            em.createNativeQuery(
-                            "delete from drtu_2023_07_07.dev where SUBSTR(obj_code, 1, 4) = :objCode"
-                    )
-                    .setParameter("objCode", objCode)
-                    .executeUpdate();
+            queryString = "DELETE FROM %s WHERE SUBSTR(obj_code, 1, 4 ) = '%s'";
+            queryString = String.format(queryString,
+                    DRTU_SCHEMA_TEMP_NAME + ".dev",
+                    objCode.substring(0, 4));
         }
+        em.createNativeQuery(queryString).executeUpdate();
 
     }
 
-    private void clearDevObjTable(String objCode) throws Exception {
+    //todo - change drtu_2023_07_07
+    private void deleteRowsFromDevObjByObjCode(String objCode) throws Exception {
+        String queryString;
         if (objCode.length() != 4) throw new Exception("dms: Parameter Length is wrong");
         if (objCode.charAt(3) == '0') {
-            em.createNativeQuery(
-                            "delete from drtu_2023_07_07.dev_obj where SUBSTR(obj_code, 1, 3 ) = :objCode"
-                    )
-                    .setParameter("objCode", objCode.substring(0, 3))
-                    .executeUpdate();
+            queryString = "DELETE FROM %s WHERE SUBSTR(obj_code, 1, 3 ) = '%s'";
+            queryString = String.format(queryString,
+                    DRTU_SCHEMA_TEMP_NAME + ".dev_obj",
+                    objCode.substring(0, 3));
         } else {
-            em.createNativeQuery(
-                            "delete from drtu_2023_07_07.dev_obj where SUBSTR(obj_code, 1, 4) = :objCode"
-                    )
-                    .setParameter("objCode", objCode)
-                    .executeUpdate();
+            queryString = "DELETE FROM %s WHERE SUBSTR(obj_code, 1, 4 ) = '%s'";
+            queryString = String.format(queryString,
+                    DRTU_SCHEMA_TEMP_NAME + ".dev_obj",
+                    objCode.substring(0, 4));
         }
-
+        em.createNativeQuery(queryString).executeUpdate();
     }
 
+    //todo - change drtu_2023_07_07
     private void isDeviceTypeExists(PDFileModel pdFile) {
+        String queryString = "SELECT id FROM %s";
+        queryString = String.format(queryString,
+                DRTU_SCHEMA_TEMP_NAME + ".s_dev");
         List<DevModel> removingItems = new ArrayList<>();
-        List typeIdList = em.createNativeQuery("select id from drtu_2023_07_07.s_dev")
+        List typeIdList = em.createNativeQuery(queryString)
                 .setHint("org.hibernate.fetchSize", "2000")
                 .getResultList();
         HashSet hs = new HashSet(typeIdList);
         pdFile.getDContent().forEach(item -> {
             if (!hs.contains(BigDecimal.valueOf(item.getDevId()))) {
                 removingItems.add(item);
-                logStr
-                        .append("dms/error: File=")
-                        .append(pdFile.getMetaData().getName())
-                        .append("---")
-                        .append("Type=")
-                        .append(item.getTypeName())
-                        .append(" not exists in DRTU.S_DEV for device id=")
-                        .append(item.getId())
-                        .append("---")
-                        .append(new Timestamp(System.currentTimeMillis()))
-                        .append("\n");
             }
         });
         pdFile.increaseNotProcessedRecordsQuantity(removingItems.size());
         removingItems.forEach(item -> pdFile.getDContent().remove(item));
     }
 
+    //todo - change drtu_2023_07_07
     private void isLocationFree(PDFileModel pdFile) {
+        String queryString = "SELECT id_obj FROM %s WHERE id_obj IS NOT NULL";
+        queryString = String.format(queryString,
+                DRTU_SCHEMA_TEMP_NAME + ".dev");
         List<DevModel> removingItems = new ArrayList<>();
-        List idObjList = em.createNativeQuery("select id_obj from drtu_2023_07_07.dev where id_obj is not null")
+        List idObjList = em.createNativeQuery(queryString)
                 .setHint("org.hibernate.fetchSize", "2000")
                 .getResultList();
         HashSet hs = new HashSet(idObjList);
         pdFile.getDContent().forEach(item -> {
             if (item.getIdObj() != null && hs.contains(BigDecimal.valueOf(item.getIdObj()))) {
                 removingItems.add(item);
-                logStr
-                        .append("dms/error: File=")
-                        .append(pdFile.getMetaData().getName())
-                        .append("---")
-                        .append("Location with Id=")
-                        .append(item.getIdObj())
-                        .append(" not free for device id=")
-                        .append(item.getId())
-                        .append("---")
-                        .append(new Timestamp(System.currentTimeMillis()))
-                        .append("\n");
             }
         });
         pdFile.increaseNotProcessedRecordsQuantity(removingItems.size());
         removingItems.forEach(item -> pdFile.getDContent().remove(item));
     }
 
+    //todo - change drtu_2023_07_07
     private void upsertDevice(PDFileModel pdFile) {
         Session session = em.unwrap(Session.class);
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
             try {
-                String sqlInsert = "insert into drtu_2023_07_07.DEV ( " +
+                String queryString = "insert into %s ( " +
                         " ID, DEVID, NUM, MYEAR, D_TKIP, " +
                         " D_NKIP, T_ZAM, ID_OBJ, OBJ_CODE, PS, " +
                         " OPCL, TID_PR, TID_RG, SCODE " +
@@ -165,7 +157,7 @@ public class ReceiveManager {
                         " values (?, ?, ?, ?, ?, " +
                         " ?, ?, ?, ?, ?, " +
                         " ?, ?, ?, ?) " +
-                        "on conflict (ID) do  update set " +
+                        " on conflict (ID) do  update set " +
                         "    DEVID    = ?, " +
                         "    NUM      = ?, " +
                         "    MYEAR    = ?, " +
@@ -179,7 +171,8 @@ public class ReceiveManager {
                         "    TID_PR   = ?, " +
                         "    TID_RG   = ?, " +
                         "    SCODE    = ? ";
-                pstmt = connection.prepareStatement(sqlInsert);
+                queryString = String.format(queryString, DRTU_SCHEMA_TEMP_NAME + ".dev");
+                pstmt = connection.prepareStatement(queryString);
                 int i = 0;
                 for (DevModel dRowData : pdFile.getDContent()) {
                     pstmt.setLong(1, dRowData.getId());
@@ -230,19 +223,20 @@ public class ReceiveManager {
 
     }
 
+    //todo - change drtu_2023_07_07
     private HashSet<DObjModel> upsertLocation(PDFileModel pdFile) {
         HashSet<DObjModel> facilitySet = new HashSet<>();
         Session session = em.unwrap(Session.class);
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
             try {
-                String sqlInsert = "insert into drtu_2023_07_07.DEV_OBJ ( " +
+                String queryString = "insert into %s ( " +
                         " ID, LOCATE_T, LOCATE, REGION_T, REGION, " +
                         " NPLACE, NSHEM, OBJ_CODE, OPCL, SCODE " +
                         " ) " +
                         " values (?, ?, ?, ?, ?, " +
                         " ?, ?, ?, ?, ?) " +
-                        "on conflict (ID) do  update set " +
+                        " on conflict (ID) do  update set " +
                         "    LOCATE_T    = ?, " +
                         "    LOCATE      = ?, " +
                         "    REGION_T    = ?, " +
@@ -252,7 +246,8 @@ public class ReceiveManager {
                         "    OBJ_CODE   = ?, " +
                         "    OPCL = ?, " +
                         "    SCODE    = ? ";
-                pstmt = connection.prepareStatement(sqlInsert);
+                queryString = String.format(queryString, DRTU_SCHEMA_TEMP_NAME + ".dev_obj");
+                pstmt = connection.prepareStatement(queryString);
                 int i = 0;
                 for (DevObjModel pRowData : pdFile.getPContent()) {
                     pstmt.setLong(1, pRowData.getId());
@@ -297,19 +292,21 @@ public class ReceiveManager {
         return facilitySet;
     }
 
+    //todo - change drtu_2023_07_07
     private void upsertFacility(HashSet<DObjModel> facilitySet) {
         Session session = em.unwrap(Session.class);
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
             try {
-                String sqlInsert = "insert into drtu_2023_07_07.D_OBJ ( " +
+                String queryString = "insert into %s ( " +
                         " ID, KIND, CLS, NAME_OBJ, KOD_DOR, " +
                         " KOD_DIST, KOD_RTU, KOD_OBKT, KOD_OBJ " +
                         " ) " +
                         " values (?, ?, ?, ?, ?, " +
                         " ?, ?, ?, ?) " +
-                        "on conflict (ID) do  NOTHING ";
-                pstmt = connection.prepareStatement(sqlInsert);
+                        " on conflict (ID) do  NOTHING ";
+                queryString = String.format(queryString, DRTU_SCHEMA_TEMP_NAME + ".d_obj");
+                pstmt = connection.prepareStatement(queryString);
                 int i = 0;
                 for (DObjModel dObjModel : facilitySet) {
                     pstmt.setString(1, dObjModel.getId());
@@ -339,39 +336,79 @@ public class ReceiveManager {
         session.close();
     }
 
+    //todo - change drtu_2023_07_07
     private void upsertDevTrans(PDFileModel pdFile) {
         PDFileModel.MetaData metaData = pdFile.getMetaData();
-        em.createNativeQuery(
-                        " INSERT INTO drtu_2023_07_07.dev_trans (NAME, FTYPE, PS, STNUM, DATE_CREATE, NAME_T, STNUM_T, " +
-                                " RTU_T, DATE_T, TIME_T) VALUES ( " +
-                                " UPPER (:name), " +
-                                " UPPER (:ftype), " +
-                                " UPPER (:ps), " +
-                                " :stnum, " +
-                                " :date_create, " +
-                                " UPPER(:name_t), " +
-                                " :stnum_t, " +
-                                " :rtu_t, " +
-                                " :date_t, " +
-                                " :time_t ) ON CONFLICT (name) DO" +
-                                " UPDATE SET " +
-                                " NAME_T = UPPER (:name_t), " +
-                                " STNUM_T = :stnum_t, " +
-                                " RTU_T = :rtu_t, " +
-                                " DATE_T = :date_t, " +
-                                " TIME_T = :time_t "
-                ).unwrap(org.hibernate.query.NativeQuery.class)
-                .setParameter("name", metaData.getName())
-                .setParameter("ftype", metaData.getType())
-                .setParameter("ps", "R")
-                .setParameter("stnum", metaData.getRecordsQuantity())
-                .setParameter("date_create", metaData.getTimestamp().toLocalDateTime().toLocalDate())
-                .setParameter("date_t", new Date(System.currentTimeMillis()))
-                .setParameter("name_t", "t" + metaData.getName())
-                .setParameter("stnum_t", metaData.getRecordsQuantity() - metaData.getNotProcessedRecordsQuantity())
-                .setParameter("rtu_t", RTU_T)
-                .setParameter("time_t", new Timestamp(System.currentTimeMillis()))
-                .executeUpdate();
+        String queryString = "INSERT INTO %s (NAME, FTYPE, PS, STNUM, DATE_CREATE, NAME_T, STNUM_T, " +
+                " RTU_T, DATE_T, TIME_T) " +
+                " VALUES ( " +
+                " UPPER ('%s'), " +
+                " UPPER ('%s'), " +
+                " UPPER ('%s'), " +
+                " %s, " +
+                " '%s', " +
+                " UPPER('%s'), " +
+                " %s, " +
+                " '%s', " +
+                " '%s', " +
+                " '%s' ) ON CONFLICT (name) DO " +
+                " UPDATE SET " +
+                " NAME_T = UPPER ('%s'), " +
+                " STNUM_T = %s, " +
+                " RTU_T = '%s', " +
+                " DATE_T = '%s', " +
+                " TIME_T = '%s' ";
+        queryString = String.format(queryString,
+                DRTU_SCHEMA_TEMP_NAME + ".dev_trans",
+                metaData.getName(),
+                metaData.getType(),
+                "R",
+                metaData.getRecordsQuantity(),
+                metaData.getTimestamp().toLocalDateTime().toLocalDate(),
+                "t" + metaData.getName(),
+                metaData.getRecordsQuantity() - metaData.getNotProcessedRecordsQuantity(),
+                RTU_T,
+                new Date(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis()),
+                "t" + metaData.getName(),
+                metaData.getRecordsQuantity() - metaData.getNotProcessedRecordsQuantity(),
+                RTU_T,
+                new Date(System.currentTimeMillis()),
+                new Timestamp(System.currentTimeMillis())
+        );
+        em.createNativeQuery(queryString).executeUpdate();
+//        em.createNativeQuery(
+//                        " INSERT INTO temp_drtu.dev_trans (NAME, FTYPE, PS, STNUM, DATE_CREATE, NAME_T, STNUM_T, " +
+//                                " RTU_T, DATE_T, TIME_T) VALUES ( " +
+//                                " UPPER (:name), " +
+//                                " UPPER (:ftype), " +
+//                                " UPPER (:ps), " +
+//                                " :stnum, " +
+//                                " :date_create, " +
+//                                " UPPER(:name_t), " +
+//                                " :stnum_t, " +
+//                                " :rtu_t, " +
+//                                " :date_t, " +
+//                                " :time_t ) ON CONFLICT (name) DO" +
+//                                " UPDATE SET " +
+//                                " NAME_T = UPPER (:name_t), " +
+//                                " STNUM_T = :stnum_t, " +
+//                                " RTU_T = :rtu_t, " +
+//                                " DATE_T = :date_t, " +
+//                                " TIME_T = :time_t "
+//                ).unwrap(org.hibernate.query.NativeQuery.class)
+////                .setParameter("table", DRTU_SCHEMA_TEMP_NAME + ".dev_trans")
+//                .setParameter("name", metaData.getName())
+//                .setParameter("ftype", metaData.getType())
+//                .setParameter("ps", "R")
+//                .setParameter("stnum", metaData.getRecordsQuantity())
+//                .setParameter("date_create", metaData.getTimestamp().toLocalDateTime().toLocalDate())
+//                .setParameter("date_t", new Date(System.currentTimeMillis()))
+//                .setParameter("name_t", "t" + metaData.getName())
+//                .setParameter("stnum_t", metaData.getRecordsQuantity() - metaData.getNotProcessedRecordsQuantity())
+//                .setParameter("rtu_t", RTU_T)
+//                .setParameter("time_t", new Timestamp(System.currentTimeMillis()))
+//                .executeUpdate();
     }
 
 }

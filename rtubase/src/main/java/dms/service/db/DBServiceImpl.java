@@ -66,10 +66,15 @@ public class DBServiceImpl implements DBService {
         return upload_dir;
     }
 
-    @Override
-    public void receivePDFiles() throws Exception {
+    //    todo - refactoring this method, with exclude call sm.restoreEmpty()
+    private void receivePDFiles(List<File> sourceFiles) throws Exception {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-        List<File> sourceFiles = getFiles();
+
+        if (!sm.isSchemaExists(sm.DRTU_SCHEMA_NAME)) {
+            sm.removeSchema(sm.DRTU_SCHEMA_NAME);
+            sm.removeSchema(sm.DOCK_SCHEMA_NAME);
+            sm.restoreEmpty();
+        }
 
         for (File file : sourceFiles) {
             List<String> schemaNameList = sm.getSchemaNameList();
@@ -83,26 +88,21 @@ public class DBServiceImpl implements DBService {
             }
 
             String schemaNameSuffix = ("_" + fileDate).replace("-", "_");
+            //todo - need to refactor this section
             if (schemaNameList.contains(sm.DRTU_SCHEMA_NAME + schemaNameSuffix)) {
                 List<String> receivedFileNameList = sm.getReceivedFileNameList(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
                 if (!receivedFileNameList.contains(fileHeader.substring(0, 12).toUpperCase())) {
-                    sm.removeSchema(sm.DRTU_SCHEMA_NAME);
-                    sm.renameSchema(sm.DRTU_SCHEMA_NAME + schemaNameSuffix, sm.DRTU_SCHEMA_NAME);
-                    sm.createDevicesMainView();
-                    rm.receivePDFileAlt(fileContent);
-                    sm.renameSchema(sm.DRTU_SCHEMA_NAME, sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+                    sm.removeSchema(rm.DRTU_SCHEMA_TEMP_NAME);
+                    sm.renameSchema(sm.DRTU_SCHEMA_NAME + schemaNameSuffix, rm.DRTU_SCHEMA_TEMP_NAME);
+                    rm.receivePDFiles(fileContent);
+                    sm.renameSchema(rm.DRTU_SCHEMA_TEMP_NAME, sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
                 }
             } else {
-                sm.removeSchema(sm.DRTU_SCHEMA_NAME);
-                sm.removeSchema(sm.DOCK_SCHEMA_NAME);
-                sm.restoreEmpty();
-                sm.createDevicesMainView();
-                rm.receivePDFileAlt(fileContent);
-                sm.renameSchema(sm.DRTU_SCHEMA_NAME, sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+                sm.cloneSchema(sm.DRTU_SCHEMA_NAME, rm.DRTU_SCHEMA_TEMP_NAME);
+                rm.receivePDFiles(fileContent);
+                sm.renameSchema(rm.DRTU_SCHEMA_TEMP_NAME, sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
             }
-//            dbSessionManager.unbindSession();
             currentTenant.setCurrentTenant(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
-//            dbSessionManager.bindSession();
             statsService.saveCurrentSchemaOverdueDevsStats();
             file.delete();
         }
@@ -112,7 +112,8 @@ public class DBServiceImpl implements DBService {
     @Scheduled(initialDelay = 20000, fixedDelay = 30000)
     public void isPDDirEmpty() throws Exception {
         log.info("------------------check PD dir -----------------");
-        if (!getFiles().isEmpty()) receivePDFiles();
+        List<File> sourceFiles = getFiles();
+        if (!sourceFiles.isEmpty()) receivePDFiles(sourceFiles);
     }
 
     @Override

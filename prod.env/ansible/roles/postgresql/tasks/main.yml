@@ -58,8 +58,8 @@
 - name: "exec sql script: add view"
   shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"
 
-- name: "exec sql script: rename drtu schema"
-  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/rename_drtu_schema.sql"
+#- name: "exec sql script: rename drtu schema"
+#  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/rename_drtu_schema.sql"
 
 - name: "exec sql script: add stats_schema"
   shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_stats_schema.sql"

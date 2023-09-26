@@ -34,14 +34,12 @@ public class SchemaManager {
 
     public void renameSchema(String oldName, String newName) {
         String queryString = String.format("ALTER SCHEMA %s RENAME TO %s", oldName, newName);
-        em.createNativeQuery(queryString)
-                .executeUpdate();
+        em.createNativeQuery(queryString).executeUpdate();
     }
 
     public void removeSchema(String schemaName) {
         String queryString = String.format("DROP SCHEMA IF EXISTS %s CASCADE;", schemaName);
-        em.createNativeQuery(queryString)
-                .executeUpdate();
+        em.createNativeQuery(queryString).executeUpdate();
     }
 
     public void restoreEmpty() {
@@ -142,13 +140,14 @@ public class SchemaManager {
         }
         createSchema(targetSchemaName);
         copySequences(sourceSchemaName, targetSchemaName);
-        copyTables(sourceSchemaName, targetSchemaName, false);
+        copyTables(sourceSchemaName, targetSchemaName, true);
         copyConstraints(sourceSchemaName, targetSchemaName);
         copyViews(sourceSchemaName, targetSchemaName);
 //        copyFunctions(sourceSchemaName, targetSchemaName);
+        createDevicesMainView();
     }
 
-    private boolean isSchemaExists(String schemaName) {
+    public boolean isSchemaExists(String schemaName) {
         List<String> schemaNameList = em.createNativeQuery(
                         "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :schemaName"
                 ).setParameter("schemaName", schemaName)
