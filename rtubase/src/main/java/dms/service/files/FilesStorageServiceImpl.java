@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -31,7 +32,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     public void init() {
         try {
             root = getUploadDirPath();
-            if (!root.toFile().exists()) Files.createDirectory(root);
+            if (!root.toFile().exists()) {
+                Files.createDirectory(root);
+            }
         } catch (IOException e) {
             throw new RuntimeException("Could not initialize folder for upload!");
         }
@@ -88,6 +91,37 @@ public class FilesStorageServiceImpl implements FilesStorageService {
         } catch (IOException e) {
             throw new RuntimeException("Could not load the files!");
         }
+    }
+
+    @Override
+    public File getUploadDir() throws Exception {
+        String errorMessage = "dms: Directory for P,D Files (upload directory) not accessible";
+        File upload_dir = null;
+        List<String> pathParts = Arrays.stream(UPLOAD_DIR_PATH_PARTS.split(",")).toList();
+        for (String part : pathParts) {
+            if (upload_dir == null) {
+                upload_dir = new File(part);
+            } else {
+                upload_dir = new File(upload_dir, part);
+            }
+            if (!upload_dir.mkdir()) {
+                throw new Exception(errorMessage);
+            }
+        }
+
+        if (upload_dir == null ) {
+            throw new Exception(errorMessage);
+        }
+
+        if (!upload_dir.isDirectory() || !upload_dir.canRead()) {
+            log.info(errorMessage);
+            log.info("Try to create Dir: " + upload_dir.getAbsolutePath());
+            if (!upload_dir.mkdir()) {
+                throw new Exception(errorMessage);
+            }
+        }
+
+        return upload_dir;
     }
 
 }

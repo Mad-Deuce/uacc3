@@ -1,6 +1,6 @@
 package dms.controller;
 
-import dms.service.db.DBService;
+import dms.service.schema.SchemaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +15,13 @@ import java.util.List;
 public class DBController {
 
     @Autowired
-    DBService dbService;
+    SchemaService schemaService;
 
     @CrossOrigin(origins = "http://localhost:4200", methods = RequestMethod.GET)
     @GetMapping(value = "/check-pd-dir", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> isPDDirEmpty() throws Exception {
 
-//        boolean result = dbService.isPDDirEmpty();
+//        boolean result = schemaService.isPDDirEmpty();
 
         return ResponseEntity
                 .ok()
@@ -33,7 +33,7 @@ public class DBController {
 //    @GetMapping(value = "/receive-pd-files", produces = MediaType.APPLICATION_JSON_VALUE)
 //    public ResponseEntity<?> receivePDFiles() throws Exception {
 //
-//        dbService.receivePDFiles();
+//        schemaService.receivePDFiles();
 //
 //        return ResponseEntity
 //                .ok()
@@ -47,7 +47,7 @@ public class DBController {
     @GetMapping(value = "/schema/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getDatesOfExistingSchemas() {
 
-        List<LocalDate> result = dbService.getDatesOfExistingSchemas();
+        List<LocalDate> result = schemaService.getDatesOfExistingSchemas();
 
         return ResponseEntity
                 .ok()
@@ -59,7 +59,7 @@ public class DBController {
     @GetMapping(value = "/schema", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getActiveSchemaDate() {
 
-        LocalDate result = dbService.getDateOfActiveSchema();
+        LocalDate result = schemaService.getDateOfActiveSchema();
 
         return ResponseEntity
                 .ok()
@@ -71,7 +71,7 @@ public class DBController {
     @PostMapping(value = "/schema", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> setActiveSchemaDate(@RequestBody HashMap<String, LocalDate> options) {
 
-        LocalDate result = dbService.setActiveSchemaDate(options.get("schemaDate"));
+        LocalDate result = schemaService.setActiveSchemaDate(options.get("schemaDate"));
 
         return ResponseEntity
                 .ok()

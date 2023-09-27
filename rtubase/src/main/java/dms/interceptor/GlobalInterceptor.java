@@ -33,42 +33,42 @@ public class GlobalInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
-        String schemaName;
-        String SchemaDateCookieValue = "";
-        if (request.getCookies() != null) {
-            SchemaDateCookieValue = Arrays.stream(request.getCookies())
-                    .filter(cookie -> cookie.getName().equals("schema_date"))
-                    .map(Cookie::getValue)
-                    .findAny().orElse(null);
-        }
-        if (SchemaDateCookieValue != null && !SchemaDateCookieValue.equals("")) {
-//            schemaName = sm.getDrtuSchemaNameListByDate(LocalDate.parse(SchemaDateCookieValue));
-            schemaName = sm.DRTU_SCHEMA_NAME + SchemaDateCookieValue;
-
-            if (!sm.isSchemaExists(schemaName)) {
-                schemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
-            }
-//            if (schemaName == null) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
+//        String schemaName;
+//        String SchemaDateCookieValue = "";
+//        if (request.getCookies() != null) {
+//            SchemaDateCookieValue = Arrays.stream(request.getCookies())
+//                    .filter(cookie -> cookie.getName().equals("schema_date"))
+//                    .map(Cookie::getValue)
+//                    .findAny().orElse(null);
+//        }
+//        if (SchemaDateCookieValue != null && !SchemaDateCookieValue.equals("")) {
+////            schemaName = sm.getDrtuSchemaNameListByDate(LocalDate.parse(SchemaDateCookieValue));
+//            schemaName = sm.DRTU_SCHEMA_NAME + SchemaDateCookieValue;
+//
+//            if (!sm.isSchemaExists(schemaName)) {
 //                schemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
 //            }
-        } else {
-            schemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
-        }
-
-        tenantIdentifierResolver.setCurrentTenant(schemaName);
-
-        //        String currentSchemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
-        String strDate = schemaName.substring(sm.DRTU_SCHEMA_NAME.length());
-        LocalDate chDate = LocalDate.parse(strDate, formatter);
-
-        Cookie cookie = new Cookie("schema_date", chDate.toString());
-        cookie.setPath("/api/devices/view/");
-        cookie.setDomain("localhost");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(86400);
-        response.addCookie(cookie);
-        System.out.println("In preHandle method");
+////            if (schemaName == null) {
+////                schemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
+////            }
+//        } else {
+//            schemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
+//        }
+//
+//        tenantIdentifierResolver.setCurrentTenant(schemaName);
+//
+//        //        String currentSchemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
+//        String strDate = schemaName.substring(sm.DRTU_SCHEMA_NAME.length());
+//        LocalDate chDate = LocalDate.parse(strDate, formatter);
+//
+//        Cookie cookie = new Cookie("schema_date", chDate.toString());
+//        cookie.setPath("/api/devices/view/");
+//        cookie.setDomain("localhost");
+//        cookie.setHttpOnly(true);
+//        cookie.setMaxAge(86400);
+//        response.addCookie(cookie);
+//        System.out.println("In preHandle method");
         return true;
     }
 

@@ -34,7 +34,7 @@ public class ReceiveManager {
 
     //    todo - need to refactor with
     @Transactional
-    public void receivePDFiles(List<String> fileContent) {
+    public void saveFileContent(List<String> fileContent) {
         if (!isTemporaryDrtuSchemaExists()) throw new RuntimeException("Temporary Drtu Schema Not Exists");
         try {
             PDFileModel pdFile = new PDFileModel(fileContent);
@@ -70,7 +70,6 @@ public class ReceiveManager {
         return (result.size() > 0 && result.get(0).equals(version));
     }
 
-    //todo - change drtu_2023_07_07
     private void deleteRowsFromDevByObjCode(String objCode) throws Exception {
         String queryString;
         if (objCode.length() != 4) throw new Exception("dms: Parameter Length is wrong");
@@ -89,7 +88,6 @@ public class ReceiveManager {
 
     }
 
-    //todo - change drtu_2023_07_07
     private void deleteRowsFromDevObjByObjCode(String objCode) throws Exception {
         String queryString;
         if (objCode.length() != 4) throw new Exception("dms: Parameter Length is wrong");
@@ -107,7 +105,6 @@ public class ReceiveManager {
         em.createNativeQuery(queryString).executeUpdate();
     }
 
-    //todo - change drtu_2023_07_07
     private void isDeviceTypeExists(PDFileModel pdFile) {
         String queryString = "SELECT id FROM %s";
         queryString = String.format(queryString,
@@ -126,7 +123,6 @@ public class ReceiveManager {
         removingItems.forEach(item -> pdFile.getDContent().remove(item));
     }
 
-    //todo - change drtu_2023_07_07
     private void isLocationFree(PDFileModel pdFile) {
         String queryString = "SELECT id_obj FROM %s WHERE id_obj IS NOT NULL";
         queryString = String.format(queryString,
@@ -145,7 +141,6 @@ public class ReceiveManager {
         removingItems.forEach(item -> pdFile.getDContent().remove(item));
     }
 
-    //todo - change drtu_2023_07_07
     private void upsertDevice(PDFileModel pdFile) {
         Session session = em.unwrap(Session.class);
         session.doWork(connection -> {
@@ -353,8 +348,8 @@ public class ReceiveManager {
                 " %s, " +
                 " '%s', " +
                 " '%s', " +
-                " '%s' ) ON CONFLICT (name) DO " +
-                " UPDATE SET " +
+                " '%s' ) " +
+                " ON CONFLICT (name) DO UPDATE SET " +
                 " NAME_T = UPPER ('%s'), " +
                 " STNUM_T = %s, " +
                 " RTU_T = '%s', " +
@@ -379,46 +374,13 @@ public class ReceiveManager {
                 new Timestamp(System.currentTimeMillis())
         );
         em.createNativeQuery(queryString).executeUpdate();
-//        em.createNativeQuery(
-//                        " INSERT INTO temp_drtu.dev_trans (NAME, FTYPE, PS, STNUM, DATE_CREATE, NAME_T, STNUM_T, " +
-//                                " RTU_T, DATE_T, TIME_T) VALUES ( " +
-//                                " UPPER (:name), " +
-//                                " UPPER (:ftype), " +
-//                                " UPPER (:ps), " +
-//                                " :stnum, " +
-//                                " :date_create, " +
-//                                " UPPER(:name_t), " +
-//                                " :stnum_t, " +
-//                                " :rtu_t, " +
-//                                " :date_t, " +
-//                                " :time_t ) ON CONFLICT (name) DO" +
-//                                " UPDATE SET " +
-//                                " NAME_T = UPPER (:name_t), " +
-//                                " STNUM_T = :stnum_t, " +
-//                                " RTU_T = :rtu_t, " +
-//                                " DATE_T = :date_t, " +
-//                                " TIME_T = :time_t "
-//                ).unwrap(org.hibernate.query.NativeQuery.class)
-////                .setParameter("table", DRTU_SCHEMA_TEMP_NAME + ".dev_trans")
-//                .setParameter("name", metaData.getName())
-//                .setParameter("ftype", metaData.getType())
-//                .setParameter("ps", "R")
-//                .setParameter("stnum", metaData.getRecordsQuantity())
-//                .setParameter("date_create", metaData.getTimestamp().toLocalDateTime().toLocalDate())
-//                .setParameter("date_t", new Date(System.currentTimeMillis()))
-//                .setParameter("name_t", "t" + metaData.getName())
-//                .setParameter("stnum_t", metaData.getRecordsQuantity() - metaData.getNotProcessedRecordsQuantity())
-//                .setParameter("rtu_t", RTU_T)
-//                .setParameter("time_t", new Timestamp(System.currentTimeMillis()))
-//                .executeUpdate();
     }
 
 
     //        todo - must be moved in other class
     public List<String> getReceivedFileNameList(String schemaName) {
         String queryString = String.format("SELECT name FROM %s.dev_trans", schemaName);
-        return em.createNativeQuery(queryString)
-                .getResultList();
+        return em.createNativeQuery(queryString).getResultList();
     }
 
     //        todo - must be moved in other class

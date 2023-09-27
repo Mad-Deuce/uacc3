@@ -2,7 +2,7 @@
 
 - name: "Install"
   apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
-  loop: ['postgresql','postgresql-contrib']
+  loop: [ 'postgresql','postgresql-contrib' ]
 
 - name: "Copy postgresql.conf (ansible version)"
   template:
@@ -14,15 +14,15 @@
     src: "files/pg_hba.conf.j2"
     dest: "/etc/postgresql/{{ pg_version }}/main/pg_hba.conf"
 
-- name: "exec sql script"
-  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/postgres.sql"
+- name: "exec sql script: create database"
+  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/create_database.sql"
 
 - name: "Grant user postgres access to databases sales and logistics from ipv6 localhost ::1/128 using peer authentication"
   postgresql_pg_hba:
     dest: /etc/postgresql/14/main/pg_hba.conf
-    contype: local
-    users: postgres
-    source:
+    contype: host
+    users: all
+    source: 0.0.0.0/0
     databases: all
     method: trust
     create: false
@@ -31,7 +31,7 @@
   service: name=postgresql state=restarted
 
 - name: "restore db"
-  shell: sudo pg_restore -U postgres -w -d rtubase /vagrant/ansible/roles/postgresql/files/d20220131.backup
+  shell: sudo pg_restore -U postgres -w -d rtubase /vagrant/ansible/roles/postgresql/files/d20230324.backup
   ignore_errors: true
 
 - name: "Grant user postgres "
@@ -39,10 +39,32 @@
     dest: /etc/postgresql/14/main/pg_hba.conf
     contype: local
     users: postgres
-    source:
+    source: 192.168.1.111
+    databases: all
+    method: md5
+    create: false
+
+- name: "Grant user postgres "
+  postgresql_pg_hba:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    contype: local
+    users: all
+    source: 0.0.0.0/0
     databases: all
     method: md5
     create: false
 
 - name: "exec sql script: add view"
-  shell: sudo su postgres -c "psql -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"
+
+#- name: "exec sql script: rename drtu schema"
+#  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/rename_drtu_schema.sql"
+
+- name: "exec sql script: add stats_schema"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_stats_schema.sql"
+
+- name: "exec sql script: add auth tables"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_auth_tables.sql"
+
+- name: "exec sql script: add auth tables records"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_auth_tables_records.sql"

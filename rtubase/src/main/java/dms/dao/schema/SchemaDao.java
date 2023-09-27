@@ -5,7 +5,6 @@ import java.util.List;
 public interface SchemaDao {
 
     String DRTU_SCHEMA_NAME = "drtu";
-    String DOCK_SCHEMA_NAME = "dock";
 
     List<String> getSchemaNameListLikeString(String likeString);
 

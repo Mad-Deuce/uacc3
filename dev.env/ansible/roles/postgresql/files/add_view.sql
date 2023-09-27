@@ -1,4 +1,5 @@
-create or replace view drtu.v$devices_main
+
+create or replace view rtubase.drtu.v$devices_main
             (id, type_id, type_name, type_group_id, type_group_name, number, release_year, test_date, next_test_date,
              extra_next_test_date, replacement_period, status, detail, railway_id, railway_name, subdivision_id,
              subdivision_short_name, rtd_id, rtd_name, facility_id, facility_name, location_id, label, region,
@@ -43,5 +44,5 @@ FROM drtu.dev
          LEFT JOIN drtu.dev_obj ON dev.id_obj = dev_obj.id;
 ;
 
-alter table drtu.v$devices_main
+alter table rtubase.drtu.v$devices_main
     owner to postgres;

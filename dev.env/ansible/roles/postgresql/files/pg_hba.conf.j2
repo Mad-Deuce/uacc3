@@ -88,7 +88,8 @@
 #
 # Database administrative login by Unix domain socket
 local   all             postgres                                peer
-
+local   all             postgres                                trust
+local   all             all                                     trust
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 
 # "local" is for Unix domain socket connections only
@@ -101,5 +102,5 @@ host    all             all             ::1/128                 md5
 local   replication     all                                     peer
 host    replication     all             127.0.0.1/32            md5
 host    replication     all             ::1/128                 md5
-
-host	 all	 	    all	 	        10.0.2.2/32	 	        md5
+host    all             all             0.0.0.0/0               md5
+host	all	 	        all	 	        10.0.2.2/32	 	        md5

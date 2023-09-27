@@ -1,14 +1,9 @@
-package dms.service.db;
+package dms.service.schema;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface DBService {
-
-//    void receivePDFiles(List<File> sourceFiles) throws Exception;
-
-//    boolean isPDDirEmpty() throws Exception;
+public interface SchemaService {
 
     List<LocalDate> getDatesOfExistingSchemas();
 
