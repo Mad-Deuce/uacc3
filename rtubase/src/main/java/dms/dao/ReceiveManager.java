@@ -6,6 +6,8 @@ import dms.model.PDFileModel;
 import dms.standing.data.model.DObjModel;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -411,4 +413,20 @@ public class ReceiveManager {
 //                .executeUpdate();
     }
 
+
+    //        todo - must be moved in other class
+    public List<String> getReceivedFileNameList(String schemaName) {
+        String queryString = String.format("SELECT name FROM %s.dev_trans", schemaName);
+        return em.createNativeQuery(queryString)
+                .getResultList();
+    }
+
+    //        todo - must be moved in other class
+    public void createDevicesMainView() {
+        org.hibernate.Session session = em.unwrap(org.hibernate.Session.class);
+        session.doWork(connection ->
+                ScriptUtils.executeSqlScript(connection, new ClassPathResource("sql/CreateDeviceMainView.sql"))
+        );
+        session.close();
+    }
 }

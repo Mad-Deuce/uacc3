@@ -1,13 +1,14 @@
 package dms.service.stats;
 
 
+import dms.config.multitenant.DatabaseSessionManager;
 import dms.config.multitenant.TenantIdentifierResolver;
-import dms.dao.SchemaManager;
+import dms.dao.schema.SchemaDao;
+import dms.dao.schema.SchemaDaoImpl;
 import dms.dto.stats.OverdueDevicesStats;
 import dms.entity.OverdueDevsStatsEntity;
 import dms.repository.OverdueDevsStatsRepository;
 import dms.repository.StatsRepository;
-import dms.service.db.DatabaseSessionManager;
 import dms.standing.data.entity.RailwayEntity;
 import dms.standing.data.entity.SubdivisionEntity;
 import dms.standing.data.repository.RailwayRepository;
@@ -35,7 +36,7 @@ public class StatsServiceImpl implements StatsService {
     private final StatsRepository statsRepository;
     private final OverdueDevsStatsRepository overdueDevsStatsRepository;
     private final TenantIdentifierResolver tenantIdentifierResolver;
-    private final SchemaManager sm;
+    private final SchemaDao sm;
 
     @Autowired
     public StatsServiceImpl(
@@ -45,7 +46,7 @@ public class StatsServiceImpl implements StatsService {
             StatsRepository statsRepository,
             OverdueDevsStatsRepository overdueDevsStatsRepository,
             TenantIdentifierResolver tenantIdentifierResolver,
-            SchemaManager sm) {
+            SchemaDaoImpl sm) {
         this.dsm = dsm;
         this.railwayRepository = railwayRepository;
         this.subdivisionRepository = subdivisionRepository;
@@ -91,7 +92,8 @@ public class StatsServiceImpl implements StatsService {
         else nId = nodeId;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
         HashMap<LocalDate, OverdueDevicesStats> result = new HashMap<>();
-        List<String> schemaNameList = sm.getSchemaNameList();
+//        List<String> schemaNameList = sm.getDrtuSchemaNameList();
+        List<String> schemaNameList = sm.getSchemaNameListLikeString(sm.DRTU_SCHEMA_NAME + "_%");
         schemaNameList.sort(Comparator.naturalOrder());
         String currentSchema = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
 
@@ -157,7 +159,8 @@ public class StatsServiceImpl implements StatsService {
     public void saveAllSchemaOverdueDevsStats() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
 //        HashMap<LocalDate, OverdueDevicesStats> result = new HashMap<>();
-        List<String> schemaNameList = sm.getSchemaNameList();
+//        List<String> schemaNameList = sm.getDrtuSchemaNameList();
+        List<String> schemaNameList = sm.getSchemaNameListLikeString(sm.DRTU_SCHEMA_NAME + "_%");
         schemaNameList.sort(Comparator.naturalOrder());
 //        String currentSchema = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
 

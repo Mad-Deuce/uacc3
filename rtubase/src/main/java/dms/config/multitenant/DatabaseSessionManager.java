@@ -1,4 +1,4 @@
-package dms.service.db;
+package dms.config.multitenant;
 
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.EntityManagerHolder;

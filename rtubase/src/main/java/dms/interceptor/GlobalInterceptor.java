@@ -1,8 +1,9 @@
 package dms.interceptor;
 
+import dms.config.multitenant.DatabaseSessionManager;
 import dms.config.multitenant.TenantIdentifierResolver;
-import dms.dao.SchemaManager;
-import dms.service.db.DatabaseSessionManager;
+import dms.dao.schema.SchemaDao;
+import dms.dao.schema.SchemaDaoImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,11 +21,11 @@ public class GlobalInterceptor implements HandlerInterceptor {
 
     private final DatabaseSessionManager dsm;
     private final TenantIdentifierResolver tenantIdentifierResolver;
-    private final SchemaManager sm;
+    private final SchemaDao sm;
 
     public GlobalInterceptor(DatabaseSessionManager dsm,
                              TenantIdentifierResolver tenantIdentifierResolver,
-                             SchemaManager sm) {
+                             SchemaDaoImpl sm) {
         this.dsm = dsm;
         this.tenantIdentifierResolver = tenantIdentifierResolver;
         this.sm = sm;
@@ -42,10 +43,15 @@ public class GlobalInterceptor implements HandlerInterceptor {
                     .findAny().orElse(null);
         }
         if (SchemaDateCookieValue != null && !SchemaDateCookieValue.equals("")) {
-            schemaName = sm.getSchemaNameListByDate(LocalDate.parse(SchemaDateCookieValue));
-            if (schemaName == null) {
+//            schemaName = sm.getDrtuSchemaNameListByDate(LocalDate.parse(SchemaDateCookieValue));
+            schemaName = sm.DRTU_SCHEMA_NAME + SchemaDateCookieValue;
+
+            if (!sm.isSchemaExists(schemaName)) {
                 schemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
             }
+//            if (schemaName == null) {
+//                schemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
+//            }
         } else {
             schemaName = tenantIdentifierResolver.resolveCurrentTenantIdentifier();
         }

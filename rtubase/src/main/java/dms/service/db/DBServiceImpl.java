@@ -1,20 +1,22 @@
 package dms.service.db;
 
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import dms.config.multitenant.TenantIdentifierResolver;
 import dms.dao.ReceiveManager;
-import dms.dao.SchemaManager;
+import dms.dao.schema.SchemaDao;
 import dms.service.stats.StatsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 @Service
@@ -32,7 +35,7 @@ public class DBServiceImpl implements DBService {
     @Autowired
     private StatsService statsService;
     @Autowired
-    private SchemaManager sm;
+    private SchemaDao sm;
     @Autowired
     private ReceiveManager rm;
     @Autowired
@@ -71,13 +74,12 @@ public class DBServiceImpl implements DBService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
 
         if (!sm.isSchemaExists(sm.DRTU_SCHEMA_NAME)) {
-            sm.removeSchema(sm.DRTU_SCHEMA_NAME);
-            sm.removeSchema(sm.DOCK_SCHEMA_NAME);
-            sm.restoreEmpty();
+            throw new Exception("schema: " + sm.DRTU_SCHEMA_NAME + "is not exists");
         }
 
         for (File file : sourceFiles) {
-            List<String> schemaNameList = sm.getSchemaNameList();
+//            List<String> schemaNameList = sm.getDrtuSchemaNameList();
+            List<String> schemaNameList = sm.getSchemaNameListLikeString(sm.DRTU_SCHEMA_NAME + "_%");
 
             List<String> fileContent = extractGzip(file);
             String fileHeader = fileContent.get(0);
@@ -88,9 +90,8 @@ public class DBServiceImpl implements DBService {
             }
 
             String schemaNameSuffix = ("_" + fileDate).replace("-", "_");
-            //todo - need to refactor this section
             if (schemaNameList.contains(sm.DRTU_SCHEMA_NAME + schemaNameSuffix)) {
-                List<String> receivedFileNameList = sm.getReceivedFileNameList(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
+                List<String> receivedFileNameList = rm.getReceivedFileNameList(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
                 if (!receivedFileNameList.contains(fileHeader.substring(0, 12).toUpperCase())) {
                     sm.removeSchema(rm.DRTU_SCHEMA_TEMP_NAME);
                     sm.renameSchema(sm.DRTU_SCHEMA_NAME + schemaNameSuffix, rm.DRTU_SCHEMA_TEMP_NAME);
@@ -120,7 +121,8 @@ public class DBServiceImpl implements DBService {
     public List<LocalDate> getDatesOfExistingSchemas() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
         List<LocalDate> result = new ArrayList<>();
-        List<String> schemaNameList = sm.getSchemaNameList();
+//        List<String> schemaNameList = sm.getDrtuSchemaNameList();
+        List<String> schemaNameList = sm.getSchemaNameListLikeString(sm.DRTU_SCHEMA_NAME + "_%");
         schemaNameList.forEach(item -> {
             LocalDate date = LocalDate.parse(item.substring(sm.DRTU_SCHEMA_NAME.length()), formatter);
             result.add(date);
@@ -138,7 +140,8 @@ public class DBServiceImpl implements DBService {
     @Override
     public LocalDate setActiveSchemaDate(LocalDate schemaDate) {
         String schemaNameSuffix = ("_" + schemaDate).replace("-", "_");
-        if (sm.getSchemaNameList().contains(sm.DRTU_SCHEMA_NAME + schemaNameSuffix))
+        List<String> schemaNameList = sm.getSchemaNameListLikeString(sm.DRTU_SCHEMA_NAME + "_%");
+        if (schemaNameList.contains(sm.DRTU_SCHEMA_NAME + schemaNameSuffix))
             currentTenant.setCurrentTenant(sm.DRTU_SCHEMA_NAME + schemaNameSuffix);
         return getDateOfActiveSchema();
     }
@@ -174,5 +177,66 @@ public class DBServiceImpl implements DBService {
         int offset = (((dayOfWeekNum + 4) % 7) - 2) * -1;
         return inputDate.plusDays(offset);
     }
+
+    //        todo - must be moved in other class
+    public void restoreEmpty() {
+        String command = "pg_restore -U postgres -w -d rtubase " +
+                "/vagrant/ansible/roles/postgresql/files/d20230324.backup";
+
+        Session session = null;
+        ChannelExec channel = null;
+
+        try {
+            session = new JSch().getSession("postgres", "localhost", 2222);
+            session.setPassword("postgres");
+            session.setConfig("StrictHostKeyChecking", "no");
+            session.connect();
+
+            channel = (ChannelExec) session.openChannel("exec");
+            channel.setCommand(command);
+            ByteArrayOutputStream responseStream = new ByteArrayOutputStream();
+            channel.setInputStream(null);
+            channel.setErrStream(System.err);
+
+            channel.setOutputStream(responseStream);
+
+            InputStream in = channel.getInputStream();
+            channel.connect();
+
+            byte[] tmp = new byte[1024];
+            while (true) {
+                while (in.available() > 0) {
+                    int i = in.read(tmp, 0, 1024);
+                    if (i < 0) {
+                        break;
+                    }
+                    log.info(new String(tmp, 0, i));
+                }
+                if (channel.isClosed()) {
+                    log.info("exit-status: " + channel.getExitStatus());
+                    break;
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (Exception ignore) {
+                }
+            }
+
+            while (channel.isConnected()) {
+                Thread.sleep(100);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (session != null) {
+                session.disconnect();
+            }
+            if (channel != null) {
+                channel.disconnect();
+            }
+        }
+    }
+
 
 }
