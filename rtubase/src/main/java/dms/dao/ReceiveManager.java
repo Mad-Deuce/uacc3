@@ -295,13 +295,13 @@ public class ReceiveManager {
         session.doWork(connection -> {
             PreparedStatement pstmt = null;
             try {
-                String queryString = "insert into %s ( " +
+                String queryString = "INSERT INTO %s ( " +
                         " ID, KIND, CLS, NAME_OBJ, KOD_DOR, " +
                         " KOD_DIST, KOD_RTU, KOD_OBKT, KOD_OBJ " +
                         " ) " +
-                        " values (?, ?, ?, ?, ?, " +
+                        " VALUES (?, ?, ?, ?, ?, " +
                         " ?, ?, ?, ?) " +
-                        " on conflict (ID) do  NOTHING ";
+                        " ON CONFLICT (ID) DO  NOTHING ";
                 queryString = String.format(queryString, DRTU_SCHEMA_TEMP_NAME + ".d_obj");
                 pstmt = connection.prepareStatement(queryString);
                 int i = 0;

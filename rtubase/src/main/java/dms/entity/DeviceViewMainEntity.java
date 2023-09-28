@@ -58,9 +58,9 @@ public class DeviceViewMainEntity {
 
 
     @Formula(value = "case " +
-            "when t_zam * 0.1 > 3 " +
-            "then (d_nkip + date_trunc('second', (3 || 'month')::interval))::date " +
-            "else (d_nkip + date_trunc('second', ((t_zam * 0.1)::numeric(5) || 'month')::interval))::date " +
+            "when replacement_period * 0.1 > 3 " +
+            "then (next_test_date + date_trunc('second', (3 || 'month')::interval))::date " +
+            "else (next_test_date + date_trunc('second', ((replacement_period * 0.1)::numeric(5) || 'month')::interval))::date " +
             "end")
     private Date extraNextTestDate;
 

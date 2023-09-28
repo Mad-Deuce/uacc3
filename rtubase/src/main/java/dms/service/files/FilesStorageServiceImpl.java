@@ -20,9 +20,6 @@ import java.util.stream.Stream;
 @Slf4j
 public class FilesStorageServiceImpl implements FilesStorageService {
 
-//    @Value("${dms.upload.path}")
-//    private String UPLOAD_DIR_PATH_PARTS;
-
     private final Path uploadsPath = Paths.get("uploads");
 
     private Path getUploadPath() {
