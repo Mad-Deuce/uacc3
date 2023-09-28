@@ -1,7 +1,6 @@
 package dms.service.files;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -14,8 +13,6 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -23,41 +20,28 @@ import java.util.stream.Stream;
 @Slf4j
 public class FilesStorageServiceImpl implements FilesStorageService {
 
-    @Value("${dms.upload.path}")
-    private String UPLOAD_DIR_PATH_PARTS;
+//    @Value("${dms.upload.path}")
+//    private String UPLOAD_DIR_PATH_PARTS;
 
-    private Path root;
+    private final Path uploadsPath = Paths.get("uploads");
 
-    @Override
-    public void init() {
+    private Path getUploadPath() {
         try {
-            root = getUploadDirPath();
-            if (!root.toFile().exists()) {
-                Files.createDirectory(root);
+            if (!this.uploadsPath.toFile().exists()) {
+                Files.createDirectory(uploadsPath);
             }
         } catch (IOException e) {
             throw new RuntimeException("Could not initialize folder for upload!");
         }
-    }
 
-    private Path getUploadDirPath() {
-        Path upload_dir_path = null;
-        List<String> pathParts = Arrays.stream(UPLOAD_DIR_PATH_PARTS.split(",")).toList();
-        for (String part : pathParts) {
-            if (upload_dir_path == null) {
-                upload_dir_path = Paths.get(part);
-            } else {
-                upload_dir_path = Paths.get(upload_dir_path.toAbsolutePath().toString(), part);
-            }
-        }
-
-        return upload_dir_path;
+        return uploadsPath;
     }
 
     @Override
     public void save(MultipartFile file) {
+        Path path = getUploadPath();
         try {
-            Files.copy(file.getInputStream(), this.root.resolve(Objects.requireNonNull(file.getOriginalFilename())));
+            Files.copy(file.getInputStream(), path.resolve(Objects.requireNonNull(file.getOriginalFilename())));
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
@@ -66,8 +50,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     @Override
     public Resource load(String filename) {
         try {
-            Path file = root.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
+            Path path = getUploadPath().resolve(filename);
+            Resource resource = new UrlResource(path.toUri());
 
             if (resource.exists() || resource.isReadable()) {
                 return resource;
@@ -81,47 +65,24 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
     @Override
     public void deleteAll() {
-        FileSystemUtils.deleteRecursively(root.toFile());
+        Path path = getUploadPath();
+        FileSystemUtils.deleteRecursively(path.toFile());
     }
 
     @Override
     public Stream<Path> loadAll() {
+        Path path = getUploadPath();
         try {
-            return Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
+            return Files.walk(path, 1).filter(pathItem -> !pathItem.equals(path)).map(path::relativize);
         } catch (IOException e) {
             throw new RuntimeException("Could not load the files!");
         }
     }
 
     @Override
-    public File getUploadDir() throws Exception {
-        String errorMessage = "dms: Directory for P,D Files (upload directory) not accessible";
-        File upload_dir = null;
-        List<String> pathParts = Arrays.stream(UPLOAD_DIR_PATH_PARTS.split(",")).toList();
-        for (String part : pathParts) {
-            if (upload_dir == null) {
-                upload_dir = new File(part);
-            } else {
-                upload_dir = new File(upload_dir, part);
-            }
-            if (!upload_dir.mkdir()) {
-                throw new Exception(errorMessage);
-            }
-        }
-
-        if (upload_dir == null ) {
-            throw new Exception(errorMessage);
-        }
-
-        if (!upload_dir.isDirectory() || !upload_dir.canRead()) {
-            log.info(errorMessage);
-            log.info("Try to create Dir: " + upload_dir.getAbsolutePath());
-            if (!upload_dir.mkdir()) {
-                throw new Exception(errorMessage);
-            }
-        }
-
-        return upload_dir;
+    public File getUploadDir()  {
+        Path path = getUploadPath();
+        return path.toFile();
     }
 
 }

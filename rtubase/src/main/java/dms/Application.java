@@ -10,18 +10,10 @@ import javax.annotation.Resource;
 
 @SpringBootApplication
 @EnableScheduling
-public class Application implements CommandLineRunner {
-
-    @Resource
-    FilesStorageService storageService;
+public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-    }
-
-    @Override
-    public void run(String... arg)  {
-        storageService.init();
     }
 
 }

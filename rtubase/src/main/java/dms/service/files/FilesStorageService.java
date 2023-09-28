@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public interface FilesStorageService {
-    void init();
 
     void save(MultipartFile file);
 
@@ -18,5 +17,5 @@ public interface FilesStorageService {
 
     Stream<Path> loadAll();
 
-    File getUploadDir() throws Exception;
+    File getUploadDir();
 }
