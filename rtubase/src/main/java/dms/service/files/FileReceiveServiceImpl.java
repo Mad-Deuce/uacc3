@@ -47,7 +47,7 @@ public class FileReceiveServiceImpl implements FileReceiveService {
         if (!sourceFiles.isEmpty()) receivePDFiles(sourceFiles);
     }
 
-    private List<File> getFiles() throws Exception {
+    private List<File> getFiles()  {
         FileFilter filter = f -> (f.isFile()
                 && f.getName().length() == 12
                 && f.getName().matches("[pd]\\d{4}\\w\\d{2}\\.\\d{3}"));
@@ -78,14 +78,20 @@ public class FileReceiveServiceImpl implements FileReceiveService {
                 List<String> receivedFileNameList = rm.getReceivedFileNameList(schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
                 if (!receivedFileNameList.contains(fileHeader.substring(0, 12).toUpperCase())) {
                     schemaDao.removeSchema(rm.DRTU_SCHEMA_TEMP_NAME);
+//                    schemaDao.cloneSchema(schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix, rm.DRTU_SCHEMA_TEMP_NAME);
                     schemaDao.renameSchema(schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix, rm.DRTU_SCHEMA_TEMP_NAME);
                     rm.saveFileContent(fileContent);
+//                    schemaDao.removeSchema(schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
+//                    schemaDao.cloneSchema(rm.DRTU_SCHEMA_TEMP_NAME, schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
+//                    schemaDao.removeSchema(rm.DRTU_SCHEMA_TEMP_NAME);
                     schemaDao.renameSchema(rm.DRTU_SCHEMA_TEMP_NAME, schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
                 }
             } else {
                 schemaDao.cloneSchema(schemaDao.DRTU_SCHEMA_NAME, rm.DRTU_SCHEMA_TEMP_NAME);
                 rm.saveFileContent(fileContent);
-                schemaDao.renameSchema(rm.DRTU_SCHEMA_TEMP_NAME, schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
+                schemaDao.cloneSchema(rm.DRTU_SCHEMA_TEMP_NAME, schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
+                schemaDao.removeSchema(rm.DRTU_SCHEMA_TEMP_NAME);
+//                schemaDao.renameSchema(rm.DRTU_SCHEMA_TEMP_NAME, schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
             }
             currentTenant.setCurrentTenant(schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
             statsService.saveCurrentSchemaOverdueDevsStats();

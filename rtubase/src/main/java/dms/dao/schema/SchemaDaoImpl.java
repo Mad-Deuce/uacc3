@@ -171,7 +171,7 @@ public class SchemaDaoImpl implements SchemaDao {
         viewList.forEach(tuple1 -> {
             String vName = targetSchemaName + "." + tuple1.get(0);
             String vDef = tuple1.get(1).toString();
-//            vDef = vDef.replaceAll(sourceSchemaName, sourceSchemaName);
+            vDef = vDef.replaceAll(sourceSchemaName, targetSchemaName);
             vDef = vDef.replaceAll(":", "\\\\:");
             String queryString = String.format("CREATE OR REPLACE VIEW %s AS %s",
                     vName, vDef);

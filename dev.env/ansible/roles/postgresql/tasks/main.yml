@@ -31,7 +31,7 @@
   service: name=postgresql state=restarted
 
 - name: "restore db"
-  shell: sudo pg_restore -U postgres -w -d rtubase /vagrant/ansible/roles/postgresql/files/d20230324.backup
+  shell: sudo pg_restore -U postgres -w -d rtubase /vagrant/ansible/roles/postgresql/files/empty.backup
   ignore_errors: true
 
 - name: "Grant user postgres "
@@ -54,8 +54,8 @@
     method: md5
     create: false
 
-- name: "exec sql script: add view"
-  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"
+#- name: "exec sql script: add view"
+#  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"
 
 #- name: "exec sql script: rename drtu schema"
 #  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/rename_drtu_schema.sql"
@@ -68,3 +68,9 @@
 
 - name: "exec sql script: add auth tables records"
   shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_auth_tables_records.sql"
+
+- name: "exec sql script: drop native views"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/drop_native_views.sql"
+
+- name: "exec sql script: add view"
+  shell: sudo su postgres -c "psql -d rtubase -a -f /vagrant/ansible/roles/postgresql/files/add_view.sql"

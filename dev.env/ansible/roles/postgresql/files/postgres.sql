@@ -6,5 +6,5 @@ CREATE DATABASE rtubase WITH OWNER=postgres
                               ENCODING='UTF8'
                               TEMPLATE=template0;
 
-RESTORE DATABASE rtubase
-FROM disk='/vagrant/ansible/roles/postgresql/files/d20200602.backup';
+-- RESTORE DATABASE rtubase
+-- FROM disk='/vagrant/ansible/roles/postgresql/files/d20200602.backup';
