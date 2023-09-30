@@ -56,7 +56,7 @@ public class TestController {
     @GetMapping(value = "/clone-schema", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> cloneSchema() {
 
-        sm.cloneSchema("dock","dock_clone");
+        sm.cloneSchema("drtu","drtu_clone");
 
         return ResponseEntity
                 .ok()

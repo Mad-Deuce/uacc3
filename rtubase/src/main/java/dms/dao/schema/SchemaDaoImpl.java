@@ -1,7 +1,10 @@
 package dms.dao.schema;
 
 
+import dms.config.multitenant.DatabaseSessionManager;
+import dms.config.multitenant.TenantIdentifierResolver;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,10 @@ public class SchemaDaoImpl implements SchemaDao {
 
     @PersistenceContext
     private EntityManager em;
+    @Autowired
+    private TenantIdentifierResolver tenantIdentifierResolver;
+    @Autowired
+    private DatabaseSessionManager dsm;
 
     @Override
     public List<String> getSchemaNameListLikeString(String likeString) {
@@ -58,6 +65,9 @@ public class SchemaDaoImpl implements SchemaDao {
 
     @Override
     public void cloneSchema(String sourceSchemaName, String targetSchemaName) {
+        dsm.unbindSession();
+        tenantIdentifierResolver.setCurrentTenant("public");
+        dsm.bindSession();
         String message = String.format("source schema %s does not exist!", sourceSchemaName);
         if (!isSchemaExists(sourceSchemaName)) throw new RuntimeException(message);
         message = String.format("target schema %s already exists and will be removed!", targetSchemaName);
@@ -162,10 +172,10 @@ public class SchemaDaoImpl implements SchemaDao {
     }
 
     private void copyViews(String sourceSchemaName, String targetSchemaName) {
-        String queryString1 = String.format(" SELECT CAST(TABLE_NAME AS text), view_definition " +
-                        " FROM information_schema.views " +
-                        " WHERE table_schema = '%s' ",
-                sourceSchemaName);
+        String queryString1 = " SELECT TABLE_NAME, view_definition " +
+                " FROM information_schema.views " +
+                " WHERE table_schema = '%s' ";
+        queryString1 = String.format(queryString1, sourceSchemaName);
         List<Tuple> viewList = em.createNativeQuery(queryString1, Tuple.class)
                 .getResultList();
         viewList.forEach(tuple1 -> {
@@ -175,8 +185,7 @@ public class SchemaDaoImpl implements SchemaDao {
             vDef = vDef.replaceAll(":", "\\\\:");
             String queryString = String.format("CREATE OR REPLACE VIEW %s AS %s",
                     vName, vDef);
-            em.createNativeQuery(queryString)
-                    .executeUpdate();
+            em.createNativeQuery(queryString).executeUpdate();
 
         });
     }
@@ -203,8 +212,11 @@ public class SchemaDaoImpl implements SchemaDao {
                     )
                     .setParameter("func_oid", oid)
                     .getSingleResult().toString();
+            log.info("1------------ " + func);
             func = func.replaceAll(sourceSchemaName, targetSchemaName);
+            log.info("2------------ " + func);
             func = func.replaceAll(":", "\\\\:");
+            log.info("3------------ " + func);
             em.createNativeQuery(func)
                     .executeUpdate();
 
