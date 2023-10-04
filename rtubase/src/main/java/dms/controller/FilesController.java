@@ -30,6 +30,7 @@ public class FilesController {
     }
 
     @PostMapping("/upload")
+    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<ResponseMessageDto> uploadFiles(@RequestParam("files") MultipartFile[] files) {
         String message = "";
         try {

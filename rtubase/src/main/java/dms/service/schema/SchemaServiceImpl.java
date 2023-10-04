@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class SchemaServiceImpl implements SchemaService {
     private SchemaDao schemaDao;
 
     @Autowired
-    private TenantIdentifierResolver currentTenant;
+    private TenantIdentifierResolver tenantIdentifierResolver;
 
     @Override
     public List<LocalDate> getDatesOfExistingSchemas() {
@@ -41,9 +42,17 @@ public class SchemaServiceImpl implements SchemaService {
 
     @Override
     public LocalDate getDateOfActiveSchema() {
+        LocalDate result;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("_yyyy_MM_dd");
-        return LocalDate
-                .parse(currentTenant.resolveCurrentTenantIdentifier().substring(schemaDao.DRTU_SCHEMA_NAME.length()), formatter);
+        String dateString = tenantIdentifierResolver.resolveCurrentTenantIdentifier()
+                .substring(schemaDao.DRTU_SCHEMA_NAME.length());
+        try {
+            result = LocalDate.parse(dateString, formatter);
+        } catch (Exception e) {
+            log.warn("May be Schema with date suffix is not exists!!! Will return default date - 01/01/1900!!!");
+            result = LocalDate.of(1900,1,1);
+        }
+        return result;
     }
 
     @Override
@@ -51,7 +60,7 @@ public class SchemaServiceImpl implements SchemaService {
         String schemaNameSuffix = ("_" + schemaDate).replace("-", "_");
         List<String> schemaNameList = schemaDao.getSchemaNameListLikeString(schemaDao.DRTU_SCHEMA_NAME + "_%");
         if (schemaNameList.contains(schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix))
-            currentTenant.setCurrentTenant(schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
+            tenantIdentifierResolver.setCurrentTenant(schemaDao.DRTU_SCHEMA_NAME + schemaNameSuffix);
         return getDateOfActiveSchema();
     }
 
